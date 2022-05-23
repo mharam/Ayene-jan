@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable  name="pivX"  type="float" />
+        <variable  name="pivY"  type="float" />
+        <variable  name="title"  type="String" />
+        <variable
+            name="item"
+            type="com.takaapoo.adab_parsi.database.Content" />
+    </data>
+
+    <FrameLayout
+        android:id="@+id/book_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:transitionName="@{title}"
+        android:transformPivotX="@{pivX}"
+        android:transformPivotY="@{pivY}"
+        android:layoutDirection="rtl">
+
+        <ImageView
+            android:id="@+id/back_book"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:srcCompat="@drawable/book_open1"
+            android:scaleType="fitXY"
+            android:transformPivotX="@{pivX}"
+            android:transformPivotY="@{pivY}"/>
+
+        <ImageView
+            android:id="@+id/back_book_paper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:srcCompat="@drawable/book_open2"
+            android:scaleType="fitXY"
+            android:tintMode="multiply"
+            app:tint="@color/paper_border"
+            android:transformPivotX="@{pivX}"
+            android:transformPivotY="@{pivY}"/>
+
+        <FrameLayout
+            android:id="@+id/book_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="4dp"
+            android:transformPivotX="@{pivX}"
+            android:transformPivotY="@{pivY}"
+            android:scaleX="0.955"
+            android:scaleY="0.906">
+
+            <ImageView
+                android:id="@+id/book_cover_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                tools:srcCompat="@drawable/bookcover2" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/book_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="36dp"
+                android:layout_marginEnd="24dp"
+                tools:text="گلستان"
+                android:text="@{title}"
+                android:elevation="10dp"
+                android:textColor="@color/book_title_day"
+                android:gravity="center"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="36sp"
+                app:autoSizeMaxTextSize="70sp"
+                app:autoSizeStepGranularity="2sp"
+                android:lineSpacingMultiplier="0.8"
+                android:maxLines="2"
+                app:fontFamily="@font/iran_nastaliq"/>
+        </FrameLayout>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/book_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false"
+            android:background="?attr/colorSurface"
+            android:transformPivotX="@{pivX}"
+            android:transformPivotY="@{pivY}"
+            android:scaleX="@integer/open_book_init_scale_x"
+            android:scaleY="@integer/open_book_init_scale_y">
+
+            <com.takaapoo.adab_parsi.util.custom_views.PoemBorderView
+                android:id="@+id/alaki"
+                android:layout_width="match_parent"
+                android:layout_height="1400dp"
+                android:fitsSystemWindows="false"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/book_content_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:fitsSystemWindows="false"
+                android:scrollbars="none"
+                android:theme="@style/DefaultRecyclerViewStyle"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/content_item" />
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:liftOnScroll="true"
+                app:liftOnScrollTargetViewId="@id/book_content_list">
+
+                <com.google.android.material.appbar.CollapsingToolbarLayout
+                    android:id="@+id/collapseToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    app:titleEnabled="false"
+                    android:fitsSystemWindows="false"
+                    app:layout_scrollFlags="enterAlways|scroll|exitUntilCollapsed|snap">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/toolbar_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        style="@style/TextAppearance.MyTheme.Headline6"
+                        android:gravity="center_vertical"
+                        android:layout_gravity="top"
+                        android:lines="1"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textColor="?attr/colorOnSurface"
+
+                        android:layout_marginEnd="64dp"
+                        android:scrollbars="none"
+                        tools:text="حسن"/>
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/toolbar_subtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/actionBarSize"
+                        style="@style/TextAppearance.MyTheme.Headline6"
+                        android:gravity="top"
+                        android:layout_gravity="top"
+                        android:lines="1"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textColor="?attr/colorOnSurface"
+
+                        android:layout_marginEnd="16dp"
+                        android:text="@{title}"
+                        android:scrollbars="none"
+                        tools:text="حسن"/>
+
+<!--                    <androidx.appcompat.widget.AppCompatImageView-->
+<!--                        android:id="@+id/topImage_right"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="?attr/actionBarSize"-->
+<!--                        android:scaleType="fitEnd"-->
+<!--                        android:layout_gravity="bottom"-->
+<!--                        app:srcCompat="@drawable/corner4"-->
+<!--                        android:visibility="invisible"-->
+<!--                        android:scaleX="-1"-->
+<!--                        android:tint="?attr/colorPrimary"-->
+<!--                        tools:src="@drawable/corner4"/>-->
+
+                    <com.takaapoo.adab_parsi.util.custom_views.TitleView
+                        android:id="@+id/fehrest_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/book_content_height"
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_gravity="bottom"
+                        android:text="@string/content"/>
+
+                    <androidx.appcompat.widget.Toolbar
+                        android:id="@+id/book_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        app:menu="@menu/book_frag_menu"
+                        android:background="@android:color/transparent"
+                        app:title="."
+                        app:titleTextColor="@android:color/transparent"
+                        app:contentInsetRight="0dp"
+                        app:contentInsetStart="0dp"
+                        app:contentInsetStartWithNavigation="0dp"
+                        android:fitsSystemWindows="true" />
+
+
+                </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <View
+                android:id="@+id/darkener"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000000"
+                android:elevation="8dp"
+                android:alpha="0.25"/>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </FrameLayout>
+
+</layout>

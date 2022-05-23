@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
+        android:elevation="10dp">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/book_view_pager"
+            android:theme="@style/DefaultRecyclerViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"/>
+
+        <com.takaapoo.adab_parsi.util.custom_views.HelpFlasher
+            android:id="@+id/flasher"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            custom:textUp="@string/next_book"
+            custom:textDown="@string/previous_book"/>
+
+        <com.takaapoo.adab_parsi.util.custom_views.HelpCircleFocus
+            android:id="@+id/help_focus_circ"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="10dp"/>
+
+        <include
+            android:id="@+id/help_dialog"
+            android:visibility="invisible"
+            layout="@layout/fragment_help_dialog" />
+
+    </FrameLayout>
+
+
+</layout>
+
+

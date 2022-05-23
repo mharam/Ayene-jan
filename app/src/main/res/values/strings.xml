@@ -1,0 +1,302 @@
+<resources>
+    <string name="app_name">آینه جان</string>
+    <string name="search_hint">جستجو</string>
+    <string name="share_hint">اشتراک گذاری</string>
+    <string name="delete_hint">حذف</string>
+    <string name="favorite_hint">مورد علاقه</string>
+    <string name="note_hint">یادداشت گذاری</string>
+    <string name="bookmark_add_hint">نشان گذاری</string>
+    <string name="bookmark_remove_hint">حذف نشان</string>
+    <string name="hilight_hint">هایلایت</string>
+    <string name="hilight1_hint">هایلایت صورتی</string>
+    <string name="hilight2_hint">هایلایت سبز</string>
+    <string name="hilight3_hint">هایلایت فیروزه‌ای</string>
+    <string name="delete_hilight_hint">حذف هایلایت</string>
+    <string name="copy_hint">کپی</string>
+    <string name="copied">کپی شد</string>
+    <string name="dictionary_hint">لغت‌نامه</string>
+    <string name="select_all_hint">انتخاب همه</string>
+    <string name="share_via">اشتراک گذاری به وسیله</string>
+    <string name="export_hint">صادر</string>
+    <string name="file_type_hint">نوع فایل</string>
+    <string name="view_result">مشاهده نتیجه</string>
+    <string name="introduce_app_subj">برنامه اندرویدی آینه جان</string>
+    <string name="try_again">تلاش مجدد</string>
+    <string name="save">ذخیره</string>
+    <string name="navigation_up">بازگشت</string>
+    <string name="introduce_app_text">
+        سلام\n
+        مایلم برنامه زیبا و کاربردی آینه جان را به شما معرفی کنم.
+        این برنامه که شامل گنجینه ارزشمند شعر و ادب پارسی تهیه شده توسط سایت گنجور است
+        روی گوشی های اندرویدی نصب و اجرا می شود. این برنامه کاملا رایگان است و دارای
+        قابلیت های متنوع زیادی است که بخشی از این قابلیت ها به این شرح است:
+ \n\n ● <b> رابط کاربری زیبا و کاربر پسند: </b>
+        در این برنامه سعی شده است تا حد امکان از انیمیشن و حرکت (موجود در کتابخانه متریال اندروید) جهت درک بهتر جابجایی بین صفحات مختلف برنامه استفاده شود.
+        \n\n ● <b> جستجوی هوشمند و هدفمند: </b>
+        نتایج جستجو در این برنامه به صورت هوشمند و بر اساس مرتبط ترین بیت و یا بند مرتب می‌شود. علاوه بر این در این برنامه امکان محدود کردن جستجو به آثار یک شاعر و یا یک کتاب خاص وجود دارد. ضمن آنکه امکان جستجو در متن یک شعر نیز پیش‌بینی شده است.
+        \n\n ● <b> تنظیمات متعدد: </b>
+        در این برنامه می‌توان شکل و اندازه فونت متن کتاب، رنگ کاغذ کتاب و شدت نور کاغذ کتاب را تنظیم کرد. همچنین می‌توان برنامه را در مود شب و یا روز قرار داد.
+        \n\n ● <b> ایجاد لیست علاقه‌مندی‌ها و نشان‌گذاری‌ها: </b>
+        کاربر می‌تواند هر صفحه از یک کتاب را برای مراجعه بعدی نشانه گذاری کند. همچنین می‌تواند ابیات و بندهای مورد نظر خود را به سادگی به لیست علاقه‌مندی‌ها اضافه کند.
+        \n\n ● <b> هایلایت کردن: </b>
+        سه رنگ هایلایت در برنامه پیش‌بینی شده است تا کاربر بتواند هر قسمتی از یک مصرع و یا بند را هایلایت کند
+        \n\n ● <b> دریافت خروجی: </b>
+        این برنامه امکان دریافت فایل خروجی به صورت pdf، jpg و txt را به کاربر می‌دهد. سه حاشیه زیبا برای خروجی‌های pdf و jpg قابل انتخاب است. همچنین کاربر می‌تواند عرض فایل jpg را تنظیم کند.
+        \n\n ● <b> اشتراک گذاری: </b>
+        امکان اشتراک گذاری شعر به صورت فایل و متن در این برنامه وجود دارد.
+        \n\n ● <b> یادداشت گذاری: </b>
+        در این برنامه کاربر می‌تواند زیر هر یک از ابیات و یا بندها به صورت جداگانه یادداشت بگذارد.
+        \n\n ● <b> کپی متن: </b>
+        امکان کپی یک یا چند بیت و بند در این برنامه وجود دارد.
+        \n\n ● <b> مشاهده معنی لغات در لغتنامه: </b>
+        کاربر می‌تواند با انتخاب یک لغت از داخل متن، معنی آنرا در فرهنگ معین و لغتنامه دهخدا که به صورت آنلاین در اختیار کاربر قرار داده شده است، مشاهده کند.
+
+    </string>
+
+    <string name="fall_hafez">فال حافظ</string>
+    <string name="cancel">لغو</string>
+    <string name="appendSpace"> %1$s</string>
+    <string name="prependSpace">%1$s </string>
+    <string name="beit2">%1$s\n%2$s</string>
+    <string name="tabbedText">%1$s</string>
+
+    <string name="poet_selected">%1$d شاعر</string>
+    <string name="delete_poet_title">حذف %1$s شاعر!</string>
+    <string name="delete_poet_snack">در حال حذف %1$s شاعر؛ لطفاً تا تکمیل فرآیند صبر کنید.</string>
+    <plurals name="delete_poet_message">
+        <item quantity="one">همه کتاب‌های این شاعر و اطلاعات داخل آنها از دستگاه پاک می‌شود.</item>
+        <item quantity="other">همه کتاب‌های این شاعران و اطلاعات داخل آنها از دستگاه پاک می‌شود.</item>
+    </plurals>
+    <string name="delete_poet_pos_button">حذف</string>
+    <string name="delete_poet_neg_button">لغو</string>
+    <string name="content">فهرست مطالب</string>
+
+    <string name="produced">تولید شده توسط برنامه آینه جان</string>
+    <string name="no_such_app_installed">برنامه‌ای برای نمایش داده مورد نظر یافت نشد</string>
+
+    <string name="share_poem_message">نوع فایل خروجی را انتخاب کنید</string>
+    <string name="share_poem_pos_button">اشتراک گذاری</string>
+    <string name="share_poem_neg_button">لغو</string>
+    <string-array  name="poem_output_types">
+        <item>پی‌دی‌اف</item>
+        <item>تصویر</item>
+        <item>متن</item>
+    </string-array>
+
+    <string name="email_subject">%1$s از %2$s</string>
+
+    <string name="export_poem_message">نوع خروجی را انتخاب کنید</string>
+    <string name="export_poem_pos_button">ذخیره</string>
+
+    <string name="result_count">%1$s نتیجه</string>
+    <string name="more_than_result_count">بیش از %1$s نتیجه</string>
+    <string name="no_result">نتیجه‌ای یافت نشد</string>
+    <string name="search_count">%1$s / %2$s</string>
+
+    <string name="numbered_title">%1$s. %2$s</string>
+    <string name="truncated_text">%1$s …</string>
+    <string name="app_name_and_version">
+        نسخه آینه جان: %1$s
+        \nنسخه اندروید: %2$s
+        \nمدل دستگاه: %3$s
+        \n
+    </string>
+    <string name="device_android_version">نسخه اندروید: %1$s</string>
+    <string name="device_model">مدل دستگاه: %1$s</string>
+
+    <string name="rate">امتیازدهی به برنامه</string>
+    <string name="introduce">معرفی به دوستان</string>
+    <string name="rate_app_not_found">کافه بازار روی دستگاه شما نصب نیست!</string>
+
+    <string name="biography">سرگذشت</string>
+    <string name="more_info">اطلاعات بیشتر</string>
+
+    <string name="beit_selected">%1$d بند</string>
+    <string name="note">یادداشت</string>
+
+    <string name="connection_failed">خطا در اتصال به شبکه</string>
+    <string name="loading">در حال بارگذاری %1$s</string>
+    <string name="download_failed">بارگذاری ناموفق</string>
+    <string name="install_failed">نصب ناموفق</string>
+    <string name="installing">در حال نصب %1$s</string>
+
+
+<!--    drawer menu-->
+    <string name="home">خانه</string>
+    <string name="book_marks">نشان شده‌ها (%1$s)</string>
+    <string name="favorites">علاقه‌ مندی‌ها (%1$s)</string>
+    <string name="setting">تنظیمات</string>
+    <string name="connect">ارتباط با ما</string>
+    <string name="support">حمایت از برنامه</string>
+    <string name="about_app">درباره برنامه</string>
+    <string name="help">راهنما</string>
+
+    <string name="book_marks_title">نشان شده‌ها</string>
+    <string name="favorite_title">علاقه‌ مندی‌ها</string>
+
+
+<!--    settings-->
+    <string name="general">عمومی</string>
+    <string name="book">کتاب</string>
+    <string name="output_file">فایل خروجی</string>
+
+    <string name="theme">زمینه</string>
+    <string name="theme_summary">پس زمینه تاریک برای استفاده در شب</string>
+    <string-array name="theme_entries">
+        <item>روشن</item>
+        <item>تاریک</item>
+        <item>پیش فرض سیستم</item>
+    </string-array>
+    <string-array name="theme_entries_old">
+        <item>روشن</item>
+        <item>تاریک</item>
+        <item>تنظیم توسط نگهدار باتری</item>
+    </string-array>
+    <string-array name="theme_entry_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="theme_default_value">2</string>
+
+    <string name="mute">صامت</string>
+    <string name="mute_summary">بی‌صدا کردن برنامه</string>
+    <string name="display_on">نمایشگر روشن</string>
+    <string name="display_on_summary">مانع خاموش شدن نمایشگر می‌شود</string>
+    <string name="delete_search_history">پاک کردن حافظه جستجوی برنامه</string>
+    <string name="delete_search_history_summary">تمامی عبارت‌های جستجو شده از این دستگاه حذف می‌شود</string>
+    <string name="delete_search_history_title">پاک کردن حافظه جستجو؟</string>
+    <string name="delete_search_history_mess">موجب پاک شدن تمام عبارت‌های جستجو شده تاکنون می‌شود.</string>
+    <string name="delete_search_pos_button">پاک کن</string>
+
+    <string name="font">قلم</string>
+    <string-array name="font_entries">
+        <item>&#160;نستعلیق</item>
+        <item>زر</item>
+        <item>دعوت</item>
+    </string-array>
+    <string-array name="font_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string name="font_default_value">1</string>
+
+    <string name="font_size">اندازه قلم</string>
+    <string name="sample_text">
+        آورده‌اند که در کوهی بلند در ختی بود بزرگ، شاخهای آهخته ازو جسته، و برگ بسیار گرد او درآمده. و دران قریب هزار خانه زاغ بود. و آن زاغان را ملکی بود که همه در فرمان و متابعت او بودند ی، و اوامر و نواهی او را در ل و عقد امتثال نمودند ی. شبی ملک بومان بسبب دشمنایگی که میان بوم و زاغست بیرون آمد و بطریق شبیخون برزاغان زود و کام تمام براند، و مظفر و منصور و موید و مسرور بازگشت.
+\n
+دیگر روز ملک زاغان لشکر را جمله کرد و گفت: دیدید شبیخون بوم ودلیری ایشان؟ و امروز میان شما چند کشته و مجروح و پرکنده و بال گسسته است، و از این دشوارتر جرات ایشان است و وقوف برجایگاه و مسکن، و شک نکنم که زود بازآیند وبار دوم دست برد بار اول بنمایند. و هم از آن شربت نخست بچشانند. در این کار تامل کنید و وجه مصلحت باز بینید.
+\n
+و درمیان زاغان پنج زاغ بود بفضیلت رای و مزیت عقل مذکور و بیمن ناصیت و اصابت تدبیر مشهور، و زاغان در کارها اعتماد براشارت و مشاورت ایشان کردندی. در حوادث بجانب ایشان مراجعت نموددنی،و ملک رای ایشان را مبارک داشتی و در ابواب مصالح از سخن ایشان نگذشتی. یکی را از ایشان پرسید که: رای تو دراین حادثه چه بیند؟ گفت: این رایی است که پیش از ما علما بوده‌اند و فرموده که «چون کسی از مقاومت دشمن عاجز آمد بترک اهل و مال و منشاء و مولد بباید گفت و روی بتافت، که جنگ کردن خطر بزرگست، خاصه پس ازهزیمت، و هرکه بی تامل قدم دران نهاد برگذر سیل خواب گه کرده باشد. و در تیزآب خشت زده، چه برقوت خود تکیه کردن وبزور و شجاعت خویش فریفته شدن از حزم دور افتد، که شمشیر دو روی دارد، واین سپهر کوژپشت شوخ چشم روزکور است، مردان را نیکو نشناسد و قدر ایشان نداند، و گردش او اعتماد را نشاید.
+
+    </string>
+    <string-array name="font_size_entries">
+        <item>کوچک</item>
+        <item>متوسط</item>
+        <item>بزرگ</item>
+        <item>درشت</item>
+    </string-array>
+
+    <string name="paper">کاغذ</string>
+    <string-array name="paper_entries">
+        <item>سفید</item>
+        <item>کاهی</item>
+        <item>کلاسیک</item>
+    </string-array>
+
+    <string name="hilight_color">رنگ هایلایت </string>
+    <string name="pink">صورتی</string>
+    <string name="green">سبز</string>
+    <string name="cyan">فیروزه‌ای</string>
+    <string-array name="hilight_entries">
+        <item>@string/pink</item>
+        <item>@string/green</item>
+        <item>@string/cyan</item>
+    </string-array>
+    
+    <string name="border">حاشیه</string>
+    <string-array name="border_entries">
+        <item>قالی</item>
+        <item>زمرد</item>
+        <item>تاج</item>
+    </string-array>
+
+    <string name="picture_width">عرض تصویر</string>
+    <string name="pic_width_summary">%1$s پیکسل</string>
+
+    <string name="percent">%1$s %%</string>
+    <string name="number_dot">%1$s.</string>
+
+    <string name="about_app_description">
+        آینۀ جان برنامه‌ای در زمینه شعر و ادب پارسی است که توسط محمدحسن آرام برای سیستم عامل اندروید توسعه داده شده است. کلیه متون و کتاب‌های داخل این برنامه از پایگاه داده سایت گنجور استخراج شده است. در اینجا لازم است از دست‌اندرکاران سایت گنجور به خاطر قرار دادن این پایگاه داده به صورت منبع‌باز در اختیار عموم تشکر و قدردانی کنم. همچنین از آقای مرتضی خوانساری به خاطر طراحی و خطاطی بنر برنامه کمال سپاسگذاری را دارم.
+        \n
+        در این مجموعه، اشعار اکثر شعرای کهن پارسی زبان و تعداد زیادی از شعرای معاصر گنجانده شده است که کاربر می‌تواند بر اساس نیاز خود آثار هر یک از شعرا را به صورت رایگان دریافت کند. تاکنون برنامه‌های مشابهی در فروشگاه‌های اندرویدی ارائه شده است اما این برنامه ویژگی‌هایی دارد که کاربران آنرا به سایر برنامه‌های مشابه ترجیح خواهند داد. از جمله این ویژگی‌ها می‌توان به موارد زیر اشاره کرد:
+
+        \n\n● <b> رابط کاربری زیبا و کاربر پسند: </b>
+        در این برنامه سعی شده است تا حد امکان از انیمیشن و حرکت (موجود در کتابخانه متریال اندروید) جهت درک بهتر جابجایی بین صفحات مختلف برنامه استفاده شود.
+        \n\n● <b> جستجوی هوشمند و هدفمند: </b>
+        نتایج جستجو در این برنامه به صورت هوشمند و بر اساس مرتبط ترین بیت و یا بند مرتب می‌شود. علاوه بر این در این برنامه امکان محدود کردن جستجو به آثار یک شاعر و یا یک کتاب خاص وجود دارد. ضمن آنکه امکان جستجو در متن یک شعر نیز پیش‌بینی شده است.
+        \n\n● <b> تنظیمات متعدد: </b>
+        در این برنامه می‌توان شکل و اندازه فونت متن کتاب، رنگ کاغذ کتاب و شدت نور کاغذ کتاب را تنظیم کرد. همچنین می‌توان برنامه را در مود شب و یا روز قرار داد.
+        \n\n● <b> ایجاد لیست علاقه‌مندی‌ها و نشان‌گذاری‌ها: </b>
+        کاربر می‌تواند هر صفحه از یک کتاب را برای مراجعه بعدی نشانه گذاری کند. همچنین می‌تواند ابیات و بندهای مورد نظر خود را به سادگی به لیست علاقه‌مندی‌ها اضافه کند.
+        \n\n● <b> هایلایت کردن: </b>
+        سه رنگ هایلایت در برنامه پیش‌بینی شده است تا کاربر بتواند هر قسمتی از یک مصرع و یا بند را هایلایت کند
+        \n\n● <b> دریافت خروجی: </b>
+        این برنامه امکان دریافت فایل خروجی به صورت pdf، jpg و txt را به کاربر می‌دهد. سه حاشیه زیبا برای خروجی‌های pdf و jpg قابل انتخاب است. همچنین کاربر می‌تواند عرض فایل jpg را تنظیم کند.
+        \n\n● <b> اشتراک گذاری: </b>
+        امکان اشتراک گذاری شعر به صورت فایل و متن در این برنامه وجود دارد.
+        \n\n● <b> یادداشت گذاری: </b>
+        در این برنامه کاربر می‌تواند زیر هر یک از ابیات و یا بندها به صورت جداگانه یادداشت بگذارد.
+        \n\n● <b> کپی متن: </b>
+        امکان کپی یک یا چند بیت و بند در این برنامه وجود دارد.
+        \n\n● <b> مشاهده معنی لغات در لغتنامه: </b>
+        کاربر می‌تواند با انتخاب یک لغت از داخل متن، معنی آنرا در فرهنگ معین و لغتنامه دهخدا که به صورت آنلاین در اختیار کاربر قرار داده شده است، مشاهده کند.
+
+        \n\n
+        علاوه بر اینها این برنامه کاملاً رایگان و فاقد هرگونه تبلیغاتی است.
+        ان شاء الله در به‌روزرسانی‌های آتی امکانات و ویژگی‌های بیشتری به برنامه اضافه خواهد شد.
+    </string>
+
+
+    <string name="next">بعد</string>
+    <string name="dismiss">بی‌خیال</string>
+    <string name="got_it">گرفتم</string>
+    <string name="help_fab">برای افزودن آثار شعرا و نویسندگان مورد علاقه خود از این دکمه استفاده کنید.</string>
+    <string name="help_search">برای جستجو در همه آثار بارگذاری شده از این نوار استفاده کنید. در صورت جستجوی عبارتی شامل چند کلمه، ابیات و بندهایی که شامل تمام آن کلمات باشند در نتایج جستجو آورده می‌شوند. چنانچه می‌خواهید صرفاً عین عبارت جستجو شده در نتایج آورده شود، آنرا داخل کوتیشن (\"\") و یا گیومه («») قرار دهید.</string>
+    <string name="help_delete">برای حذف یک شاعر، انگشت خود را روی آن نگهدارید و از نوار ابزار ظاهر شده در بالا گزینه حذف را انتخاب کنید.</string>
+    <string name="help_poet_next_prev">با حرکت انگشت خود به راست یا چپ می‌توانید به کتابخانه شاعر بعدی یا قبلی بروید.</string>
+    <string name="help_search_poet">برای جستجو در آثار این شاعر از این گزینه استفاده کنید.</string>
+    <string name="help_book_next_prev">با حرکت انگشت خود به راست یا چپ می‌توانید کتاب بعدی یا قبلی را باز کنید.</string>
+    <string name="help_search_book">برای جستجو در این کتاب از این گزینه استفاده کنید.</string>
+    <string name="help_poem_next_prev">با حرکت انگشت خود به راست یا چپ می‌توانید به صفحه بعد یا قبل بروید.</string>
+    <string name="help_poem_down_drag">برای دسترسی به نوار ابزار، صفحه را به سمت پایین بکشید.</string>
+    <string name="help_poem_verse">برای انتخاب بخشی از متن، انگشت خود را روی آن نگه دارید. برای انتخاب کل یک بیت یا بند دو بار روی آن ضربه بزنید تا نوار ابزار متنی در بالا ظاهر شود.</string>
+
+    <string name="next_poet">شاعر بعدی</string>
+    <string name="previous_poet">شاعر قبلی</string>
+    <string name="next_book">کتاب بعدی</string>
+    <string name="previous_book">کتاب قبلی</string>
+    <string name="next_page">صفحه بعدی</string>
+    <string name="previous_page">صفحه قبلی</string>
+
+
+    <string name="rate_now">بله</string>
+    <string name="rate_later">خیر</string>
+    <string name="rate_title">نظر شما درباره آینه جان</string>
+    <string name="rate_message">آینه جان را لایق دریافت پنج ستاره می‌دانید؟</string>
+
+
+    <string name="content_desc_ancient_poet_list">لیست شاعران کهن</string>
+    <string name="content_desc_recent_poet_list">لیست شاعران معاصر</string>
+
+    <string name="long_running_search_title">جستجوی طولانی</string>
+    <string name="long_search_message">جستجوی عبارت مورد نظر ممکن است زمانبر باشد و نتایج متعددی داشته باشد. آیا مایل به انجام آن هستید؟</string>
+    <string name="long_search_pos_button">ادامه بده</string>
+    <string name="long_search_neg_button">اصلاح عبارت جستجو</string>
+    <string name="search_in_all_poet_books">جستجو در آثار شعرای بارگذاری شده</string>
+
+
+    <string name="leak_canary_test_class_name">assertk.Assert</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--Top level DayNight theme to be used in AndroidManifest.xml-->
+    <style name="Theme.MyApp" parent="Base.Theme.MyApp">
+        <!--Material color attributes (dark theme) -->
+        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimaryVariant">@color/purple_600</item>
+        <item name="colorSecondary">@color/green_200</item>
+        <item name="colorSecondaryVariant">@color/green_500</item>
+        <item name="android:colorBackground">@color/black_900</item>
+        <item name="colorSurface">@color/black_800</item>
+        <item name="colorError">@color/red_200</item>
+        <item name="colorOnPrimary">@color/black_900</item>
+        <item name="colorOnSecondary">@color/black_900</item>
+        <item name="colorOnBackground">@color/white_50</item>
+        <item name="colorOnSurface">@color/white_50</item>
+        <item name="colorOnError">@color/black_900</item>
+        <item name="colorSearchBack">@color/yellow_500</item>
+        <item name="colorSearchSelectBack">@color/orange_500</item>
+        <item name="colorBeitSelect">@color/cyan_500</item>
+        <item name="colorHelpScream">@color/white_overlay_dark</item>
+        <item name="colorBullet">@color/gray_500</item>
+        <item name="colorRecyclerViewShadow">@color/gray_100</item>
+
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
+    </style>
+
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">false</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">false</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">?attr/colorControlHighlight</item>
+
+        <item name="windowSplashScreenBackground">@color/black_900</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/app_icon_2</item>
+        <item name="android:windowSplashScreenBrandingImage" tools:targetApi="s">@drawable/branding</item>
+        <item name="postSplashScreenTheme">@style/Theme.MyApp</item>
+    </style>
+
+</resources>

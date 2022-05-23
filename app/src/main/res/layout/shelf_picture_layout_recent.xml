@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="item"
+            type="com.takaapoo.adab_parsi.database.Category" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/image_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/poet_ghab_height"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:id="@+id/image_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/image_frame4"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true" />
+
+        <ImageView
+            android:id="@+id/topImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="@id/image_frame"
+            app:layout_constraintBottom_toBottomOf="@id/image_frame"
+            app:layout_constraintStart_toStartOf="@id/image_frame"
+            app:layout_constraintEnd_toEndOf="@id/image_frame"
+            tools:src="@tools:sample/backgrounds/scenic"
+            android:scaleType="fitXY"
+            app:viewImage="@{item.poetID}"
+            app:ancient="@{item.ancient}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

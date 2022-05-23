@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/loaded_poet_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:paddingTop="@dimen/poet_item_margins"
+        android:theme="@style/DefaultRecyclerViewStyle"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/poet_item_recent"
+        android:clipToPadding="false"/>
+
+
+</layout>

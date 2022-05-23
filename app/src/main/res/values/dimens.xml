@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <dimen name="zero">0dp</dimen>
+    <dimen name="poet_item_margins">24dp</dimen>
+
+    <dimen name="poem_item_start_margin">8dp</dimen>
+    <dimen name="poem_item_end_margin">8dp</dimen>
+    <dimen name="verse_separation">64dp</dimen>
+    <dimen name="poem_item_guid_width">24dp</dimen>
+    <dimen name="verse_padding">16dp</dimen>
+    <dimen name="book_content_height">176dp</dimen>
+
+    <dimen name="content_item_start_padding">40dp</dimen>
+    <dimen name="content_item_end_margin">56dp</dimen>
+    <dimen name="not_nastaliq_vertical_padding">8dp</dimen>
+    <dimen name="not_nastaliq_line_spacing">12dp</dimen>
+
+    <dimen name="paragraph_padding_vertical">8dp</dimen>
+
+    <item name="verse_vertical_separation_factor" format="float" type="dimen">0.9</item>
+
+    <dimen name="search_result_item_margin">16dp</dimen>
+    <dimen name="search_result_top_margin">8dp</dimen>
+
+    <integer name="font_small">16</integer>
+    <integer name="font_default">18</integer>
+    <integer name="font_large">20</integer>
+    <integer name="font_huge">22</integer>
+
+    <dimen name="comment_height">100dp</dimen>
+
+    <dimen name="font_chip_size">56dp</dimen>
+
+    <dimen name="word_meaning_max_height">150dp</dimen>
+
+    <item name="open_book_init_scale_x" format="float" type="integer">0.874</item>
+    <item name="open_book_init_scale_y" format="float" type="integer">0.851</item>
+
+    <dimen name="help_scream_dim">2000dp</dimen>
+
+    <dimen name="book_content_margin">12dp</dimen>
+
+    <dimen name="poet_ghab_height">260dp</dimen>
+    <dimen name="book_height_on_shelf">190dp</dimen>
+    <dimen name="book_min_width">125dp</dimen>
+    <dimen name="book_title_min_size">14sp</dimen>
+    <dimen name="book_title_max_size">22sp</dimen>
+    <dimen name="book_title_size_step">1sp</dimen>
+    <dimen name="book_title_margin_start">10sp</dimen>
+    <dimen name="book_title_margin_end">4sp</dimen>
+
+
+
+
+</resources>

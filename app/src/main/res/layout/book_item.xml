@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/book_item_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="240dp"
+            android:layoutDirection="rtl">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="150dp"
+                android:layout_height="@dimen/book_height_on_shelf"
+                android:layout_marginBottom="43dp"
+                app:srcCompat="@drawable/book_cover_3"
+                android:scaleType="fitXY"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.0425" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.9575" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/book_title"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/book_title_margin_start"
+                android:layout_marginEnd="@dimen/book_title_margin_end"
+                tools:text="گلستان"
+                android:elevation="20dp"
+                android:textColor="@color/book_title_day"
+                android:gravity="center"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="@dimen/book_title_min_size"
+                app:autoSizeMaxTextSize="@dimen/book_title_max_size"
+                app:autoSizeStepGranularity="@dimen/book_title_size_step"
+                android:lineSpacingMultiplier="0.8"
+                android:maxLines="2"
+                app:fontFamily="@font/iran_nastaliq"
+                app:layout_constraintBottom_toBottomOf="@id/imageView"
+                app:layout_constraintTop_toTopOf="@id/imageView"
+                app:layout_constraintEnd_toEndOf="@id/guidelineLeft"
+                app:layout_constraintStart_toStartOf="@id/guidelineRight" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+</layout>

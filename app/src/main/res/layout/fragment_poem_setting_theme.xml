@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/brightness_low"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/slider"
+        app:layout_constraintBottom_toBottomOf="@id/slider"
+        app:srcCompat="@drawable/ic_baseline_brightness_low_24"/>
+    <ImageView
+        android:id="@+id/brightness_high"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/slider"
+        app:layout_constraintBottom_toBottomOf="@id/slider"
+        app:srcCompat="@drawable/ic_baseline_brightness_high_24"/>
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/brightness_low"
+        app:layout_constraintEnd_toStartOf="@id/brightness_high"
+        app:layout_constraintTop_toTopOf="parent"
+        android:valueFrom="0"
+        android:valueTo="100" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/paper_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        app:layout_constraintTop_toBottomOf="@id/slider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+        <Button
+            android:id="@+id/paper_button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            app:icon="@drawable/ic_paper_icon"
+            app:iconTintMode="multiply"
+            app:iconTint="@color/paper_1" />
+        <Button
+            android:id="@+id/paper_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            app:icon="@drawable/ic_paper_icon"
+            app:iconTintMode="multiply"
+            app:iconTint="@color/paper_2"/>
+        <Button
+            android:id="@+id/paper_button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            app:icon="@drawable/ic_paper_icon"
+            app:iconTintMode="multiply"
+            app:iconTint="@color/paper_3"/>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/theme_menu"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/paper_button"
+        android:layout_marginTop="16dp"
+        android:hint="@string/theme">
+
+        <AutoCompleteTextView
+            android:id="@+id/text_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

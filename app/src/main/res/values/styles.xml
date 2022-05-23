@@ -1,0 +1,237 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+<!--    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">-->
+<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+<!--        <item name="colorAccent">@color/colorAccent</item>-->
+<!--        <item name="android:textColorPrimary">@color/textColorPrimary</item>-->
+<!--        <item name="android:textColorSecondary">@color/textColorSecondary</item>-->
+<!--    </style>-->
+
+
+    <!--Components-->
+
+<!--    TabLayout-->
+    <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="android:fontFamily">@font/iransans_medium</item>
+    </style>
+
+
+    <!--Bottom Sheets-->
+    <style name="ThemeOverlay.MyTheme.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Design.BottomSheetDialog</item>
+<!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
+        <item name="bottomSheetStyle">@style/Widget.MyTheme.BottomSheet.Modal</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:backgroundDimAmount">0.2</item>
+        <item name="enableEdgeToEdge">true</item>
+    </style>
+    <style name="Widget.MyTheme.BottomSheet.Modal" parent="Widget.Design.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">?attr/shapeAppearanceLargeComponent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="behavior_peekHeight">240dp</item>
+    </style>
+<!--    <style name="Animation.MaterialComponents.BottomSheetDialog" parent="Animation.AppCompat.Dialog">-->
+<!--        <item name="android:windowEnterAnimation">@anim/mtrl_bottom_sheet_slide_in</item>-->
+<!--        <item name="android:windowExitAnimation">@anim/mtrl_bottom_sheet_slide_out</item>-->
+<!--    </style>-->
+
+
+    <!--Navigation Drawer-->
+    <style name="Widget.MyTheme.NavigationView" parent="Widget.MaterialComponents.NavigationView">
+        <item name="itemTextAppearance">?attr/textAppearanceBody2</item>
+    </style>
+
+    <!--Toolbar-->
+    <style name="Widget.MyTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+
+    </style>
+
+    <style name="SearchView" parent="Base.Widget.AppCompat.SearchView.ActionBar">
+        <item name="layout">@layout/search_layout</item>
+        <item name="queryHint">"جستجو..."</item>
+        <item name="android:textDirection">rtl</item>
+        <item name="iconifiedByDefault">false</item>
+        <item name="queryBackground">@android:color/transparent</item>
+        <item name="suggestionRowLayout">@layout/search_suggestion_item</item>
+        <item name="android:popupBackground">@null</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColorHint">@android:color/tab_indicator_text</item>
+        <item name="searchIcon">@null</item>
+
+<!--        <item name="colorControlNormal">@color/material_light_active_icon</item>-->
+<!--        <item name="colorControlHighlight">@color/material_ripple_light</item>-->
+        <item name="autoCompleteTextViewStyle">@style/AutoCompleteTextViewStyle</item>
+        <item name="commitIcon">@drawable/ic_baseline_arrow_upward_24</item>
+<!--        <item name="android:maxWidth">9999dp</item>-->
+    </style>
+    <style name="AutoCompleteTextViewStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+        <item name="android:popupBackground">#ff0000</item>
+        <item name="android:popupElevation">0dp</item>
+    </style>
+
+<!--    Cotextual Toolbar-->
+    <style name="Widget.App.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="subtitleTextStyle">?attr/textAppearanceSubtitle1</item>
+        <item name="background">?attr/colorBeitSelect</item>
+        <item name="titleTextStyle">@style/ActionModeTitleTextStyle</item>
+    </style>
+    <style name="ActionModeTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">@color/black_900</item>
+        <item name="fontFamily">@font/b_titr</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="actionmode_closebutton" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
+        <item name="android:tint">@color/black_900</item>
+    </style>
+
+<!--    AlertDialog-->
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+        <item name="dialogCornerRadius">4dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text</item>
+    </style>
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+    </style>
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">4dp</item>
+    </style>
+    <style name="MaterialAlertDialog.App.Body.Text" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+<!--        <item name="android:textColor">?attr/colorOnSurface</item>-->
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/iransans_light</item>
+    </style>
+    <style name="MaterialAlertDialog.App.Title.Text" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/iransans_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+<!--    Bookmark toggle-->
+    <style name="Widget.Button.Toggle" parent="android:Widget.Material.Button.Toggle">
+        <item name="android:disabledAlpha">?android:attr/disabledAlpha</item>
+    </style>
+
+    <style name="toggleButton"  parent="Base.Theme.MyApp">
+        <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
+        <item name="android:textOn"></item>
+        <item name="android:textOff"></item>
+    </style>
+
+<!--    Setting preference-->
+    <style name="Base.Theme.MyApp.PreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay">
+        <item name="android:layout">@layout/fragment_setting</item>
+    </style>
+
+
+<!--    Setting Sliders-->
+    <style name="Widget.App.Slider" parent="Widget.MaterialComponents.Slider">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Slider</item>
+        <item name="labelStyle">@style/Widget.App.Tooltip</item>
+        <item name="thumbRadius">8dp</item>
+        <item name="trackColorInactive">@color/gray_200</item>
+        <item name="trackHeight">4dp</item>
+        <item name="tickColor">@color/black_900</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Slider" parent="">
+        <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="colorOnPrimary">?attr/colorOnSecondary</item>
+        <item name="colorOnSurface">?attr/colorOnSurface</item>
+
+    </style>
+
+    <style name="Widget.App.Tooltip" parent="Widget.MaterialComponents.Tooltip">
+        <item name="android:textAppearance">@style/TextAppearance.App.Tooltip</item>
+        <item name="backgroundTint">@android:color/darker_gray</item>
+    </style>
+
+    <style name="TextAppearance.App.Tooltip" parent="TextAppearance.MaterialComponents.Tooltip">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="fontFamily">@font/iransans_light</item>
+        <item name="android:fontFamily">@font/iransans_light</item>
+    </style>
+
+
+<!--    Poem fragment setting dialog-->
+    <style name="Theme.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:width">250dp</item>
+    </style>
+
+    <!--    Poem fragment export dialog-->
+    <style name="Export.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <!--    text selection menu button style-->
+    <style name="Widget.App.Button.TextButton.IconOnly" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="iconPadding">0dp</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+
+    <!--    icon button style-->
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="iconPadding">0dp</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+<!--    font chip buttons-->
+    <style name="Widget.App.FontChipButton" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipMinHeight">@dimen/font_chip_size</item>
+        <item name="chipEndPadding">16dp</item>
+        <item name="chipStartPadding">16dp</item>
+        <item name="chipIconVisible">true</item>
+        <item name="chipIconSize">44dp</item>
+        <item name="iconStartPadding">-12dp</item>
+        <item name="chipStrokeWidth">0.7dp</item>
+        <item name="chipStrokeColor">@color/font_chip_stroke</item>
+        <item name="chipBackgroundColor">@color/font_chip_background</item>
+        <item name="chipIconTint">@color/font_chip_icon</item>
+    </style>
+
+    <!--    RecyclerView Style-->
+    <style name="DefaultRecyclerViewStyle" parent="Theme.MyApp">
+        <item name="colorPrimary">?attr/colorRecyclerViewShadow</item>
+    </style>
+
+
+<!--    <style name="CustomPopupMenuStyle" parent="Widget.Material3.PopupMenu.Overflow">-->
+<!--        <item name="android:textSize">12sp</item>-->
+<!--        <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>-->
+<!--    </style>-->
+<!--    <style name="OverflowButtonStyle" parent="Widget.AppCompat.PopupMenu.Overflow">-->
+<!--        <item name="android:tooltipText">موارد بیشتر</item>-->
+<!--    </style>-->
+
+</resources>

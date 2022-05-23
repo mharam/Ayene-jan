@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/font_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/font_chip_size"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="8dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/nastaliq"
+            android:layout_width="@dimen/font_chip_size"
+            android:layout_height="match_parent"
+            style="@style/Widget.App.FontChipButton"
+            app:chipIcon="@drawable/font_icon1" />
+        <com.google.android.material.chip.Chip
+            android:id="@+id/zar"
+            android:layout_width="@dimen/font_chip_size"
+            android:layout_height="match_parent"
+            style="@style/Widget.App.FontChipButton"
+            app:chipIcon="@drawable/font_icon2"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/davat"
+            android:layout_width="@dimen/font_chip_size"
+            android:layout_height="match_parent"
+            style="@style/Widget.App.FontChipButton"
+            app:chipIcon="@drawable/font_icon3"/>
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/nastaliq_text"
+        android:layout_width="@dimen/font_chip_size"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.MyTheme.Caption"
+        app:layout_constraintTop_toBottomOf="@id/font_picker"
+        app:layout_constraintStart_toStartOf="@id/font_picker"
+        app:layout_constraintEnd_toStartOf="@id/lotus_text"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:gravity="center"
+        android:textColor="@color/font_chip_text"
+        android:text="نستعلیق"/>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/lotus_text"
+        android:layout_width="@dimen/font_chip_size"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.MyTheme.Caption"
+        app:layout_constraintTop_toBottomOf="@id/font_picker"
+        app:layout_constraintStart_toEndOf="@id/nastaliq_text"
+        app:layout_constraintEnd_toStartOf="@id/davat_text"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:gravity="center"
+        android:textColor="@color/font_chip_text"
+        android:text="زر"/>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/davat_text"
+        android:layout_width="@dimen/font_chip_size"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.MyTheme.Caption"
+        app:layout_constraintTop_toBottomOf="@id/font_picker"
+        app:layout_constraintStart_toEndOf="@id/lotus_text"
+        app:layout_constraintEnd_toEndOf="@id/font_picker"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:gravity="center"
+        android:textColor="@color/font_chip_text"
+        android:text="دعوت"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/font_size"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        app:layout_constraintTop_toBottomOf="@id/davat_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="متوسط"/>
+    <Button
+        android:id="@+id/font_size_small"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/font"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/font_size"
+        app:layout_constraintBottom_toBottomOf="@id/font_size"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        style="?attr/materialButtonOutlinedStyle" />
+    <Button
+        android:id="@+id/font_size_Large"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/font"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/font_size"
+        app:layout_constraintBottom_toBottomOf="@id/font_size"
+        app:iconSize = "48dp"
+        android:padding="0dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        style="?attr/materialButtonOutlinedStyle" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/hilight_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        app:layout_constraintTop_toBottomOf="@id/font_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+        <Button
+            android:id="@+id/hilight_button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            app:icon="@drawable/ic_highlighter"
+            app:iconTint="@color/hilight_1_marker" />
+        <Button
+            android:id="@+id/hilight_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            app:icon="@drawable/ic_highlighter"
+            app:iconTint="@color/hilight_2_marker"/>
+        <Button
+            android:id="@+id/hilight_button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            app:icon="@drawable/ic_highlighter"
+            app:iconTint="@color/hilight_3_marker"/>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

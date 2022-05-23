@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/home_group">
+        <item
+            android:id="@+id/home"
+            android:title="@string/home"
+            android:icon="@drawable/ic_outline_home_24"/>
+
+        <item
+            android:id="@+id/book_marks"
+            android:title="@string/book_marks"
+            android:icon="@drawable/ic_outline_bookmarks_24"/>
+
+        <item
+            android:id="@+id/favorites"
+            android:title="@string/favorites"
+            android:icon="@drawable/ic_round_favorite_border_24"/>
+    </group>
+
+    <group android:id="@+id/set_group">
+        <item
+            android:id="@+id/settings"
+            android:title="@string/setting"
+            android:icon="@drawable/ic_outline_settings_24"/>
+
+        <item
+            android:id="@+id/dictionary"
+            android:icon="@drawable/ic_book_icon"
+            android:title="@string/dictionary_hint"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/fall"
+            android:icon="@drawable/open_book"
+            android:title="@string/fall_hafez"
+            android:visible="false" />
+    </group>
+
+    <group android:id="@+id/support_group">
+        <item
+            android:id="@+id/contact"
+            android:title="@string/connect"
+            android:icon="@drawable/ic_outline_mail_outline_24"/>
+
+        <item
+            android:id="@+id/support"
+            android:title="@string/support"
+            android:icon="@drawable/ic_support"/>
+
+        <item
+            android:id="@+id/about"
+            android:title="@string/about_app"
+            android:icon="@drawable/ic_outline_info_24"/>
+
+        <item
+            android:id="@+id/help"
+            android:title="@string/help"
+            android:icon="@drawable/ic_round_help_outline_24"/>
+    </group>
+
+
+
+</menu>

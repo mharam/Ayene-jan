@@ -1,0 +1,206 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'androidx.navigation.safeargs'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    compileSdkVersion 32
+
+    defaultConfig {
+        applicationId "com.takaapoo.adab_parsi"
+        minSdkVersion 23
+        targetSdkVersion 32
+        versionCode 1
+        versionName "alpha.01"
+
+        testInstrumentationRunner "com.takaapoo.adab_parsi.CustomTestRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+//        debug {
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['**/attach_hotspot_windows.dll', 'META-INF/licenses/**']
+        }
+        jniLibs {
+            excludes += ['META-INF/licenses/**']
+        }
+
+        resources.excludes.add("META-INF/*")
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    // Always show the result of every unit test when running via command line, even if it passes.
+    testOptions.unitTests {
+        includeAndroidResources = true
+        returnDefaultValues = true
+    }
+
+    buildFeatures{
+        dataBinding true
+        viewBinding true
+    }
+    sourceSets {
+        main {
+            res {
+                srcDirs 'src\\main\\res', 'src\\test\\res'
+            }
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Support libraries
+    implementation "androidx.appcompat:appcompat:$version_appcompat"
+    implementation "androidx.fragment:fragment-ktx:$version_fragment"
+    implementation "androidx.constraintlayout:constraintlayout:$version_constraint_layout"
+    implementation "com.google.android.material:material:$version_material"
+
+    // Android KTX
+    implementation "androidx.core:core-ktx:$version_core"
+
+    // Navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:$version_navigation"
+    implementation "androidx.navigation:navigation-ui-ktx:$version_navigation"
+
+    // Recyclerview
+    implementation "androidx.recyclerview:recyclerview:$version_recyclerview"
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
+
+    // Room & lifecycle dependencies
+    implementation "androidx.room:room-runtime:$version_room"
+    implementation "androidx.room:room-ktx:$version_room"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation "androidx.test:core-ktx:$version_test_core"
+    implementation project(path: ':MyFastScroller')
+    kapt "androidx.room:room-compiler:$version_room"
+    //implementation "androidx.lifecycle:lifecycle-extensions:$version_lifecycle_extensions"
+
+    // ViewModel & LiveData
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.0-rc01"
+
+    // Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    // Moshi
+    implementation "com.squareup.moshi:moshi:$version_moshi"
+    implementation "com.squareup.moshi:moshi-kotlin:$version_moshi"
+
+    // Retrofit with Moshi Converter
+    implementation "com.squareup.retrofit2:retrofit:$version_retrofit"
+    implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
+
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$version_glide"
+    implementation "com.github.bumptech.glide:annotations:$version_glide"
+    implementation ("com.github.bumptech.glide:recyclerview-integration:$version_glide") {
+        // Excludes the support library because it's already included by Glide.
+        transitive = false
+    }
+    kapt "com.github.bumptech.glide:compiler:$version_glide"
+
+    // Setting Preference
+    implementation 'androidx.preference:preference-ktx:1.2.0'
+
+    // FastScroll
+    //implementation 'me.zhanghai.android.fastscroll:library:1.1.5'
+
+    // ViewPager
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+
+    // PlayStore rating
+    implementation 'com.google.android.play:review:2.0.0'
+    implementation 'com.google.android.play:review-ktx:2.0.0'
+
+    // Coroutines for kotlin and retrofit
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_kotlin_coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version_kotlin_coroutines"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$version_retrofit_coroutines_adapter"
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$version_hilt"
+    kapt "com.google.dagger:hilt-compiler:$version_hilt"
+
+    // KeyboardVisibilityEvent
+//    implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC3'
+
+    // LeakCanary
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
+
+    // Splash Screen
+    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
+
+
+
+
+
+    // Testing
+    testImplementation "junit:junit:$version_junit"
+    androidTestImplementation "junit:junit:$version_junit"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation "androidx.test.espresso:espresso-core:$version_espresso"
+    testImplementation "androidx.room:room-testing:$version_room"
+    // Truth Test Library
+//    testImplementation "com.google.truth:truth:$version_truth"
+//    testImplementation "com.google.truth.extensions:truth-java8-extension:$version_truth"
+    implementation "com.google.truth:truth:$version_truth"
+    implementation "com.google.truth.extensions:truth-java8-extension:$version_truth"
+    // Robolectric
+    testImplementation 'org.robolectric:robolectric:4.6.1'
+    // AndroidX Test - JVM testing
+    testImplementation "androidx.test.ext:junit-ktx:1.1.3"
+    testImplementation "androidx.test:core-ktx:$version_test_core"
+    implementation "androidx.test:core:$version_test_core"
+    // Architecture Components core testing
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    // Kotlin Coroutine test
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
+    // AndroidX test library for creating fragments
+    debugImplementation "androidx.fragment:fragment-testing:1.4.1"
+    // Espresso tools for interacting with RecyclerViews
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
+    // Mockito
+    androidTestImplementation "org.mockito:mockito-core:$version_mockito"
+    androidTestImplementation "org.mockito:mockito-android:$version_mockito"
+    // Navigation Test
+    androidTestImplementation "androidx.navigation:navigation-testing:$version_navigation"
+    // Idling resource
+    implementation "androidx.test.espresso:espresso-idling-resource:$version_espresso"
+
+    // Hilt for testing
+    // For Robolectric tests.
+    testImplementation "com.google.dagger:hilt-android-testing:$version_hilt"
+    kaptTest "com.google.dagger:hilt-android-compiler:$version_hilt"
+    // For instrumented tests.
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$version_hilt"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$version_hilt"
+
+}

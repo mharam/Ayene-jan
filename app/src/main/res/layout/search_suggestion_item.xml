@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layoutDirection="rtl"
+        android:background="?attr/colorSurface">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_history_24"
+            tools:srcCompat="@drawable/ic_baseline_history_24"
+            app:tint="@color/gray_500"/>
+
+        <ImageView
+            android:id="@+id/edit"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:rotation="45"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:srcCompat="@drawable/ic_baseline_arrow_upward_24"
+            tools:srcCompat="@drawable/ic_baseline_arrow_upward_24"
+            app:tint="@color/gray_500"/>
+
+        <TextView
+            android:id="@+id/search_text"
+            style="?android:attr/dropDownItemStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="false"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/edit"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/icon"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp"
+            tools:text="الکی" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

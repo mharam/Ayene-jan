@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/favorite"
+        android:icon="@drawable/ic_round_favorite_border_24"
+        android:title="@string/favorite_hint"
+        app:iconTint="@color/black_900"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/note"
+        android:icon="@drawable/ic_outline_note_add_24"
+        android:title="@string/note_hint"
+        app:iconTint="@color/black_900"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/hilight"
+        android:icon="@drawable/ic_highlighter"
+        android:title="@string/hilight_hint"
+        app:iconTint="@color/black_900"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/copy"
+        android:icon="@drawable/ic_outline_file_copy_24"
+        android:title="@string/copy_hint"
+        app:iconTint="@color/black_900"
+        app:showAsAction="ifRoom" />
+
+</menu>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/help_layout"
+    android:elevation="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/help_background"
+        android:layout_gravity="end"
+        android:id="@+id/help_frame">
+
+        <TextView
+            android:id="@+id/main_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="16dp"
+            android:textSize="14sp"
+            tools:text="متن" />
+
+        <Button
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/main_text"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_margin="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+            android:text="@string/next" />
+
+        <Button
+            android:id="@+id/dismiss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/main_text"
+            app:layout_constraintStart_toEndOf="@id/next"
+            android:layout_margin="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+            android:text="@string/dismiss" />
+
+        <LinearLayout
+            android:id="@+id/bullets"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/next"
+            app:layout_constraintTop_toTopOf="@id/next"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/c1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                app:srcCompat="@drawable/bullet"
+                app:tint="@color/bullet_color" />
+            <ImageView
+                android:id="@+id/c2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                app:srcCompat="@drawable/bullet"
+                app:tint="@color/bullet_color" />
+            <ImageView
+                android:id="@+id/c3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                app:srcCompat="@drawable/bullet"
+                app:tint="@color/bullet_color" />
+            <ImageView
+                android:id="@+id/c4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                app:srcCompat="@drawable/bullet"
+                app:tint="@color/bullet_color" />
+
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
+

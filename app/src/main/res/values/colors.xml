@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    <color name="colorPrimary">#6200EE</color>-->
+    <!--    <color name="colorPrimaryDark">#3700B3</color>-->
+    <!--    <color name="colorAccent">#03DAC5</color>-->
+    <!--    <color name="textColorPrimary">#FFFFFF</color>-->
+    <!--    <color name="textColorSecondary">#000000</color>-->
+
+
+    <color name="purple_200">#bb86fc</color> <!--Color primary (dark)-->
+    <color name="purple_500">#6200ee</color> <!--Color primary (light)-->
+    <color name="purple_600">#4b01d0</color> <!--Color primary variant (dark)-->
+    <color name="purple_700">#3700b3</color> <!--Color primary variant (light)-->
+
+    <color name="green_200">#03AFDA</color> <!--Color secondary-->
+    <color name="green_500">#018786</color> <!--Color secondary variant-->
+
+    <color name="red_200">#cf6679</color> <!--Color error (dark)-->
+    <color name="red_600">#b00020</color> <!--Color error (light)-->
+
+    <!--Color surface (light), color on error (light), -->
+    <!--color on surface (dark), color on surface (dark)-->
+    <color name="white_50">#ffffff</color>
+
+    <color name="black_800">#121212</color> <!--Color surface (dark)-->
+    <!--Color on secondary (light), color on background (light),-->
+    <!--color on surface (light)-->
+    <color name="black_900">#000000</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="black_overlay_light">#33000000</color>
+    <color name="black_overlay_dark">#88000000</color>
+    <color name="white_overlay">#66ffffff</color>
+    <color name="white_overlay_dark">#88ffffff</color>
+
+    <color name="blue_50">#D0EDFB</color>
+    <color name="blue_100">#9AB6FF</color>
+    <color name="blue_200">#2490ED</color>
+    <color name="blue_500">#2460FD</color>
+    <color name="yellow_200">#FFEB00</color>
+    <color name="yellow_500">#BEBE00</color>
+    <color name="orange_200">#FF9900</color>
+    <color name="orange_500">#D37E00</color>
+    <color name="gray_100">#FFDDDDDD</color>
+    <color name="gray_200">#FFBBBBBB</color>
+    <color name="gray_500">#FF888888</color>
+    <color name="cyan_200">#ddff36</color>
+    <color name="cyan_500">#03A592</color>
+
+
+    <color name="book_title_day">#ffbf8834</color>
+    <color name="book_title_night">#E6CE61</color>
+    <color name="paper_1">#FFFFFF</color>
+    <color name="paper_2">#F8F2E2</color>
+    <color name="paper_3">#EDF3FA</color>
+    <color name="paper_border">#d5b450</color>
+
+    <color name="hilight_1">#9AFF77F4</color>
+    <color name="hilight_2">#9976FF63</color>
+    <color name="hilight_3">#803CF6FB</color>
+    <color name="hilight_1_marker">#FF77F4</color>
+    <color name="hilight_2_marker">#76FF63</color>
+    <color name="hilight_3_marker">#3CF6FB</color>
+
+    <color name="ic_launcher_background">#ffffff</color>
+
+</resources>

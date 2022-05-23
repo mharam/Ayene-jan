@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="item"
+            type="com.takaapoo.adab_parsi.database.Content" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/poem_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
+        android:background="?attr/colorSurface">
+
+        <com.takaapoo.adab_parsi.util.custom_views.PoemBorderView
+            android:id="@+id/alaki"
+            android:layout_width="match_parent"
+            android:layout_height="1300dp"
+            android:fitsSystemWindows="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+        <com.takaapoo.adab_parsi.util.custom_views.NestedRecyclerView
+            android:id="@+id/poem_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="24dp"
+            android:fitsSystemWindows="false"
+            android:scrollbars="none"
+            android:theme="@style/DefaultRecyclerViewStyle"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/poem_item" />
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:liftOnScroll="true"
+            app:liftOnScrollTargetViewId="@id/poem_list">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapseToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:titleEnabled="false"
+                android:fitsSystemWindows="false"
+                app:layout_scrollFlags="enterAlways|scroll|exitUntilCollapsed|snap">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="?attr/actionBarSize"
+                    style="@style/TextAppearance.MyTheme.Headline6"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="top"
+                    android:lines="1"
+                    android:ellipsize="end"
+                    android:textColor="?attr/colorOnSurface"
+
+                    android:layout_marginEnd="152dp"
+                    tools:text="حسن"/>
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/toolbar_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="?attr/actionBarSize"
+                    style="@style/TextAppearance.MyTheme.Headline6"
+                    android:gravity="top"
+                    android:layout_gravity="top"
+                    android:lines="1"
+                    android:ellipsize="end"
+                    android:textColor="?attr/colorOnSurface"
+
+                    android:layout_marginEnd="16dp"
+                    tools:text="حسن"/>
+
+
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    android:id="@+id/poem_title"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="?attr/actionBarSize"-->
+<!--                    android:layout_gravity="center_horizontal|bottom"-->
+<!--                    android:gravity="center"-->
+<!--                    android:textColor="?attr/colorOnSurface"-->
+<!--                    app:autoSizeTextType="uniform"-->
+<!--                    app:autoSizeMinTextSize="18sp"-->
+<!--                    app:autoSizeMaxTextSize="20sp"-->
+<!--                    app:autoSizeStepGranularity="1sp"-->
+<!--                    android:lineSpacingMultiplier="0.8"-->
+<!--                    android:layout_marginStart="36dp"-->
+<!--                    android:layout_marginEnd="36dp"-->
+<!--                    app:fontFamily="@font/iran_nastaliq"-->
+<!--                    tools:text="حسن"/>-->
+<!--                <androidx.appcompat.widget.AppCompatImageView-->
+<!--                    android:id="@+id/topImage_left"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="?attr/actionBarSize"-->
+<!--                    android:scaleType="fitStart"-->
+<!--                    android:layout_gravity="bottom"-->
+<!--                    app:borderImage="@{item.id}"-->
+<!--                    tools:src="@drawable/border" />-->
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/topImage_right"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:scaleType="fitStart"
+                    android:layout_gravity="bottom"
+                    android:scaleX="-1"
+                    app:borderImage="@{item.id}"
+                    android:visibility="invisible"
+                    tools:src="@drawable/border" />
+
+                <com.takaapoo.adab_parsi.util.custom_views.TitleView
+                    android:id="@+id/poem_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_gravity="bottom" />
+
+                <com.takaapoo.adab_parsi.util.custom_views.PoemToolbar
+                    android:id="@+id/poem_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    app:title="."
+                    app:menu="@menu/poem_frag_menu"
+                    app:titleTextColor="@android:color/transparent"
+                    app:contentInsetRight="0dp"
+                    app:contentInsetStart="0dp"
+                    app:contentInsetStartWithNavigation="0dp"
+                    android:fitsSystemWindows="true" />
+
+                <RelativeLayout
+                    android:id="@+id/result_dashboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:translationZ="4dp">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/toolbar_result_report"
+                        android:layout_width="wrap_content"
+                        android:layout_height="?attr/actionBarSize"
+                        style="@style/TextAppearance.MyTheme.Subtitle1"
+                        android:gravity="center_vertical"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_toStartOf="@id/up_button"
+                        android:layout_marginStart="72dp"
+                        android:layout_marginEnd="16dp"
+                        tools:text="نتیجه"/>
+                    <Button
+                        android:id="@+id/down_button"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="@drawable/up_vector"
+                        android:rotation="180"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="8dp"
+                        android:scrollbars="none"/>
+                    <Button
+                        android:id="@+id/up_button"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="@drawable/up_vector"
+                        android:rotation="0"
+                        android:layout_toStartOf="@id/down_button"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="24dp"
+                        android:scrollbars="none"/>
+                </RelativeLayout>
+
+                <androidx.appcompat.widget.AppCompatToggleButton
+                    android:id="@+id/book_mark_toggle"
+                    style="@style/toggleButton"
+                    android:layout_width="42dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/book_mark_bg"
+                    android:layout_marginRight="8dp"
+                    android:layout_gravity="right" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+        <include
+            android:id="@+id/result_sample"
+            android:visibility="invisible"
+            layout="@layout/search_result_item"/>
+
+        <View
+            android:layout_width="0.6dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:elevation="4dp"
+            android:background="@color/gray_200" />
+
+        <View
+            android:id="@+id/darkener"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="8dp"
+            android:background="#000000"
+            android:alpha="0.25"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

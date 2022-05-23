@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:transitionName="container_transform_FAB">
+
+    <data>
+        <import type="com.takaapoo.adab_parsi.add.ListLoadStatus"/>
+        <import type="android.view.View"/>
+        <variable
+            name="viewModel"
+            type="com.takaapoo.adab_parsi.add.AddViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/myLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
+        android:layoutDirection="rtl">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="?attr/colorSurface"
+            android:elevation="4dp">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:title="شعرا"
+                android:elevation="0dp"
+                app:contentInsetRight="0dp"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:titleTextColor="?attr/colorOnSurface" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:tabGravity="fill"
+                app:tabMaxWidth="0dp"
+                app:tabTextAppearance="@style/tab_text"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="0.7dp"
+            android:background="@color/gray_200"
+            app:layout_constraintTop_toBottomOf="@id/top_bar"
+            android:elevation="4dp"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:theme="@style/DefaultRecyclerViewStyle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/line"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/load_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:trackCornerRadius="2dp"
+            app:trackThickness="2dp"
+            android:visibility="@{viewModel.loadStatus == ListLoadStatus.LOAD ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/line" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="TODO"
+            android:visibility="@{viewModel.loadStatus == ListLoadStatus.ERROR ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toTopOf="@id/try_again"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/line"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:srcCompat="@drawable/ic_cloud_off_black_64dp"
+            tools:ignore="VectorDrawableCompat" />
+
+        <Button
+            android:id="@+id/try_again"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.loadStatus == ListLoadStatus.ERROR ? View.VISIBLE : View.GONE}"
+            android:text="@string/try_again"
+            app:icon="@drawable/ic_baseline_autorenew_24"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageView"
+            android:onClick="@{() -> viewModel.reloadAllPoet()}"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+
+

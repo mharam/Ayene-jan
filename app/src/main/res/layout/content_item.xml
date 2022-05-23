@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="content"
+            type="com.takaapoo.adab_parsi.database.Content" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/my_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutDirection="rtl">
+
+        <com.takaapoo.adab_parsi.util.custom_views.ParagraphView
+            android:id="@+id/content_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:paddingStart="@dimen/content_item_start_padding"
+            android:layout_marginEnd="@dimen/content_item_end_margin"
+            android:textColor="?attr/colorOnSurface"
+            android:text="@{content.text}"
+            app:fontFamily="@font/iran_nastaliq"
+            android:textSize="0sp"
+            android:textDirection="rtl"
+            tools:text="گرالکی"
+            custom:toBeNormalized="false"/>
+
+        <ImageView
+            android:id="@+id/tri_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/content_text"
+            android:baseline="16dp"
+            android:baselineAlignBottom="false"
+            android:layout_marginStart="8dp"
+            app:srcCompat="@drawable/ic_baseline_play_arrow_24"/>
+
+        <com.takaapoo.adab_parsi.util.custom_views.ParagraphView
+            android:id="@+id/page_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/content_text"
+            android:layout_marginEnd="16dp"
+            android:textColor="?attr/colorOnSurface"
+            app:fontFamily="@font/iran_nastaliq"
+            android:textSize="18sp"
+            android:textDirection="rtl"
+            tools:text="6" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

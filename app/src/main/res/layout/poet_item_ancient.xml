@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="catItem"
+            type="com.takaapoo.adab_parsi.database.Category" />
+    </data>
+
+    <FrameLayout
+        android:id="@+id/item_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="@dimen/poet_item_margins"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/checkBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@null"
+                    android:minWidth="0dp"
+                    android:elevation="4dp"
+                    app:layout_constraintTop_toTopOf="@id/view"
+                    app:layout_constraintBottom_toBottomOf="@id/view"
+                    app:layout_constraintEnd_toEndOf="@id/view"
+                    app:buttonTint="@color/white_50"/>
+
+                <ImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:scaleType="fitXY"
+                    app:layout_constraintDimensionRatio="h,16:9"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:viewImage="@{catItem.poetID}"
+                    app:ancient="@{catItem.ancient}"
+                    tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+                <View
+                    android:id="@+id/view"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@color/black_overlay"
+                    app:layout_constraintBottom_toBottomOf="@+id/image_view"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/image_view" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/poet_name"
+                    style="@style/TextAppearance.MyTheme.Headline6"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textColor="@color/white_50"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="18sp"
+                    app:autoSizeMaxTextSize="24sp"
+                    app:autoSizeStepGranularity="1sp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintBottom_toBottomOf="@+id/image_view"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/checkBox"
+                    app:layout_constraintTop_toTopOf="@+id/view"
+                    app:poetText="@{catItem.text}"
+                    tools:text="سعدی" />
+
+                <TextView
+                    android:id="@+id/poet_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:lines="2"
+                    android:gravity="center_vertical"
+                    tools:text="ابومحمّد مُشرف‌الدین مُصلِح بن عبدالله بن مشرّف (۶۰۶ – ۶۹۰ هجری قمری)"
+                    app:poetDescriptionText="@{catItem.text}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/image_view" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>
+
+
+</layout>

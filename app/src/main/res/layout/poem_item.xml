@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="mVerse"
+            type="com.takaapoo.adab_parsi.database.Verse" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/poem_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/poem_item_start_margin"
+        android:layout_marginEnd="@dimen/poem_item_end_margin"
+        android:focusable="false"
+        android:layoutDirection="rtl">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/poem_item_guid_width" />
+
+        <View
+            android:id="@+id/background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@drawable/poem_item_background" />
+
+        <View
+            android:id="@+id/guid_view"
+            android:layout_width="@dimen/verse_separation"
+            android:layout_height="20dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.takaapoo.adab_parsi.util.custom_views.ParagraphView
+            android:id="@+id/parag_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:textSize="18sp"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp"
+            android:layout_marginStart="16dp"
+            android:textAlignment="viewStart"
+            app:fontFamily="@font/iran_nastaliq"
+            android:textColor="?attr/colorOnBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="      کشکر"
+            android:scrollbars="none" />
+
+        <com.takaapoo.adab_parsi.util.custom_views.Verse1View
+            android:id="@+id/mesra1_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:paddingEnd="@dimen/verse_padding"
+            android:textSize="18sp"
+            android:textAlignment="viewEnd"
+            app:fontFamily="@font/iran_nastaliq"
+            android:textColor="?attr/colorOnBackground"
+            app:layout_constraintEnd_toStartOf="@id/guid_view"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="و مه و خورشید و فلک در کارند"
+            android:scrollbars="none" />
+
+        <com.takaapoo.adab_parsi.util.custom_views.Verse2View
+            android:id="@+id/mesra2_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:paddingStart="@dimen/verse_padding"
+            android:textSize="18sp"
+            android:textAlignment="viewStart"
+            app:fontFamily="@font/iran_nastaliq"
+            android:textColor="?attr/colorOnBackground"
+            app:layout_constraintStart_toStartOf="@id/guid_view"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text=" تا تو نانی به کف آریّ و به غفلت"
+            android:scrollbars="none" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="parag_text,mesra1_text,mesra2_text" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/comment"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/comment_height"
+            android:scrollbars="none"
+            app:layout_constraintTop_toBottomOf="@id/barrier"
+            app:layout_constraintStart_toStartOf="@id/guideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:fillViewport="true"
+            android:theme="@style/DefaultRecyclerViewStyle"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/comment_background"
+            android:elevation="4dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/comment_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/note"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:padding="8dp"
+                android:textSize="14sp"
+                android:background="@null"
+                android:textColor="@android:color/black"
+                android:textColorHint="@color/gray_500" />
+        </androidx.core.widget.NestedScrollView>
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:icon="@drawable/ic_baseline_save_24"
+            app:layout_constraintTop_toBottomOf="@id/barrier"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="16dp"
+            app:iconSize = "24dp"
+            android:padding="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:visibility="gone"
+            android:theme="@style/Theme.MyApp"
+            style="?attr/materialButtonOutlinedStyle" />
+
+        <ImageView
+            android:id="@+id/beit_favorite"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/beit_comment"
+            android:layout_marginStart="4dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/heart" />
+
+        <ImageView
+            android:id="@+id/beit_comment"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/beit_favorite"
+            android:layout_marginStart="4dp"
+            app:srcCompat="@drawable/ic_comment"
+            app:tint="?attr/colorOnSurface"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="property"
+            type="com.takaapoo.adab_parsi.network.PoetProperty" />
+
+        <variable
+            name="downloader"
+            type="com.takaapoo.adab_parsi.add.Downloader" />
+
+        <variable
+            name="addViewModel"
+            type="com.takaapoo.adab_parsi.add.AddViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutDirection="rtl">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineright"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintGuide_begin="96dp" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:imageUrl="@{property.thumbnailURL}"
+            app:ancient="@{property.ancient}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/poetName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="کیخسروم"
+            app:layout_constraintStart_toStartOf="@id/guidelineright"
+            app:layout_constraintTop_toTopOf="@id/imageView"
+            app:poetText="@{property.text}"
+            android:textSize="16sp"
+            app:fontFamily="@font/b_titr"/>
+
+        <TextView
+            android:id="@+id/shortDescription"
+            android:textSize="12sp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            app:poetDescriptionText="@{property.text}"
+            app:layout_constraintEnd_toStartOf="@+id/downloadProgress"
+            app:layout_constraintStart_toStartOf="@id/guidelineright"
+            app:layout_constraintTop_toBottomOf="@id/poetName"
+            tools:text="ابومحمّد مُشرف‌الدین مُصلِح بن عبدالله بن مشرّف (۶۰۶ – ۶۹۰ هجری قمری)" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="imageView,shortDescription"/>
+
+        <ImageButton
+            android:id="@+id/downloadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/download_to_stop"
+            android:visibility="@{addViewModel.progress[property.poetID] == -1 || addViewModel.progress[property.poetID] == -2 ? View.VISIBLE : View.GONE}"
+            android:enabled="@{addViewModel.progress[property.poetID] >= 99 ? false : true}"
+            android:onClick="@{() -> downloader.download()}"
+            app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
+            app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
+            app:layout_constraintStart_toStartOf="@+id/downloadProgress"
+            app:layout_constraintTop_toTopOf="@+id/downloadProgress" />
+
+        <ImageButton
+            android:id="@+id/stopButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/stop_to_download"
+            android:visibility="@{addViewModel.progress[property.poetID] == -1 || addViewModel.progress[property.poetID] == -2 || addViewModel.installing[property.poetID] ? View.GONE : View.VISIBLE}"
+            android:enabled="@{addViewModel.progress[property.poetID] >= 99 ? false : true}"
+            android:onClick="@{() -> downloader.download()}"
+            app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
+            app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
+            app:layout_constraintStart_toStartOf="@+id/downloadProgress"
+            app:layout_constraintTop_toTopOf="@+id/downloadProgress" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/downloadProgress"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:max="100"
+            android:indeterminate="@{addViewModel.progress[property.poetID] == -1 ? true : false}"
+            android:visibility="@{addViewModel.progress[property.poetID] &lt; -1 || addViewModel.installing[property.poetID] ? View.INVISIBLE : View.VISIBLE}"
+            app:trackCornerRadius="2dp"
+            app:trackThickness="2dp"
+            app:showAnimationBehavior="outward"
+            app:hideAnimationBehavior="inward"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/imageView"
+            app:indicatorColor="?attr/colorSecondary"/>
+
+        <ImageView
+            android:id="@+id/wrench"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:transformPivotX="8dp"
+            android:transformPivotY="8dp"
+            android:rotation="-75"
+            app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
+            app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
+            app:layout_constraintStart_toStartOf="@+id/downloadProgress"
+            app:layout_constraintTop_toTopOf="@+id/downloadProgress"
+            app:srcCompat="@drawable/ic_baseline_build_24"
+            android:visibility="@{addViewModel.installing[property.poetID] ? View.VISIBLE : View.GONE}" />
+
+
+
+        <TextView
+            android:id="@+id/publications"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:allPoet="@{addViewModel.allPoet}"
+            app:poetId="@{property.poetID}"
+            app:layout_constraintEnd_toStartOf="@+id/downloadProgress"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@+id/guidelineright"
+            app:layout_constraintTop_toBottomOf="@+id/barrier"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:scrollbars="none"
+            tools:text="آثار 1 2 3 4آثار 1 2 3 4 آثار 1 2 3 4 4" />
+
+        <View
+            android:id="@+id/spacer"
+            android:layout_width="0dp"
+            android:layout_height="0.7dp"
+            app:property="@{property}"
+            app:allPoet="@{addViewModel.allPoet}"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/imageView"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

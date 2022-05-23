@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        app:key="general"
+        app:title="@string/general">
+
+        <SwitchPreferenceCompat
+            app:key="sound"
+            app:title="@string/mute"
+            app:summary="@string/mute_summary"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_mute" />
+
+        <SwitchPreferenceCompat
+            app:key="screen_on"
+            app:title="@string/display_on"
+            app:summary="@string/display_on_summary"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_phone_android_24" />
+
+        <ListPreference
+            app:key="theme"
+            app:title="@string/theme"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_entry_values"
+            app:defaultValue="@string/theme_default_value"
+            app:negativeButtonText="@string/cancel"
+            app:useSimpleSummaryProvider="true"
+            app:icon="@drawable/ic_theme"/>
+
+        <Preference
+            app:key="delete_history"
+            app:title="@string/delete_search_history"
+            app:summary="@string/delete_search_history_summary"
+            app:icon="@drawable/ic_eraser"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="book"
+        app:title="@string/book">
+
+        <Preference
+            app:key="font"
+            app:title="@string/font"
+            app:defaultValue="0"
+            app:icon="@drawable/font"/>
+
+        <Preference
+            app:key="font_size"
+            app:title="@string/font_size"
+            app:icon="@drawable/ic_baseline_format_size_24"
+            app:defaultValue="1"/>
+
+        <Preference
+            app:key="paper_color"
+            app:title="@string/paper"
+            app:summary="کاهی"/>
+
+        <Preference
+            app:key="hilight"
+            app:title="@string/hilight_color"
+            app:summary="صورتی"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="output_file"
+        app:title="@string/output_file">
+
+        <Preference
+            app:key="border"
+            app:title="@string/border"
+            app:icon="@drawable/frame2_1"
+            app:defaultValue="2"/>
+
+        <com.takaapoo.adab_parsi.setting.PicWidthSeekbarPreference
+            app:key="pic_width"
+            app:title="@string/picture_width"/>
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

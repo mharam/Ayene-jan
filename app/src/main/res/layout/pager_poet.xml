@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="item"
+            type="com.takaapoo.adab_parsi.database.Category" />
+    </data>
+
+    <FrameLayout
+        android:id="@+id/poet_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/wall"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:translationZ="-1dp"
+            tools:srcCompat="@drawable/wall1"/>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/poet_coordinate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false">
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/alaki"
+                android:layout_width="match_parent"
+                android:layout_height="2000dp"
+                android:fitsSystemWindows="false"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/shelf_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:fitsSystemWindows="false"
+                android:paddingBottom="30dp"
+                android:scrollbars="none"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/shelf_layout"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/poet_book_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:fitsSystemWindows="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="30dp"
+                android:scrollbars="none"
+                android:theme="@style/DefaultRecyclerViewStyle"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                tools:listitem="@layout/book_item"/>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/widgets"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/molding"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:tintMode="src_atop"
+                android:scaleType="fitXY"
+                tools:srcCompat="@drawable/molding2"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHeight_percent="0.15" />
+            <ImageView
+                android:id="@+id/molding_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:tintMode="src_atop"
+                android:scaleType="fitXY"
+                tools:srcCompat="@drawable/molding_bottom"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHeight_percent="0.07"/>
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                app:toolbarTitle="@{item.text}"
+                app:titleTextColor="?attr/colorOnSurface"
+                app:menu="@menu/poet_frag_menu"
+                app:layout_collapseMode="pin"
+                android:background="@android:color/transparent"
+                app:contentInsetRight="0dp"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                android:fitsSystemWindows="true"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </FrameLayout>
+
+</layout>

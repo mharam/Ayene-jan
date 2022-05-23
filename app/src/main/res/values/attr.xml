@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="colorSearchBack" format="color" />
+    <attr name="colorSearchSelectBack" format="color" />
+    <attr name="colorBeitSelect" format="color" />
+    <attr name="colorHelpScream" format="color" />
+    <attr name="colorBullet" format="color" />
+    <attr name="colorRecyclerViewShadow" format="color" />
+
+
+    <attr name="textAppearancePoem" format="reference"/>
+
+    <declare-styleable name="ParagraphView">
+        <attr name="toBeNormalized" format="boolean" />
+    </declare-styleable>
+
+
+    <declare-styleable name="HelpFlasher">
+        <attr name="textUp" format="string" />
+        <attr name="textDown" format="string" />
+    </declare-styleable>
+
+
+</resources>

@@ -1,0 +1,3 @@
+rootProject.name='Adab-Parsi'
+include ':app'
+include ':MyFastScroller'

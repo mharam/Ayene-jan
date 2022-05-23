@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:transitionName="container_transform_SEARCH">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.takaapoo.adab_parsi.search.SearchViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/search_root"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface">
+
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/search_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:queryHint="حسن ..."
+                    app:theme="@style/SearchView"
+                    app:searchIcon="@null" />
+
+            </com.google.android.material.appbar.MaterialToolbar>
+
+            <View
+                android:id="@+id/anchor_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="0.7dp"
+                android:background="@color/gray_200" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:theme="@style/DefaultRecyclerViewStyle"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/search_suggestion_item" />
+
+<!--        <include-->
+<!--            android:id="@+id/result_sample"-->
+<!--            android:visibility="invisible"-->
+<!--            layout="@layout/search_result_item"/>-->
+
+    </LinearLayout>
+</layout>
