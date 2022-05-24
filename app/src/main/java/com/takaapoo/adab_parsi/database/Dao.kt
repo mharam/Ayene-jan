@@ -160,11 +160,11 @@ interface Dao {
     @Query("""
         SELECT verse.text, 0 AS isRecentSearch from verse INNER JOIN versefts ON versefts.docid = verse.rowid
         WHERE versefts MATCH :query AND (verse.poem_id == :poemId OR verse.poem_id IN
-        (SELECT id from poem WHERE cat_id IN (:catId))) ORDER By RANDOM() LIMIT 500""")
+        (SELECT id from poem WHERE cat_id IN (:catId))) LIMIT 500""")
     fun getSearchSuggest(query: String, poemId: Int, catId: List<Int>): LiveData<List<SearchSuggest>>
 
     @Query("""SELECT verse.text, 0 AS isRecentSearch from verse INNER JOIN
-        versefts ON versefts.docid = verse.rowid WHERE versefts MATCH :query ORDER By RANDOM() LIMIT 500""")
+        versefts ON versefts.docid = verse.rowid WHERE versefts MATCH :query LIMIT 500""")
     fun getAllSearchSuggest(query: String): LiveData<List<SearchSuggest>>
 
 //    @Query("""
