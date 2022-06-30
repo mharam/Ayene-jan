@@ -20,6 +20,7 @@ import com.takaapoo.adab_parsi.poem.TurnPageTransformer
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.pager_poem.*
+import timber.log.Timber
 
 @AndroidEntryPoint
 class BookmarkDetailFragment: BasePoemFragment() {
@@ -82,7 +83,7 @@ class BookmarkDetailFragment: BasePoemFragment() {
             setPageTransformer(TurnPageTransformer())
             registerOnPageChangeCallback(pageCallBack)
             offscreenPageLimit = 1
-//            post { pageCallBack.onPageSelected(currentItem) }
+            post { pageCallBack.onPageSelected(currentItem) }
         }
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
