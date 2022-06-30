@@ -8,6 +8,7 @@
     <string name="bookmark_add_hint">نشان گذاری</string>
     <string name="bookmark_remove_hint">حذف نشان</string>
     <string name="hilight_hint">هایلایت</string>
+    <string name="add_poet">افزودن شاعر</string>
     <string name="hilight1_hint">هایلایت صورتی</string>
     <string name="hilight2_hint">هایلایت سبز</string>
     <string name="hilight3_hint">هایلایت فیروزه‌ای</string>

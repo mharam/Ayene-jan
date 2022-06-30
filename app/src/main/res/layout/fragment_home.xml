@@ -111,7 +111,8 @@
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_add_black_64dp" />
+            app:srcCompat="@drawable/ic_add_black_64dp"
+            android:contentDescription="@string/add_poet" />
 
         <com.takaapoo.adab_parsi.util.custom_views.HelpCircleFocus
             android:id="@+id/help_focus_circ"

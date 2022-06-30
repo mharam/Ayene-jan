@@ -370,8 +370,11 @@ class PoemExporter(val activity: Activity, private val verses: List<Verse>, mesr
                     }
                 }
                 y = poemHeight + h + edge - w/25
-                val reference = if (itemRoot.size == 2) "${itemRoot[0]} ${itemRoot[1]?.substringBefore("*")}"
-                    else "${itemRoot[1]} ${itemRoot[2]?.substringBefore("*")}، ${itemRoot[0]}"
+//                val reference = if (itemRoot.size == 2) "${itemRoot[0]} ${itemRoot[1]?.substringBefore("*")}"
+//                    else "${itemRoot[1]} ${itemRoot[2]?.substringBefore("*")}، ${itemRoot[0]}"
+                val reference =
+                    itemRoot.reversed().joinToString("، ") { it?.substringBefore('*') ?: "" }
+
                 drawText(reference, paragraphBegin, y , textPaint.apply {
                     textAlign = Paint.Align.RIGHT
                     typeface = ResourcesCompat.getFont(activity, R.font.iransans_light)
@@ -441,9 +444,11 @@ class PoemExporter(val activity: Activity, private val verses: List<Verse>, mesr
                 typeface = ResourcesCompat.getFont(activity, R.font.iransans_light)
                 textSize = (w/180).spTOpx(activity.resources)
             }
+//            val reference =
+//                if (itemRoot.size == 2) "${itemRoot[0]} ${itemRoot[1]?.substringBefore("*")}"
+//                else "${itemRoot[1]} ${itemRoot[2]?.substringBefore("*")}، ${itemRoot[0]}"
             val reference =
-                if (itemRoot.size == 2) "${itemRoot[0]} ${itemRoot[1]?.substringBefore("*")}"
-                else "${itemRoot[1]} ${itemRoot[2]?.substringBefore("*")}، ${itemRoot[0]}"
+                itemRoot.reversed().joinToString("، ") { it?.substringBefore('*') ?: "" }
 
             val document = PdfDocument()
             val verseWidth = textPaint.apply {textScaleX = 1f}.measureText(verses[mesraMaxKey ?: 0].text)
