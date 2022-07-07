@@ -14,8 +14,8 @@ android {
         applicationId "com.takaapoo.adab_parsi"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 4
+        versionName "1.0.2"
 
         testInstrumentationRunner "com.takaapoo.adab_parsi.CustomTestRunner"
         vectorDrawables.useSupportLibrary = true

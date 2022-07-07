@@ -237,7 +237,7 @@ class PoetPagerFragment : Fragment() {
 //            val displacement = floor((poetViewModel.bookPosition - prevPosition)/2f)
 
             shelfLayoutManager.stackFromEnd = false
-            bookLayoutManager!!.stackFromEnd = false
+            bookLayoutManager?.stackFromEnd = false
 
             binding.poetBookList.postDelayed( {
 //                binding.appBar.setExpanded(false)
@@ -246,7 +246,7 @@ class PoetPagerFragment : Fragment() {
 
 
 
-                bookLayoutManager!!.scrollToPositionWithOffset(poetViewModel.bookPosition, 0)
+                bookLayoutManager?.scrollToPositionWithOffset(poetViewModel.bookPosition, 0)
                 shelfLayoutManager.scrollToPositionWithOffset(
                     poetViewModel.bookPosition/poetViewModel.bookShelfSpanCount, 0.dpTOpx(resources).toInt())
 //                binding.poetBookList.scrollBy(0, (displacement*240.dpTOpx(resources)).toInt())

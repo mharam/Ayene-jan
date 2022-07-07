@@ -85,6 +85,7 @@
     </string-array>
 
     <string name="email_subject">%1$s از %2$s</string>
+    <string name="email_subject_2">%2$s، %1$s</string>
 
     <string name="export_poem_message">نوع خروجی را انتخاب کنید</string>
     <string name="export_poem_pos_button">ذخیره</string>

@@ -110,11 +110,12 @@ class SearchFragment: Fragment() {
 
 //        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         binding.root.postDelayed({
-            binding.searchView.search_src_text.let { searchText ->
-                if (searchText.requestFocus())
-                    (activity as MainActivity).showKeyBoard(searchText)
-            }
-                                 }, 600)
+            if (_binding != null) {
+                binding.searchView.search_src_text.let { searchText ->
+                    if (searchText.requestFocus())
+                        (activity as MainActivity).showKeyBoard(searchText)
+                }
+            } }, 600)
 
         binding.toolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 

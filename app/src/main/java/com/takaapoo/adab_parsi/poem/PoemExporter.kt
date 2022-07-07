@@ -693,15 +693,19 @@ class PoemExporter(val activity: Activity, private val verses: List<Verse>, mesr
     }
 
     fun exportToText(saveInSharedStorage: Boolean): Boolean {
+        val reference =
+            itemRoot.reversed().joinToString("، ") { it?.substringBefore('*') ?: "" }
+
         if (verses.isNotEmpty()) {
             var sher = ""
             verses.forEach { verse ->
                 sher += if (verse.verseOrder == 1) verse.text
                 else {
-                    if (verse.position != 1) "\n ${verse.text}"
-                    else "          ${verse.text}"
+                    if (verse.position == 0 || verse.position == 2) "\n \n ${verse.text}"
+                    else "\n ${verse.text}"
                 }
             }
+            sher += "\n \n \n ${activity.getString(R.string.email_subject_2, title, reference)}"
 
             if (saveInSharedStorage) {
                 val dir = File(Environment.DIRECTORY_DOCUMENTS)

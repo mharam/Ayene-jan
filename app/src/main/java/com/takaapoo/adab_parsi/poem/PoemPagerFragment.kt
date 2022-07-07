@@ -593,12 +593,12 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                 binding.toolbarTitle.text = if (searchViewModel.openedFromDetailFrag)
                     resources.getString(R.string.numbered_title,
                         engNumToFarsiNum(getInt(ARG_POEM_POSITION)+1),
-                        allCats[0]?.text?.substringBefore("*") ?: "")
+                        allCats.getOrNull(0)?.text?.substringBefore("*") ?: "")
                 else
-                    allCats[0]?.text?.substringBefore("*") ?: ""
+                    allCats.getOrNull(0)?.text?.substringBefore("*") ?: ""
 
                 bookmarkAddress = ""
-                allCats[0]?.text?.let { bookmarkAddress += "${it.substringBefore('*')}، " }
+                allCats.getOrNull(0)?.text?.let { bookmarkAddress += "${it.substringBefore('*')}، " }
 
                 if (allCats.size == 1){
                     if (allCategory.count { it.parentID == allCats[0]?.id } == 0){ // if book count == 0
@@ -608,7 +608,7 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                         binding.toolbarSubtitle.text = "سایر آثار"
                         itemRoot = mutableListOf("سایر آثار", allCats[0]?.text ?: "")
                     }
-                } else {
+                } else if (allCats.size > 1) {
                     binding.toolbarSubtitle.text = allCats.subList(1, allCats.size).map { it?.text }
                         .joinToString("، ") { it!! }
                     itemRoot = allCats.reversed().map { it?.text }.toMutableList()
@@ -1386,8 +1386,9 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                 requireActivity(), verses, mesraWidth, poemItem.text, itemRoot, settingViewModel
             )
             val reference =
-                if (itemRoot.size == 2) "${itemRoot[0]} ${itemRoot[1]?.substringBefore("*")}"
-                else "${itemRoot[1]} ${itemRoot[2]?.substringBefore("*")}، ${itemRoot[0]}"
+//                if (itemRoot.size == 2) "${itemRoot[0]} ${itemRoot[1]?.substringBefore("*")}"
+//                else "${itemRoot[1]} ${itemRoot[2]?.substringBefore("*")}، ${itemRoot[0]}"
+                itemRoot.reversed().joinToString("، ") { it?.substringBefore('*') ?: "" }
 
 
             var fileSuccess = false
@@ -1426,7 +1427,7 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                 .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 .putExtra(
                     Intent.EXTRA_SUBJECT, getString(
-                        R.string.email_subject,
+                        R.string.email_subject_2,
                         poemItem.text,
                         reference
                     )
@@ -1437,16 +1438,17 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                 verses.forEach { verse ->
                     sher += if (verse.verseOrder == 1) verse.text
                     else {
-                        if (verse.position != 1) "\n ${verse.text}"
-                        else "          ${verse.text}"
+                        if (verse.position == 0 || verse.position == 2) "\n \n ${verse.text}"
+                        else "\n ${verse.text}"
                     }
                 }
-                sher += "\n \n"
-                sher += getString(R.string.produced)
+                sher += "\n \n \n ${getString(R.string.email_subject_2, poemItem.text, reference)}"
+                sher += "\n ${getString(R.string.produced)}"
                 shareIntent.putExtra(Intent.EXTRA_TEXT, sher)
             }
             shareIntent
-                .setType(if (filesUri[0] != null) context?.contentResolver?.getType(filesUri[0]!!) else "*/*")
+                .setType(if (filesUri.isNotEmpty() && filesUri[0] != null)
+                    context?.contentResolver?.getType(filesUri[0]!!) else "*/*")
                 .putParcelableArrayListExtra(
                     Intent.EXTRA_STREAM,
                     ArrayList(filesUri.filterNotNull())

@@ -414,11 +414,13 @@ class BookPagerFragment : Fragment() {
     }
 
     fun getScrollOffset(): Int{
-        val firstItem = layoutManager!!.findFirstVisibleItemPosition()
-        if (firstItem == RecyclerView.NO_POSITION)
-            return 0
-        val firstViewTop = layoutManager!!.findViewByPosition(firstItem)!!.top
-        return newListAggregatedHeight.getOrElse(firstItem - 1){0} - firstViewTop
+        layoutManager?.findFirstVisibleItemPosition()?.let { firstItem ->
+            if (firstItem == RecyclerView.NO_POSITION)
+                return 0
+            val firstViewTop = layoutManager!!.findViewByPosition(firstItem)!!.top
+            return newListAggregatedHeight.getOrElse(firstItem - 1){0} - firstViewTop
+        }
+        return 0
     }
 
     fun setTransitionType(){
