@@ -25,6 +25,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -173,7 +174,8 @@ class MainActivity : AppCompatActivity() {
         if (fibonacci.contains(appEntranceCount) &&
             !preferenceManager.getBoolean("RatedAyeneJan", false) && savedInstanceState == null)
                 Handler(mainLooper).postDelayed({
-                    RateDialogFragment().show(supportFragmentManager, "Rate_AyeneJan")
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+                        RateDialogFragment().show(supportFragmentManager, "Rate_AyeneJan")
                 }, 6000)
 
         if (preferenceManager.getBoolean("screen_on", false))

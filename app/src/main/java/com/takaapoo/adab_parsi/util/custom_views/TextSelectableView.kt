@@ -25,7 +25,7 @@ open class TextSelectableView(context: Context, attrs: AttributeSet) : AppCompat
     private val mContext = FragmentComponentManager.findActivity(context)
 
     val settingViewModel = ViewModelProvider(mContext as ViewModelStoreOwner).get(SettingViewModel::class.java)
-    val poemViewModel = ViewModelProvider(mContext as ViewModelStoreOwner).get(PoemViewModel::class.java)
+    val poemViewModel = ViewModelProvider(mContext as ViewModelStoreOwner)[PoemViewModel::class.java]
 
 
     private val erabChars = "ًٌٍَُِّ"
@@ -94,7 +94,7 @@ open class TextSelectableView(context: Context, attrs: AttributeSet) : AppCompat
         var charOffset = (getOffsetForPosition(initialRightCharX + dx, initialRightCharY + dy) - 1)
             .coerceIn(0, text.length - 1)
         if (charOffset >= selEnd)
-            charOffset = (getOffsetForPosition(initialRightCharX + dx, initialRightCharY) - 1)
+            charOffset = (getOffsetForPosition(initialRightCharX + dx, initialRightCharY - lineHeight/2) - 1)
                 .coerceIn(0, text.length - 1)
 
         if (erabChars.contains(text[charOffset]) && charOffset > 0) charOffset--

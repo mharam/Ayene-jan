@@ -29,6 +29,7 @@ import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.makeTextBiErab
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.poem_item.view.*
+import timber.log.Timber
 
 
 const val DARK_ALPHA_MAX = 0.35f
@@ -123,8 +124,9 @@ abstract class BasePoemFragment: Fragment(), PoemTextMenu.FragmentPreparer {
                             binding.eraser.visibility = View.GONE
 
                         meaning.value = emptyList()
+                        val textLength = textMenuText!!.length
                         meanWord = textMenuText
-                            ?.subSequence(textMenuStart, textMenuEnd)
+                            ?.subSequence(textMenuStart.coerceIn(0, textLength), textMenuEnd.coerceIn(0, textLength))
                             .toString()
                             .replace("ـ", "")
                             .replace("\\s+".toRegex(), " ")

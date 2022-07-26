@@ -38,7 +38,7 @@ import kotlin.math.roundToInt
 
 val collator: Collator = Collator.getInstance(Locale("fa"))
 var allCategory = emptyList<Category>()
-val appStore = AppStore.Bazaar
+val appStore = AppStore.GooglePlay
 
 var topPadding = 0
 
