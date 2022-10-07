@@ -18,6 +18,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.URL
+import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
 private const val minFileLength = 4000
@@ -116,7 +117,9 @@ class Downloader(private val vm: AddViewModel, private val context: Context,
                         requestMethod = "GET"
                         doInput = true
                         connect()
-                        val lengthKey = headerFields.keys.find { it?.contains("Content-Length") == true }
+                        val lengthKey = headerFields.keys.find {
+                            it?.lowercase(Locale.US)?.contains("content-length") == true
+                        }
                         fileLength[i] = getHeaderFieldInt(lengthKey, -1)
                         filesSize += fileLength[i]
 

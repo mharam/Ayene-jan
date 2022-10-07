@@ -51,7 +51,10 @@ class PoetFragment : FragmentWithTransformPage() {
 
             currentChildFragment =
                 childFragmentManager.findFragmentByTag("f${position}") as? PoetPagerFragment
-            currentChildFragment?.backCallback()
+            currentChildFragment?.apply {
+                backCallback()
+                firebaseLog()
+            }
 
             setExitSharedElementCallback(object : SharedElementCallback() {
                 override fun onMapSharedElements(names: List<String>,

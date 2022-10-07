@@ -19,6 +19,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.platform.MaterialArcMotion
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentAddBinding
 import com.takaapoo.adab_parsi.home.HomeViewModel
@@ -85,6 +89,14 @@ class AddFragment : Fragment() {
                 addViewModel.snackMessShown()
             }
         }
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Add poet screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Add poet screen")
     }
 
     private fun initializeTab(list: List<PoetProperty>?){

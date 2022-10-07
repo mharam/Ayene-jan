@@ -53,10 +53,12 @@ class BookFragment : FragmentWithTransformPage() {
             poetViewModel.bookPosition = position
             bookViewModel.bookCurrentItem = poetViewModel.bookListItems[position]!!
 
-            (childFragmentManager.findFragmentByTag("f${poetViewModel.bookPosition}")
-                    as? BookPagerFragment).let {
-                it?.backCallback()
-                currentChildFragment = it
+            currentChildFragment =
+                childFragmentManager.findFragmentByTag("f${poetViewModel.bookPosition}")
+                        as? BookPagerFragment
+            currentChildFragment?.apply {
+                backCallback()
+                firebaseLog()
             }
         }
     }

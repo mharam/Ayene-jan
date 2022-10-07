@@ -31,6 +31,10 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.NavGraphDirections
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.Content
@@ -368,6 +372,20 @@ class BookPagerFragment : Fragment() {
         _binding = null
     }
 
+    fun firebaseLog(){
+        if (::contentItem.isInitialized){
+            (activity as? MainActivity)?.analyticsLogEvent(
+                FirebaseAnalytics.Event.SCREEN_VIEW,
+                Bundle().apply {
+                    putString(FirebaseAnalytics.Param.SCREEN_NAME, "Book: ${contentItem.text}")
+                }
+            )
+            Firebase.crashlytics.setCustomKey(
+                "Enter Screen",
+                "Poet = ${binding.toolbarTitle.text} , Book = ${contentItem.text}"
+            )
+        }
+    }
 
     fun backCallback(){
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {

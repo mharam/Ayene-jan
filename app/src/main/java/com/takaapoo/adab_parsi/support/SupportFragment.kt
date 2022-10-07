@@ -13,6 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentSupportBinding
 import com.takaapoo.adab_parsi.util.GlideApp
@@ -51,40 +55,6 @@ class SupportFragment: Fragment() {
         binding.supportToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
         barsPreparation()
 
-//        val outBorder = ResourcesCompat.getDrawable(resources, R.drawable.salavat_out, null)!!
-//        val inBorder = ResourcesCompat.getDrawable(resources, R.drawable.salavat_in, null)!!
-//        view.doOnPreDraw {
-//            File(context?.filesDir, "salavatOut.png").let {
-//                if (!it.exists()){
-//                    val bitmap = Bitmap.createBitmap(view.width, view.width, Bitmap.Config.ARGB_8888)
-//                    val canvas = Canvas(bitmap)
-//                    outBorder.setBounds(0, 0, canvas.width, canvas.height)
-//                    for (i in 0 until 360 step 36){
-//                        outBorder.draw(canvas)
-//                        canvas.rotate(36f, canvas.width / 2f, canvas.height / 2f)
-//                    }
-//                    val pngOutFile = FileOutputStream("${context?.filesDir}/salavatOut.png")
-//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, pngOutFile)
-//                }
-//            }
-//            binding.salavatOut.setImageBitmap(BitmapFactory.decodeFile("${context?.filesDir}/salavatOut.png"))
-//
-//            File(context?.filesDir, "salavatIn.png").let {
-//                if (!it.exists()){
-//                    val bitmap = Bitmap.createBitmap(view.width, view.width, Bitmap.Config.ARGB_8888)
-//                    val canvas = Canvas(bitmap)
-//                    inBorder.setBounds(0, 0, canvas.width, canvas.height)
-//                    for (i in 0 until 360 step 36){
-//                        inBorder.draw(canvas)
-//                        canvas.rotate(36f, canvas.width / 2f, canvas.height / 2f)
-//                    }
-//                    val pngOutFile = FileOutputStream("${context?.filesDir}/salavatIn.png")
-//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, pngOutFile)
-//                }
-//            }
-//            binding.salavatIn.setImageBitmap(BitmapFactory.decodeFile("${context?.filesDir}/salavatIn.png"))
-//        }
-
         salavatInAnimator =
             AnimatorInflater.loadAnimator(requireContext(), R.animator.salavat_rotate_in).apply {
                 setTarget(binding.salavatIn)
@@ -102,6 +72,14 @@ class SupportFragment: Fragment() {
             PreferenceManager.getDefaultSharedPreferences(requireContext())
                 .edit().putBoolean("RatedAyeneJan", true).apply()
         }
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Support screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Support screen")
     }
 
     override fun onStart() {

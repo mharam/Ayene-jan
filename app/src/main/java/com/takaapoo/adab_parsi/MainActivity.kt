@@ -32,6 +32,9 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.add.AddViewModel
 import com.takaapoo.adab_parsi.add.TempDao
 import com.takaapoo.adab_parsi.add.TempDatabase
@@ -61,6 +64,7 @@ enum class AppStore {GooglePlay, Bazaar, Myket}
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
     lateinit var settingViewModel: SettingViewModel
     lateinit var poemViewModel: PoemViewModel
     lateinit var poetViewModel: PoetViewModel
@@ -127,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             binding.navView.addHeaderView(headerView)
         }
 
-
+        firebaseAnalytics = Firebase.analytics
         val navController = findNavController(R.id.nav_host_fragment)
 
         binding.navView.setupWithNavController(navController)
@@ -290,7 +294,7 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.doOnPreDraw {
             val navHostFrag = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
             val fragView = navHostFrag?.childFragmentManager?.fragments?.firstOrNull()?.view
-            val fragWidth = fragView?.width ?: 2 * it.width
+            val fragWidth = fragView?.width ?: (2 * it.width)
             val fragHeight = fragView?.height ?: it.height
             val bookShelfWidth = (resources.getDimension(R.dimen.book_height_on_shelf) *
                     fragWidth / fragHeight).coerceAtLeast(resources.getDimension(R.dimen.book_min_width)) * 0.915f
@@ -299,8 +303,6 @@ class MainActivity : AppCompatActivity() {
 
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-//        Timber.i("memory = ${(getSystemService(ACTIVITY_SERVICE) as ActivityManager).memoryClass}")
-//        Timber.i("heap = ${Runtime.getRuntime().maxMemory()/(1024*1024)}")
     }
 
     override fun onDestroy() {
@@ -404,6 +406,7 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
+    @Deprecated("to be modified")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1){
@@ -455,6 +458,10 @@ class MainActivity : AppCompatActivity() {
             val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView) ?: return
             windowInsetsController.show(WindowInsetsCompat.Type.ime())
         }
+    }
+
+    fun analyticsLogEvent(name: String, params: Bundle){
+        firebaseAnalytics.logEvent(name, params)
     }
 
 }

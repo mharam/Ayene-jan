@@ -9,6 +9,10 @@ import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.poem.BasePoemFragment
 import com.takaapoo.adab_parsi.poem.PoemAdapter
@@ -99,6 +103,14 @@ class DetailFragment: BasePoemFragment() {
                 } catch (e: Exception) { }
             }
         })
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Search result detail screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Search result detail screen")
 
     }
 

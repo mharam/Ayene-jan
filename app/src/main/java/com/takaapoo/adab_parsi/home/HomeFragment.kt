@@ -30,6 +30,10 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.platform.Hold
 import com.google.android.material.transition.platform.MaterialElevationScale
 import com.google.android.material.transition.platform.MaterialFade
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.add.ARG_ADD_PAGE
@@ -40,7 +44,6 @@ import com.takaapoo.adab_parsi.util.eventHandler.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.pager_home.*
 import kotlinx.android.synthetic.main.poet_item_recent.view.*
-import timber.log.Timber
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -246,6 +249,13 @@ class HomeFragment : Fragment() {
             } catch (e: Exception) { }
         })
 
+        Firebase.analytics.logEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Home screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Home screen")
     }
 
     override fun onDestroyView() {

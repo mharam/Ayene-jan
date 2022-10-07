@@ -28,6 +28,10 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
@@ -173,6 +177,14 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
 
         onSharedPreferenceChanged(preferenceManager.sharedPreferences, "font_size")
         view.setting_toolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Setting screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Setting screen")
     }
 
     override fun onClearDialogPositiveClick() {

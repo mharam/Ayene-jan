@@ -17,6 +17,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.RecentSearch
@@ -206,6 +209,14 @@ class SearchFragment: Fragment() {
         searchViewModel.longSearchDialogPosClick.observe(viewLifecycleOwner, EventObserver{
             doSearch()
         })
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Search screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Search screen")
 
     }
 

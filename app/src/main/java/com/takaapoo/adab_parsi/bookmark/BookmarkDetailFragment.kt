@@ -11,6 +11,9 @@ import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.poem.BasePoemFragment
@@ -100,6 +103,14 @@ class BookmarkDetailFragment: BasePoemFragment() {
 
             }
         })
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Bookmark Detail screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Bookmark Detail screen")
 
     }
 

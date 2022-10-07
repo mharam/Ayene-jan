@@ -361,6 +361,7 @@ fun String.shorten(keyWords: List<String>, maxChars: Int): String?{ //Shorten a 
     spanIndex?.removeFirstOrNull()
     spanIndex?.removeLastOrNull()
     val wordCount = (spanIndex?.size ?: 0) / 2
+    if (wordCount == 0) return this
     val window = maxChars / (2 * wordCount)
 
     val extendedSpanIndex = spanIndex?.mapIndexed { index, num ->

@@ -22,6 +22,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
+import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.NavGraphDirections
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.book.BookViewModel
@@ -226,6 +230,24 @@ class PoetPagerFragment : Fragment() {
         binding.poetBookList.adapter = null
         binding.shelfList.adapter = null
         _binding = null
+    }
+
+    fun firebaseLog(){
+        if (::poetItem.isInitialized){
+            (activity as? MainActivity)?.analyticsLogEvent(
+                FirebaseAnalytics.Event.SCREEN_VIEW,
+                Bundle().apply {
+                    putString(
+                        FirebaseAnalytics.Param.SCREEN_NAME,
+                        "Poet: ${poetItem.text?.substringBefore('*')}"
+                    )
+                }
+            )
+            Firebase.crashlytics.setCustomKey(
+                "Enter Screen",
+                "Poet: ${poetItem.text?.substringBefore('*')}"
+            )
+        }
     }
 
 

@@ -36,6 +36,8 @@ class PoemFragment : BasePoemFragment(){
         override fun onPageSelected(position: Int) {
             visibleChildFrag = childFragmentManager.findFragmentByTag("f${position}")
                     as PoemPagerFragment
+            visibleChildFrag?.firebaseLog()
+
             val poemItem = poemViewModel.poemList[position]
 
             bookViewModel.bookContentScrollPosition[bookViewModel.bookCurrentItem.id] = poemItem!!

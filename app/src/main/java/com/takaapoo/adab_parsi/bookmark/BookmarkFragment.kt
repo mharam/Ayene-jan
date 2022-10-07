@@ -19,6 +19,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.Hold
 import com.google.android.material.transition.platform.MaterialFade
 import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentBookmarkBinding
@@ -173,6 +176,14 @@ class BookmarkFragment: Fragment() {
         }
 
         barsPreparation()
+
+        (activity as? MainActivity)?.analyticsLogEvent(
+            FirebaseAnalytics.Event.SCREEN_VIEW,
+            Bundle().apply {
+                putString(FirebaseAnalytics.Param.SCREEN_NAME, "Bookmark screen")
+            }
+        )
+        Firebase.crashlytics.setCustomKey("Enter Screen", "Bookmark screen")
     }
 
     override fun onDestroyView() {
