@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 32
-    buildToolsVersion '30.0.3'
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 32
@@ -20,12 +19,13 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 }
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {

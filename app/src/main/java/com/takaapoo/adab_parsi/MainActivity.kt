@@ -64,7 +64,7 @@ enum class AppStore {GooglePlay, Bazaar, Myket}
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private var firebaseAnalytics: FirebaseAnalytics? = null
     lateinit var settingViewModel: SettingViewModel
     lateinit var poemViewModel: PoemViewModel
     lateinit var poetViewModel: PoetViewModel
@@ -461,7 +461,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun analyticsLogEvent(name: String, params: Bundle){
-        firebaseAnalytics.logEvent(name, params)
+        firebaseAnalytics?.logEvent(name, params)
     }
 
 }

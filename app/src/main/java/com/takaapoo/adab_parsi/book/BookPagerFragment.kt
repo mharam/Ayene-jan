@@ -460,9 +460,11 @@ class BookPagerFragment : Fragment() {
         ValueAnimator.ofFloat(0f, 1f).apply {
             duration = 300
             interpolator = LinearInterpolator()
-            addUpdateListener {
-                binding.bookLayout.scaleX = (it.animatedValue as Float)*(1 - scaleX1) + scaleX1
-                binding.bookLayout.scaleY = (it.animatedValue as Float)*(1 - scaleY1) + scaleY1
+            addUpdateListener { value ->
+                _binding?.let {
+                    binding.bookLayout.scaleX = (value.animatedValue as Float)*(1 - scaleX1) + scaleX1
+                    binding.bookLayout.scaleY = (value.animatedValue as Float)*(1 - scaleY1) + scaleY1
+                }
             }
         }.start()
     }

@@ -16,8 +16,8 @@ android {
         applicationId "com.takaapoo.adab_parsi"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 6
-        versionName "1.0.4"
+        versionCode 7
+        versionName "1.0.5"
 
         testInstrumentationRunner "com.takaapoo.adab_parsi.CustomTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -190,7 +190,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
     // AndroidX test library for creating fragments
-    debugImplementation "androidx.fragment:fragment-testing:1.4.1"
+    debugImplementation "androidx.fragment:fragment-testing:1.5.3"
     // Espresso tools for interacting with RecyclerViews
     androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
     // Mockito

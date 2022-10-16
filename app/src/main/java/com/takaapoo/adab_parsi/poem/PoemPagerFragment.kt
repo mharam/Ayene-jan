@@ -645,7 +645,7 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                     poemHilighter = PoemHilighter(verses, poemItem, poemViewModel, settingViewModel)
 
                     mDetector = GestureDetectorCompat(
-                        context,
+                        requireContext(),
                         PoemGestureListener(poemViewModel, this@PoemPagerFragment)
                     )
 
