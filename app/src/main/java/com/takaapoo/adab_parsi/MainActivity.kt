@@ -45,6 +45,8 @@ import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.database.PoemDatabase
 import com.takaapoo.adab_parsi.databinding.ActivityMainBinding
 import com.takaapoo.adab_parsi.favorite.FavoriteViewModel
+import com.takaapoo.adab_parsi.home.HelpView
+import com.takaapoo.adab_parsi.home.HomeEvent
 import com.takaapoo.adab_parsi.home.HomeViewModel
 import com.takaapoo.adab_parsi.poem.PoemFragment
 import com.takaapoo.adab_parsi.poem.PoemViewModel
@@ -135,7 +137,8 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
 
         binding.navView.setupWithNavController(navController)
-        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
 
 
         bookmarkViewModel.bookmarkCount().observe(this) {
@@ -253,7 +256,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     R.id.help -> {
                         when (currentDesID) {
-                            R.id.homeFragment -> homeViewModel.doShowHelp()
+                            R.id.homeFragment -> homeViewModel.reportEvent(
+                                HomeEvent.OnShowHelp(HelpView.ADD_FAB)
+                            )
                             R.id.poetFragment -> poetViewModel.doShowHelp()
                             R.id.bookFragment -> bookViewModel.doShowHelp()
                             R.id.poemFragment -> poemViewModel.doShowHelp()

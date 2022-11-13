@@ -13,6 +13,14 @@ import org.junit.runner.RunWith
 class UtilityTest {
 
     @Test
+    fun makeTextBiErab_emptyString_returnEmptyString(){
+        val input = ""
+        val result = makeTextBiErab(input)
+
+        assertThat(result).isEqualTo("")
+    }
+
+    @Test
     fun mySubString_spaceNo_returnStringBetweenSpaces() {
 
         val context = ApplicationProvider.getApplicationContext<Context>()

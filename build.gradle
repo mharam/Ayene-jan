@@ -21,7 +21,7 @@ buildscript {
         version_glide = "4.11.0"
         version_recyclerview = '1.2.1'
         version_junit = "4.13.2"
-        version_test_core = "1.4.0"
+        version_test_core = "1.5.0"
         version_espresso = "3.4.0"
         version_mockito = "4.0.0"
         version_truth = "1.1.3"

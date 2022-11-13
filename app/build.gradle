@@ -3,10 +3,10 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-android-extensions'
     id 'androidx.navigation.safeargs'
-    id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -16,8 +16,8 @@ android {
         applicationId "com.takaapoo.adab_parsi"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 7
-        versionName "1.0.5"
+        versionCode 8
+        versionName "1.0.6"
 
         testInstrumentationRunner "com.takaapoo.adab_parsi.CustomTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -35,8 +35,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     packagingOptions {
@@ -51,7 +51,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     // Always show the result of every unit test when running via command line, even if it passes.
@@ -101,6 +101,7 @@ dependencies {
     implementation "androidx.test:core-ktx:$version_test_core"
     implementation project(path: ':MyFastScroller')
     kapt "androidx.room:room-compiler:$version_room"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
     //implementation "androidx.lifecycle:lifecycle-extensions:$version_lifecycle_extensions"
 
     // ViewModel & LiveData
@@ -153,13 +154,13 @@ dependencies {
 //    implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC3'
 
     // LeakCanary
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
     // Splash Screen
     implementation 'androidx.core:core-splashscreen:1.0.0'
 
     // Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:30.5.0')
+    implementation platform('com.google.firebase:firebase-bom:31.0.1')
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
@@ -169,7 +170,7 @@ dependencies {
     // Testing
     testImplementation "junit:junit:$version_junit"
     androidTestImplementation "junit:junit:$version_junit"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation "androidx.test.espresso:espresso-core:$version_espresso"
     testImplementation "androidx.room:room-testing:$version_room"
     // Truth Test Library
@@ -180,7 +181,7 @@ dependencies {
     // Robolectric
     testImplementation 'org.robolectric:robolectric:4.6.1'
     // AndroidX Test - JVM testing
-    testImplementation "androidx.test.ext:junit-ktx:1.1.3"
+    testImplementation "androidx.test.ext:junit-ktx:1.1.4"
     testImplementation "androidx.test:core-ktx:$version_test_core"
     implementation "androidx.test:core:$version_test_core"
     // Architecture Components core testing
@@ -190,7 +191,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
     // AndroidX test library for creating fragments
-    debugImplementation "androidx.fragment:fragment-testing:1.5.3"
+    debugImplementation "androidx.fragment:fragment-testing:1.5.4"
     // Espresso tools for interacting with RecyclerViews
     androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
     // Mockito
