@@ -2,6 +2,7 @@ package com.takaapoo.adab_parsi.poem
 
 import android.view.GestureDetector
 import android.view.MotionEvent
+import timber.log.Timber
 
 
 class PoemGestureListener(private val pvm: PoemViewModel, private val poemPagerFragment: PoemPagerFragment) :
@@ -11,7 +12,7 @@ class PoemGestureListener(private val pvm: PoemViewModel, private val poemPagerF
         return false
     }
 
-    override fun onDoubleTap(e: MotionEvent?): Boolean {
+    override fun onDoubleTap(e: MotionEvent): Boolean {
         val tempList = pvm.selectedVerses[poemPagerFragment.poemItem.id]?.value ?: mutableListOf()
         if (!tempList.remove(pvm.touchedViewID))
             tempList.add(pvm.touchedViewID)
@@ -21,7 +22,7 @@ class PoemGestureListener(private val pvm: PoemViewModel, private val poemPagerF
         return true
     }
 
-    override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val tempList = pvm.selectedVerses[poemPagerFragment.poemItem.id]?.value ?: mutableListOf()
         if (tempList.isNotEmpty()){
             if (!tempList.remove(pvm.touchedViewID))

@@ -22,7 +22,8 @@ import com.takaapoo.adab_parsi.util.collator
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.hamcrest.Matchers.allOf
+//import org.hamcrest.Matchers.allOf
+import org.hamcrest.core.AllOf.allOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +51,7 @@ class PoetFragmentTest {
     fun init(){
         hiltRule.inject()
 
-        homeViewModel = HomeViewModel(getApplicationContext(), dao)
+//        homeViewModel = HomeViewModel(getApplicationContext(), dao)
         val items = homeViewModel.allCat.getOrAwaitValue()
         allCategory = items.sortedWith { one, two -> collator.compare(one.text, two.text) }
 

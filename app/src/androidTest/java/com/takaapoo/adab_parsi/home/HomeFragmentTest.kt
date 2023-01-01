@@ -53,7 +53,7 @@ class HomeFragmentTest {
                 0, "", 1002L, 1)
         )
         dao.insertDatabase(categories, emptyList(), emptyList(), emptyList())
-        homeViewModel = HomeViewModel(getApplicationContext(), dao)
+//        homeViewModel = HomeViewModel(getApplicationContext(), dao)
     }
 
     @After
@@ -156,7 +156,7 @@ class HomeFragmentTest {
         }
 
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.homeFragment)
-        onView(withId(R.id.fab)).perform(click())
+        onView(withId(R.id.add_poet_fab)).perform(click())
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.addFragment)
     }
 

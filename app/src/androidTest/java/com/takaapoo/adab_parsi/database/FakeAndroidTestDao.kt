@@ -21,6 +21,10 @@ class FakeAndroidTestDao : Dao {
         return MutableLiveData(categories)
     }
 
+    override suspend fun getAllCatSuspend(): List<Category> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun updatePoetDate(newDate: Long, id: Int) {
         TODO("Not yet implemented")
     }
@@ -146,15 +150,11 @@ class FakeAndroidTestDao : Dao {
         TODO("Not yet implemented")
     }
 
-    override fun search(
-        query: String,
-        poemId: Int,
-        catId: List<Int>
-    ): LiveData<List<SearchContent>> {
+    override suspend fun search(query: String, poemId: Int, catId: List<Int>): List<SearchContent> {
         TODO("Not yet implemented")
     }
 
-    override fun searchAll(query: String): LiveData<List<SearchContent>> {
+    override suspend fun searchAll(query: String): List<SearchContent> {
         TODO("Not yet implemented")
     }
 
@@ -163,6 +163,10 @@ class FakeAndroidTestDao : Dao {
     }
 
     override fun getAllFavorite(): LiveData<List<FavoriteContent>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllFavoriteSuspend(): List<FavoriteContent> {
         TODO("Not yet implemented")
     }
 

@@ -1,7 +1,6 @@
 package com.takaapoo.adab_parsi.search_result
 
 import android.content.res.Configuration
-import android.graphics.Rect
 import android.os.Bundle
 import android.text.TextUtils.TruncateAt
 import android.view.LayoutInflater
@@ -10,10 +9,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.SharedElementCallback
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -27,7 +26,6 @@ import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
-import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.database.SearchContent
 import com.takaapoo.adab_parsi.databinding.FragmentSearchResultBinding
 import com.takaapoo.adab_parsi.poem.PoemViewModel
@@ -36,7 +34,8 @@ import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.search_result_item.view.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.reflect.Field
 
@@ -89,7 +88,6 @@ class ResultFragment : Fragment() {
         binding.resultList.adapter = adapter
         binding.resultList.edgeEffectFactory = BounceEdgeEffectFactory(Orientation.VERTICAL)
 
-
         binding.root.post {
             searchViewModel.apply {
                 rootWidth = binding.root.measuredWidth
@@ -99,25 +97,13 @@ class ResultFragment : Fragment() {
                     adapter!!.submitList(searchResultList)
                     afterSubmit(searchResultList)
                 } else {
-                    search(submittedSearch.trim(' ', '‌' ), poemID, catID)
-                        .observe(viewLifecycleOwner) { result ->
-                            displayResultJob = CoroutineScope(Dispatchers.Main).launch {
-                                val finalResult = sortedResults(result)
-                                adapter!!.submitList(finalResult)
-                                afterSubmit(finalResult)
-
-                                comeFromDetailFragment = true
-
-                                searchResultList = finalResult
-                                searchViewModel.poemList = finalResult.map {
-                                    Content(it.poemm.id!!, it.poemm.catID, it.poemm.title, 1)
-                                }
-                                poemViewModel.resultRowId1 = finalResult.map { it.rowId1 }
-                                searchViewModel.poemCount = finalResult.size
-                            }
-                        }
+                    displayResultJob = lifecycleScope.launch {
+                        val finalResult = search()
+                        adapter!!.submitList(finalResult)
+                        afterSubmit(finalResult)
+                        poemViewModel.resultRowId1 = finalResult.map { it.rowId1 }
+                    }
                 }
-
             }
         }
 
@@ -136,6 +122,7 @@ class ResultFragment : Fragment() {
         })
         binding.resultToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 
+        barsPreparation()
         return binding.root
     }
 
@@ -198,27 +185,6 @@ class ResultFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         displayResultJob?.cancel()
-    }
-
-    private suspend fun sortedResults(result: List<SearchContent>): List<SearchContent>{
-        return withContext(Dispatchers.Default){
-            val distinctResult = result.distinctBy { it.rowId1 + it.rowId2 }
-            val resultRanks = mutableMapOf<Int, Float>()
-            for (i in distinctResult.indices){
-                if (!isActive) break
-                resultRanks[distinctResult[i].rowId1] = resultRank(distinctResult[i])
-            }
-            if (!isActive)
-                distinctResult
-            else
-                distinctResult.sortedWith { r1, r2 ->
-                    when {
-                        resultRanks[r1.rowId1] == resultRanks[r2.rowId1] -> 0
-                        resultRanks[r1.rowId1]!! > resultRanks[r2.rowId1]!! -> -1
-                        else -> 1
-                    }
-                }
-        }
     }
 
     private fun motionInitialization(){
@@ -293,59 +259,6 @@ class ResultFragment : Fragment() {
             startPostponedEnterTransition()
         }
     }
-
-    private fun resultRank(item: SearchContent): Float{
-        val text = makeTextBiErab(when (item.position){
-            0,2 -> "${item.majorText?.trim()} ${item.minorText?.trim()}"
-            1,3 -> "${item.minorText?.trim()} ${item.majorText?.trim()}"
-            else -> item.majorText?.trim() ?: ""
-        })
-
-        val splittingChars = charArrayOf(' ', '،', '!', '؛', ':', '؟', '.')
-        val searchQuery =
-            makeTextBiErab(searchViewModel.submittedSearch.filter { it.isLetterOrDigit() || it.isWhitespace()})
-        val splittedQuery = searchQuery.split(*splittingChars)
-        val splittedText = text.split(*splittingChars)
-
-        val indices = mutableListOf<List<Int>>()
-        splittedQuery.forEach {
-            val allIndex = splittedText.allIndexOf(it)
-            if (allIndex.isNotEmpty())
-                indices.add(allIndex)
-        }
-
-        val foundPhrases = indices.map { it.size }.sum()        // number of search phrases in this result
-        var phraseCharCount = 0f                                // total number of found phrases characters in this result
-        indices.forEach {
-            phraseCharCount += (splittedText.filterIndexed { index, _ -> it.contains(index) }
-                .map { it.length }).average().toFloat()
-        }
-
-        var distance = 0f
-        for (i in 0 until indices.size - 1){
-            val lengthArray = mutableListOf<Float>()
-            indices[i].forEach { first ->
-                indices[i+1].forEach { second ->
-                    val minIndex = minOf(first, second)
-                    val maxIndex = maxOf(first, second)
-                    val charDistance =
-                        (splittedText.filterIndexed{ind, _ -> ind < maxIndex}.map { it.length }.sum() + maxIndex) -
-                        (splittedText.filterIndexed{ind, _ -> ind < minIndex}.map { it.length }.sum()
-                                + minIndex + splittedQuery[i].length)
-                    lengthArray.add(if (first < second) charDistance.toFloat() else 1.5f * charDistance)
-                }
-            }
-            distance += lengthArray.minOrNull() ?: 0f
-        }
-
-        val exactPhrasePoint = if (text.contains(searchQuery)) 100 else 0
-
-        return when{
-            indices.size <= 1 -> 4 * foundPhrases - phraseCharCount
-            else -> 3*(foundPhrases - phraseCharCount) - distance + exactPhrasePoint
-        }
-    }
-
 
 
 

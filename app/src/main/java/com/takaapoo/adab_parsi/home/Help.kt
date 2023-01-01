@@ -25,39 +25,37 @@ class Help(private val homeFragment: HomeFragment) {
         binding.helpDialog.c4.isVisible = false
     }
 
-    fun showHelp(helpState: Int?, startDelay: Long) {
-
-        if (helpState != null){
-            when (helpState) {
-                1 -> {
-                    if (!binding.helpFocusCirc.isVisible){
-                        binding.helpFocusCirc.isVisible = true
-                        openHelp1(startDelay)
-                    }
+    fun showHelp(helpView: HelpView, startDelay: Long) {
+         when (helpView) {
+             HelpView.ADD_FAB -> {
+                if (!binding.helpFocusCirc.isVisible){
+                    binding.helpFocusCirc.isVisible = true
+                    openHelp1(startDelay)
                 }
-                2 -> {
-                    binding.helpDialog.root.visibility = View.INVISIBLE
-                    closeHelp1 { openHelp2() }
-                }
-                3 -> {
-                    binding.helpDialog.root.visibility = View.INVISIBLE
-                    closeHelp2 { openHelp3() }
-                }
-            }
-        } else {
-            binding.helpDialog.root.visibility = View.INVISIBLE
+             }
+             HelpView.SEARCH_BAR -> {
+                 binding.helpDialog.root.visibility = View.INVISIBLE
+                 closeHelp1 { openHelp2() }
+             }
+             HelpView.POET_CARD -> {
+                 binding.helpDialog.root.visibility = View.INVISIBLE
+                 closeHelp2 { openHelp3() }
+             }
+             else -> {
+                 binding.helpDialog.root.visibility = View.INVISIBLE
 
-            if (binding.helpFocusCirc.isVisible)
-                closeHelp1 {}
+                 if (binding.helpFocusCirc.isVisible)
+                     closeHelp1 {}
 
-            if (binding.helpFocusRect.isVisible){
-                if (!binding.helpDialog.c3.isActivated)
-                    closeHelp2 {}
-                else
-                    closeHelp3 {}
-            }
+                 if (binding.helpFocusRect.isVisible){
+                     if (!binding.helpDialog.c3.isActivated)
+                         closeHelp2 {}
+                     else
+                         closeHelp3 {}
+                 }
 
-            binding.helpDialog.bullets.forEach { circ -> circ.isActivated = false }
+                 binding.helpDialog.bullets.forEach { circ -> circ.isActivated = false }
+             }
         }
     }
 
@@ -65,17 +63,21 @@ class Help(private val homeFragment: HomeFragment) {
     private fun openHelp1(delay: Long){
         binding.helpDialog.apply {
             mainText.text = resources.getString(R.string.help_fab)
-            binding.fab.doOnLayout {
-                root.x = binding.fab.x + 44.dpTOpx(resources)
-                root.y = binding.fab.y - 160.dpTOpx(resources)
+            binding.addPoetFab.doOnLayout {
+                root.x = binding.addPoetFab.x + 44.dpTOpx(resources)
+                root.y = binding.addPoetFab.y - 160.dpTOpx(resources)
 
                 binding.helpFocusCirc.apply {
                     centerX = it.x + it.width/2
                     centerY = it.y + it.height/2
                 }
             }
-            dismiss.setOnClickListener{ homeViewModel.doneShowHelp() }
-            next.setOnClickListener { homeViewModel.increaseShowHelp() }
+            dismiss.setOnClickListener {
+                homeViewModel.reportEvent(HomeEvent.OnShowHelp(HelpView.NULL))
+            }
+            next.setOnClickListener {
+                homeViewModel.reportEvent(HomeEvent.OnShowHelp(HelpView.SEARCH_BAR))
+            }
             c1.isActivated = true
         }
 
@@ -121,8 +123,12 @@ class Help(private val homeFragment: HomeFragment) {
                     root.y = (binding.cardView.y + binding.cardView.height + 2 * gap)
                         .coerceAtMost((binding.root.height - root.height).toFloat())
                 }
-                dismiss.setOnClickListener{ homeViewModel.doneShowHelp() }
-                next.setOnClickListener { homeViewModel.increaseShowHelp() }
+                dismiss.setOnClickListener{
+                    homeViewModel.reportEvent(HomeEvent.OnShowHelp(HelpView.NULL))
+                }
+                next.setOnClickListener {
+                    homeViewModel.reportEvent(HomeEvent.OnShowHelp(HelpView.POET_CARD))
+                }
                 c1.isActivated = true
                 c2.isActivated = true
             }
@@ -139,7 +145,6 @@ class Help(private val homeFragment: HomeFragment) {
                     binding.helpDialog.root.visibility = View.VISIBLE
                 }
             }.start()
-
         }
     }
 
@@ -163,7 +168,10 @@ class Help(private val homeFragment: HomeFragment) {
         val gap = 0
         binding.helpFocusRect.isVisible = true
         binding.helpDialog.mainText.text = resources.getString(R.string.help_delete)
-        val rect = homeFragment.currentChildFragment?.firstItemRectangle()?.toRectF()
+        val homePagerFragment = homeFragment
+            .childFragmentManager
+            .findFragmentByTag("f${homeViewModel.homePagerPosition}") as? HomePagerFragment
+        val rect = homePagerFragment?.firstItemRectangle()?.toRectF()
 
         binding.helpDialog.apply {
             val y1 = rect!!.bottom + binding.viewPager.top + 32.dpTOpx(resources)
@@ -173,7 +181,9 @@ class Help(private val homeFragment: HomeFragment) {
             }
             dismiss.isVisible = false
             next.text = resources.getString(R.string.got_it)
-            next.setOnClickListener { homeViewModel.doneShowHelp() }
+            next.setOnClickListener {
+                homeViewModel.reportEvent(HomeEvent.OnShowHelp(HelpView.NULL))
+            }
             c1.isActivated = true
             c2.isActivated = true
             c3.isActivated = true

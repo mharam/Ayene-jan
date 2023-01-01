@@ -15,10 +15,13 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.Category
 import com.takaapoo.adab_parsi.databinding.PoetItemAncientBinding
 import com.takaapoo.adab_parsi.databinding.PoetItemRecentBinding
+import com.takaapoo.adab_parsi.util.Destinations
 import com.takaapoo.adab_parsi.util.GlideApp
 
-class PoetListAdapter(private val homeViewModel: HomeViewModel, private val ancient: Int):
-    ListAdapter<Category, RecyclerView.ViewHolder>(CategoryDiffCallback()) {
+class PoetListAdapter(
+    private val homeViewModel: HomeViewModel,
+    private val ancient: Int
+    ): ListAdapter<Category, RecyclerView.ViewHolder>(CategoryDiffCallback()) {
 
     private var tracker: SelectionTracker<Long>? = null
     init {
@@ -52,7 +55,12 @@ class PoetListAdapter(private val homeViewModel: HomeViewModel, private val anci
 
     class ViewHolderAncient(val binding: PoetItemAncientBinding) : RecyclerView.ViewHolder(binding.root){
 
-        fun bind(item: Category, itemCount: Int, homeViewModel: HomeViewModel, tracker: SelectionTracker<Long>){
+        fun bind(
+            item: Category,
+            itemCount: Int,
+            homeViewModel: HomeViewModel,
+            tracker: SelectionTracker<Long>
+        ) {
             binding.catItem = item
             binding.cardView.transitionName = item.text
 
@@ -89,7 +97,7 @@ class PoetListAdapter(private val homeViewModel: HomeViewModel, private val anci
                     ancient = item.ancient!!
                     navigatorExtra = FragmentNavigatorExtras(
                         binding.cardView to binding.cardView.transitionName)
-                    navigateToPoetFragment()
+                    reportEvent(HomeEvent.Navigate(Destinations.POET))
                 }
             }
         }
@@ -97,11 +105,7 @@ class PoetListAdapter(private val homeViewModel: HomeViewModel, private val anci
         fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
             object: ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getSelectionKey(): Long = itemId
-
                 override fun getPosition(): Int = bindingAdapterPosition
-
-                // More code here
-
             }
 
         companion object {
@@ -115,7 +119,12 @@ class PoetListAdapter(private val homeViewModel: HomeViewModel, private val anci
 
     class ViewHolderRecent(val binding: PoetItemRecentBinding) : RecyclerView.ViewHolder(binding.root){
 
-        fun bind(item: Category, itemCount: Int, homeViewModel: HomeViewModel, tracker: SelectionTracker<Long>) {
+        fun bind(
+            item: Category,
+            itemCount: Int,
+            homeViewModel: HomeViewModel,
+            tracker: SelectionTracker<Long>
+        ) {
             binding.catItem = item
             binding.cardView.transitionName = item.text
 
@@ -154,7 +163,7 @@ class PoetListAdapter(private val homeViewModel: HomeViewModel, private val anci
                     ancient = item.ancient!!
                     navigatorExtra = FragmentNavigatorExtras(
                         binding.cardView to binding.cardView.transitionName)
-                    navigateToPoetFragment()
+                    reportEvent(HomeEvent.Navigate(Destinations.POET))
                 }
             }
         }
@@ -162,11 +171,7 @@ class PoetListAdapter(private val homeViewModel: HomeViewModel, private val anci
         fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
             object: ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getSelectionKey(): Long = itemId
-
                 override fun getPosition(): Int = bindingAdapterPosition
-
-                // More code here
-
             }
 
         companion object {
@@ -203,7 +208,9 @@ class MyLookup(private val rv: RecyclerView, val ancient: Int) : ItemDetailsLook
     }
 }
 
-class RecyclerViewIdKeyProvider(private val recyclerView: RecyclerView) : ItemKeyProvider<Long>(SCOPE_MAPPED) {
+class RecyclerViewIdKeyProvider(
+    private val recyclerView: RecyclerView
+    ) : ItemKeyProvider<Long>(SCOPE_MAPPED) {
 
     override fun getKey(position: Int): Long {
         return recyclerView.adapter?.getItemId(position)

@@ -38,19 +38,19 @@ class DeletePoetDialogFragmentTest {
     @Before
     fun init(){
         hiltRule.inject()
-        homeViewModel = HomeViewModel(getApplicationContext(), dao)
+//        homeViewModel = HomeViewModel(getApplicationContext(), dao)
     }
 
     @Test
     fun checkDialogStructure(){
         val resources = getInstrumentation().targetContext.resources
-        homeViewModel.apply {
-            selectedPoetCount = selectedPoetNum
-            deleteDialogTitle = resources.getString(
-                R.string.delete_poet_title,
-                engNumToFarsiNum(selectedPoetNum)
-            )
-        }
+//        homeViewModel.apply {
+//            selectedPoetCount = selectedPoetNum
+//            deleteDialogTitle = resources.getString(
+//                R.string.delete_poet_title,
+//                engNumToFarsiNum(selectedPoetNum)
+//            )
+//        }
         val message = resources.getQuantityString(R.plurals.delete_poet_message, selectedPoetNum)
 
         launchFragmentInHiltContainer<DeletePoetDialogFragment>(themeResId = R.style.Theme_MyApp) {

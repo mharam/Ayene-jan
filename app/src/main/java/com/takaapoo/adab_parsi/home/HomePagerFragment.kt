@@ -1,9 +1,5 @@
 package com.takaapoo.adab_parsi.home
 
-import android.animation.ValueAnimator
-import android.app.Dialog
-import android.content.DialogInterface
-import android.graphics.Color
 import android.graphics.Rect
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -12,26 +8,28 @@ import android.os.Looper
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.add.ARG_ADD_PAGE
 import com.takaapoo.adab_parsi.databinding.PagerHomeBinding
 import com.takaapoo.adab_parsi.util.*
 import com.takaapoo.adab_parsi.util.fastScroll.HomeFastScrollViewHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 
 
@@ -53,12 +51,7 @@ class HomePagerFragment: Fragment() {
     val callback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
             mode?.menuInflater?.inflate(R.menu.home_contextual_action_bar, menu)
-            ValueAnimator.ofArgb(requireContext().getColorFromAttr(R.attr.colorSurface),
-                requireContext().getColorFromAttr(R.attr.colorBeitSelect)).apply {
-                addUpdateListener { updatedAnimation ->
-                    requireActivity().window.statusBarColor = updatedAnimation.animatedValue as Int
-                }
-            }.start()
+            homeViewModel.reportEvent(HomeEvent.OnCreateActionMode)
             return true
         }
 
@@ -69,11 +62,7 @@ class HomePagerFragment: Fragment() {
         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
             return when (item?.itemId) {
                 R.id.delete -> {
-                    homeViewModel.selectedPoetCount = tracker!!.selection.size()
-                    homeViewModel.deleteDialogTitle = getString(R.string.delete_poet_title
-                        , engNumToFarsiNum(tracker!!.selection.size())
-                    )
-                    DeletePoetDialogFragment().show(parentFragmentManager, "Delete")
+                    homeViewModel.reportEvent(HomeEvent.OnDeleteClick(tracker!!.selection))
                     true
                 }
                 else -> false
@@ -84,13 +73,7 @@ class HomePagerFragment: Fragment() {
             if (!onStopCalled) {
                 tracker?.clearSelection()
             }
-            ValueAnimator.ofArgb(requireContext().getColorFromAttr(R.attr.colorBeitSelect),
-                requireContext().getColorFromAttr(R.attr.colorSurface)).apply {
-                addUpdateListener { updatedAnimation ->
-                    activity?.window?.statusBarColor = updatedAnimation.animatedValue as Int
-                }
-                doOnEnd { activity?.window?.statusBarColor = Color.TRANSPARENT }
-            }.start()
+            homeViewModel.reportEvent(HomeEvent.OnDestroyActionMode)
         }
     }
 
@@ -107,8 +90,8 @@ class HomePagerFragment: Fragment() {
         arguments?.takeIf { it.containsKey(ARG_ADD_PAGE) }?.apply {
             binding.loadedPoetList.contentDescription = context?.getString(
                 when(getInt(ARG_ADD_PAGE)){
-                 0 -> R.string.content_desc_ancient_poet_list
-                 else -> R.string.content_desc_recent_poet_list
+                    0 -> R.string.content_desc_ancient_poet_list
+                    else -> R.string.content_desc_recent_poet_list
                 }
             )
 
@@ -122,7 +105,8 @@ class HomePagerFragment: Fragment() {
                 binding.loadedPoetList,
                 RecyclerViewIdKeyProvider(binding.loadedPoetList),
                 MyLookup(binding.loadedPoetList, getInt(ARG_ADD_PAGE)),
-                StorageStrategy.createLongStorage())
+                StorageStrategy.createLongStorage()
+            )
                 .withSelectionPredicate(SelectionPredicates.createSelectAnything())
                 .build()
 
@@ -134,9 +118,9 @@ class HomePagerFragment: Fragment() {
                 override fun onSelectionChanged() {
                     val nItems:Int? = tracker?.selection?.size()
                     if (nItems != null){
-                        if (nItems == 0){
+                        if (nItems == 0)
                             finishActionMode()
-                        } else{
+                        else {
                             if (actionMode == null) {
                                 actionMode = (requireActivity() as AppCompatActivity)
                                     .startSupportActionMode(callback)
@@ -164,11 +148,10 @@ class HomePagerFragment: Fragment() {
             val sharedPreference = PreferenceManager.getDefaultSharedPreferences(requireContext())
             view.doOnPreDraw {
                 layoutManager!!.spanCount = (view.width / 320.dpTOpx(resources)).toInt().coerceAtLeast(1)
-                homeViewModel.spanCount = layoutManager!!.spanCount
+//                homeViewModel.spanCount = layoutManager!!.spanCount
 
                 homeViewModel.allCat.observe(viewLifecycleOwner) { items ->
-                    allCategory =
-                        items.sortedWith { one, two -> collator.compare(one.text, two.text) }
+                    allCategory = items
                     allCategory.filter { it.ancient == getInt(ARG_ADD_PAGE) && it.parentID == 0 }
                         .let { list ->
                             when (getInt(ARG_ADD_PAGE)) {
@@ -209,6 +192,12 @@ class HomePagerFragment: Fragment() {
                     .build()
             }
 
+            homeViewModel.actionModeState.onEach {
+                if (it == ActionModeState.GONE)
+                    finishActionMode()
+            }
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .launchIn(viewLifecycleOwner.lifecycleScope)
         }
     }
 
@@ -271,26 +260,3 @@ class HomePagerFragment: Fragment() {
 
 }
 
-@AndroidEntryPoint
-class DeletePoetDialogFragment : DialogFragment() {
-
-    private val homeViewModel: HomeViewModel by activityViewModels()
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            MaterialAlertDialogBuilder(it)
-                .setTitle(homeViewModel.deleteDialogTitle)
-                .setMessage(
-                    resources.getQuantityString(R.plurals.delete_poet_message, homeViewModel.selectedPoetCount))
-                .setPositiveButton(R.string.delete_poet_pos_button) { _, _ -> homeViewModel.deletePoet() }
-                .setNegativeButton(R.string.delete_poet_neg_button) { _: DialogInterface, _: Int ->  }
-                .create()
-        } ?: throw IllegalStateException("Activity cannot be null")
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        homeViewModel.notDeletePoet()
-    }
-
-}

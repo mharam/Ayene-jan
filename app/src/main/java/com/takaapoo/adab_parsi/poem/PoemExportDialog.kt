@@ -19,12 +19,7 @@ import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.engNumToFarsiNum
 
-class PoemExportDialog(val listener: NoticeDialogListener) :
-    DialogFragment(), MaterialButtonToggleGroup.OnButtonCheckedListener {
-
-    interface NoticeDialogListener {
-        fun onExportDialogPositiveClick()
-    }
+class PoemExportDialog : DialogFragment(), MaterialButtonToggleGroup.OnButtonCheckedListener {
 
     val poemViewModel: PoemViewModel by activityViewModels()
     val settingViewModel: SettingViewModel by activityViewModels()
@@ -64,13 +59,14 @@ class PoemExportDialog(val listener: NoticeDialogListener) :
         val adapter = ArrayAdapter(requireContext(), R.layout.theme_list_item, fileTypes)
         binding.textField.setText(fileTypes[poemViewModel.exportOutFile])
         (binding.fileTypeMenu.editText as? AutoCompleteTextView)?.apply {
-            setAdapter(adapter)
-            binding.textField.dismissDropDown()
+            postDelayed(
+                {
+                    setAdapter(adapter)
+                    _binding?.textField?.dismissDropDown()
+                },
+                300
+            )
         }
-//        binding.fileTypeMenu.editText?.doOnTextChanged { text, start, before, count ->
-//            poemViewModel.exportOutFile = fileTypes.indexOf(text.toString())
-//            setVisibility()
-//        }
         binding.fileTypeMenu.editText?.addTextChangedListener(fileTypeTextWatcher)
 
         binding.frameButton.check(when(settingViewModel.borderPref) {
@@ -99,7 +95,7 @@ class PoemExportDialog(val listener: NoticeDialogListener) :
         binding.cancelButton.setOnClickListener { dismiss() }
         binding.saveButton.setOnClickListener {
             dismiss()
-            listener.onExportDialogPositiveClick()
+            poemViewModel.reportEvent(PoemEvent.OnExportDialogPositiveClick)
         }
 
         return mDialog

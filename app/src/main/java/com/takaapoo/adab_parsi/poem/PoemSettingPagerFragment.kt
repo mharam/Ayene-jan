@@ -112,8 +112,13 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                     val adapter = ArrayAdapter(requireContext(), R.layout.theme_list_item, themeNames)
                     bindingTheme.textField.setText(themeNames[settingViewModel.themePref.toInt()])
                     (bindingTheme.themeMenu.editText as? AutoCompleteTextView)?.apply {
-                        postDelayed({ setAdapter(adapter)
-                                bindingTheme.textField.dismissDropDown() }, 500)
+                        postDelayed(
+                            {
+                                setAdapter(adapter)
+                                _bindingTheme?.textField?.dismissDropDown()
+                            },
+                            500
+                        )
                     }
                     bindingTheme.themeMenu.editText?.doOnTextChanged { text, start, before, count ->
                         settingViewModel.updateTheme(themeNames.indexOf(text.toString()).toString(), requireContext())

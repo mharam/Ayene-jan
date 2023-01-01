@@ -2,40 +2,39 @@ package com.takaapoo.adab_parsi.poem
 
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.os.Bundle
+import androidx.lifecycle.*
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.network.DictionaryApi
 import com.takaapoo.adab_parsi.network.DictionaryProperty
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 enum class MeaningLoadStatus { LOADING, ERROR, DONE }
 
 @HiltViewModel
-class PoemViewModel @Inject constructor(val dao: Dao) : ViewModel() {
-
-//    val dao = PoemDatabase.getDatabase(application).dao()
+class PoemViewModel @Inject constructor(
+    val dao: Dao,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     var poemPosition = 0
     var poemCount = 0
     var poemList = emptyList<Content?>()
     var poemFirstOpening = false
     var bookContentScrollY = 0
-    var bPFcontentItem : Content? = null
+//    var bPFcontentItem : Content? = null
 
     var contentShot: Bitmap? = null
-
-//    var topPadding = 0
 
     var poemContentHeight = mutableMapOf<Int, Int>()
     var x = 0f
 
-    var shareOutFiles = booleanArrayOf(false, false, false)    // PDF, JPG, TXT
+    var shareOutFiles = booleanArrayOf(true, false, false)    // PDF, JPG, TXT
     var exportOutFile = 0       // 0 = PDF, 1 = JPG, 2 = TXT
 
     var keyboardIsOpen = false
@@ -72,11 +71,22 @@ class PoemViewModel @Inject constructor(val dao: Dao) : ViewModel() {
     var rightHandleX = 0f
     var rightHandleY = 0f
 
-
-//    var textMenuActionMode: android.view.ActionMode? = null
     var textHilight: String? = null
     var textVerseOrder = 0
     var textNoteVerseOrder = 0
+
+    init {
+        savedStateHandle.get<Bundle?>("poem_state")?.let {
+            poemPosition = it.getInt("poem_position")
+            shareOutFiles = it.getBooleanArray("share_out_files") ?: booleanArrayOf(true, false, false)
+        }
+        savedStateHandle.setSavedStateProvider("poem_state"){
+            Bundle().apply {
+                putInt("poem_position", poemPosition)
+                putBooleanArray("share_out_files", shareOutFiles)
+            }
+        }
+    }
 
     private val _refreshTextMenu = MutableLiveData<Boolean?>()
     val refreshTextMenu: LiveData<Boolean?>
@@ -110,32 +120,35 @@ class PoemViewModel @Inject constructor(val dao: Dao) : ViewModel() {
     val poemListLayoutCompleted = MutableLiveData(false)
 
 
+    private val _uiEvent = Channel<PoemEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
+    fun reportEvent(event: PoemEvent){
+        viewModelScope.launch {
+            _uiEvent.send(event)
+        }
+    }
 
 
 
 
+    fun getVerseWithPoemID(poemId: Int) = dao.getVerseWithPoemID(poemId)
+    fun getPoemBookmark(poemId: Int) = dao.getPoemBookmark(poemId)
 
-
-
-//    fun getCatWithID(id: Int) = dao.getCatWithID(id)
-//    fun getCatRootWithID(id: Int) = dao.getCatRootWithID(id)
-    fun getVerseWithPoemID(poem_id: Int) = dao.getVerseWithPoemID(poem_id)
-    fun getPoemBookmark(poem_id: Int) = dao.getPoemBookmark(poem_id)
-
-    fun updateBookmark(state: Long?, poem_id: Int){
+    fun updateBookmark(state: Long?, poemId: Int){
 //        Handler(Looper.getMainLooper()).postDelayed({
             viewModelScope.launch {
-                dao.updateBookmark(state, poem_id)
+                dao.updateBookmark(state, poemId)
             }
 //        }, 100)
     }
 
-    fun updateFavorite(state: Long?, poem_id: Int, vOrder: List<String>) = viewModelScope.launch {
-        dao.updateFavorite(state, poem_id, vOrder)
+    fun updateFavorite(state: Long?, poemId: Int, vOrder: List<String>) = viewModelScope.launch {
+        dao.updateFavorite(state, poemId, vOrder)
     }
 
-    fun updateHilight(hilight: String?, poem_id: Int, vOrder: Int) = viewModelScope.launch {
-        dao.updateHilight(hilight, poem_id, vOrder)
+    fun updateHilight(hilight: String?, poemId: Int, vOrder: Int) = viewModelScope.launch {
+        dao.updateHilight(hilight, poemId, vOrder)
     }
 
     fun updateNote(text: String?, poemId: Int, vOrder: Int) = viewModelScope.launch {

@@ -1,29 +1,38 @@
 package com.takaapoo.adab_parsi.book
 
 import android.graphics.Bitmap
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.takaapoo.adab_parsi.database.Content
 
 
-class BookViewModel : ViewModel() {
+class BookViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
-//    val dao = PoemDatabase.getDatabase(application).dao()
-
-    var listOpen = mutableMapOf<Int, Boolean>()
-//    var sortedItems = List(0){Content()}
-
-//    var bookContentHeight = mutableMapOf<Int, Int>()
+    var listOpen = HashMap<Int, Boolean>()
     var bookFirstOpening = false
 
-    lateinit var bookCurrentItem: Content
+    var bookCurrentItem: Content? = null
     var bookContentScrollPosition = mutableMapOf<Int, Content>()
-//    var bookContentScrollHeight = mutableMapOf<Int, Int>()
-
-    var offset = 0
+//    var offset = 0
 
     var poetLibContentShot: Bitmap? = null
+//    var bookWidthMultiplier = 1f
+
+    init {
+        savedStateHandle.get<Bundle?>("book_state")?.let {
+            bookCurrentItem = it.getParcelable("book_current_item")
+            listOpen = (it.getSerializable("list_open") as HashMap<Int, Boolean>)
+        }
+        savedStateHandle.setSavedStateProvider("book_state"){
+            Bundle().apply {
+                putParcelable("book_current_item", bookCurrentItem)
+                putSerializable("list_open", listOpen)
+            }
+        }
+    }
 
     private val _showHelp = MutableLiveData<Int?>(null)
     val showHelp: LiveData<Int?>
@@ -32,7 +41,6 @@ class BookViewModel : ViewModel() {
     fun doneShowHelp() { _showHelp.value = null}
     fun increaseShowHelp() { _showHelp.value = _showHelp.value?.plus(1) }
 
-    var bookWidthMultiplier = 1f
 
 
 

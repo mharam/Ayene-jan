@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -20,6 +21,7 @@ import com.takaapoo.adab_parsi.poem.PoemPagerFragment
 import com.takaapoo.adab_parsi.search_result.PutAsideTransformer
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FavoriteDetailFragment: BasePoemFragment() {
@@ -33,9 +35,6 @@ class FavoriteDetailFragment: BasePoemFragment() {
                     as? PoemPagerFragment
             favoriteViewModel.apply {
                 poemPosition = position
-//                    currentFragment =
-//                        childFragmentManager.findFragmentByTag("f$position") as? PoemPagerFragment
-
                 if (detailPagerPosition != position){
                     visibleChildFrag?.favoriteItemMeasure(allFavorites[poemPosition], false)
                     visibleChildFrag?.moveToFavoritePosition()
@@ -65,10 +64,10 @@ class FavoriteDetailFragment: BasePoemFragment() {
         favoriteViewModel.apply {
 //            comeFromDetailFragment = true
             openedFromFavoriteDetailFrag = true
-            favoriteListDisplace = 0
-            favoriteListAddedScroll = 0
-            bottomViewedResultHeight = 0
-            topViewedResultHeight = 0
+//            favoriteListDisplace = 0
+//            favoriteListAddedScroll = 0
+//            bottomViewedResultHeight = 0
+//            topViewedResultHeight = 0
 //            detailPagerPosition = -1
         }
 
@@ -77,36 +76,41 @@ class FavoriteDetailFragment: BasePoemFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (favoriteViewModel.allFavorites.isEmpty())
+                favoriteViewModel.getAllFavoriteSuspend()
 
-        motionInitialization()
+            motionInitialization()
 
-        val poemAdapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
-            favoriteViewModel.poemCount, favoriteViewModel.poemList)
+            val poemAdapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
+                favoriteViewModel.poemCount, favoriteViewModel.poemList)
 
-        viewPager.apply {
-            adapter = poemAdapter
-            setCurrentItem(favoriteViewModel.poemPosition, false)
-            setPageTransformer(PutAsideTransformer())
-            registerOnPageChangeCallback(pageCallBack)
-            offscreenPageLimit = 1
-            post { pageCallBack.onPageSelected(currentItem) }
-        }
+            viewPager.apply {
+                adapter = poemAdapter
+                setCurrentItem(favoriteViewModel.poemPosition, false)
+                setPageTransformer(PutAsideTransformer())
+                registerOnPageChangeCallback(pageCallBack)
+                offscreenPageLimit = 1
+                post { pageCallBack.onPageSelected(currentItem) }
+            }
 
-        // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
-        setEnterSharedElementCallback(object : SharedElementCallback() {
-            override fun onMapSharedElements(names: List<String>, sharedElements: MutableMap<String, View> ) {
+            // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
+            setEnterSharedElementCallback(object : SharedElementCallback() {
+                override fun onMapSharedElements(names: List<String>, sharedElements: MutableMap<String, View> ) {
 //                val currentFragment =
 //                    childFragmentManager.findFragmentByTag("f${favoriteViewModel.poemPosition}")
 //                currentFragment?.view ?: return
-                favoriteViewModel.apply {
-                    binding.bookFrame.transitionName =
-                        "TN${allFavorites[poemPosition].poemm.id},${allFavorites[poemPosition].verse1Order}"
+                    favoriteViewModel.apply {
+                        binding.bookFrame.transitionName =
+                            "TN${allFavorites[poemPosition].poemm.id},${allFavorites[poemPosition].verse1Order}"
+                    }
+                    try {
+                        sharedElements[names[0]] = binding.bookFrame
+                    } catch (e: Exception) { }
                 }
-                try {
-                    sharedElements[names[0]] = binding.bookFrame
-                } catch (e: Exception) { }
-            }
-        })
+            })
+        }
+
 
         (activity as? MainActivity)?.analyticsLogEvent(
             FirebaseAnalytics.Event.SCREEN_VIEW,

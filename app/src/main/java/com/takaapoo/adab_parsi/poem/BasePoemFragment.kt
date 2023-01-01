@@ -16,6 +16,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.takaapoo.adab_parsi.MainActivity
@@ -29,7 +31,7 @@ import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.makeTextBiErab
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.poem_item.view.*
-import timber.log.Timber
+import kotlinx.coroutines.launch
 
 
 const val DARK_ALPHA_MAX = 0.35f
@@ -75,6 +77,20 @@ abstract class BasePoemFragment: Fragment(), PoemTextMenu.FragmentPreparer {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                poemViewModel.uiEvent.collect { event ->
+                    when(event){
+                        is PoemEvent.OnExportDialogPositiveClick -> {
+                            visibleChildFrag?.onExportDialogPositiveClick()
+                        }
+                        is PoemEvent.OnShareDialogPositiveClick -> {
+                            visibleChildFrag?.onShareDialogPositiveClick()
+                        }
+                    }
+                }
+            }
+        }
         poemViewModel.apply {
             refreshContent.observe(viewLifecycleOwner){
                 if (it == true){
@@ -277,8 +293,12 @@ abstract class BasePoemFragment: Fragment(), PoemTextMenu.FragmentPreparer {
 const val ARG_POEM_ITEM = "poem_item"
 const val ARG_POEM_POSITION = "poem_position"
 
-class PoemAdapter(fragManager: FragmentManager, lifeCycle: Lifecycle, private val itemNumber: Int,
-                  private val poemList: List<Content?>) : FragmentStateAdapter(fragManager, lifeCycle) {
+class PoemAdapter(
+    fragManager: FragmentManager,
+    lifeCycle: Lifecycle,
+    private val itemNumber: Int,
+    private val poemList: List<Content?>
+    ) : FragmentStateAdapter(fragManager, lifeCycle) {
 
     override fun getItemCount(): Int = itemNumber
 

@@ -120,7 +120,7 @@ class BookContentAdapter(private val bookPagerFragment: BookPagerFragment)
                             .poemListItems[bPF.contentItem.id]!!.indexOfFirst {it.id == item.id }
                         poemList = bPF.poetViewModel.poemListItems[bPF.contentItem.id]!!
                         poemCount = poemList.size
-                        bPFcontentItem = bPF.contentItem
+//                        bPFcontentItem = bPF.contentItem
 
 //                        bPF.binding.bookContent.doOnLayout { contentShot = bPF.binding.bookContent.drawToBitmap() }
                         contentShot = Bitmap.createBitmap(bPF.binding.bookContent.width
