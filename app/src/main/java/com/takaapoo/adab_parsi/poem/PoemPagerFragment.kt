@@ -1,6 +1,7 @@
 package com.takaapoo.adab_parsi.poem
 
 import android.animation.ValueAnimator
+import android.app.ProgressDialog.show
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -24,7 +25,9 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -68,8 +71,7 @@ import kotlin.math.max
 
 
 @AndroidEntryPoint
-class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
-    , PoemExportDialog.NoticeDialogListener {
+class PoemPagerFragment : Fragment() {
 
     val poemViewModel: PoemViewModel by activityViewModels()
     val searchViewModel: SearchViewModel by activityViewModels()
@@ -124,6 +126,8 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
     private var firstObservation = true
     private var mediaPlayer: MediaPlayer? = null
     private var mySearchView: SearchView? = null
+
+    var poemExporter: PoemExporter? = null
 
 
     val callback = object : ActionMode.Callback {
@@ -309,7 +313,7 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
             override fun onQueryTextChange(newText: String?): Boolean {
                 resultCount = searchResultCount(newText)
                 if (!sharedPreference.getBoolean("sound", false) && resultCount == 0 &&
-                        !newText.isNullOrBlank() && newText.length > poemViewModel.searchQuery?.length ?: 0) {
+                        !newText.isNullOrBlank() && newText.length > (poemViewModel.searchQuery?.length ?: 0)) {
                     mediaPlayer = MediaPlayer.create(requireContext(), R.raw.not_found)?.apply {
                         setVolume(0.7f, 0.7f)
                         start()
@@ -410,13 +414,13 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
             }
             when(menuItem.itemId){
                 R.id.share -> {
-                    ShareTypeChooseDialog(this).show(parentFragmentManager, "share_choose_type")
+                    ShareTypeChooseDialog().show(parentFragmentManager, "share_choose_type")
                 }
                 R.id.search -> {
 //                    navController.navigate(NavGraphDirections.actionGlobalSearchFragment(poemItem.id, -1))
                 }
                 R.id.export -> {
-                    PoemExportDialog(this).show(parentFragmentManager, "export_dialog")
+                    PoemExportDialog().show(parentFragmentManager, "export_dialog")
                 }
                 R.id.setting -> {
                     PoemSettingDialog().show(parentFragmentManager, "poem_setting")
@@ -499,272 +503,274 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
         binding.item = Content(7, 0, " ", 1)
         binding.root.getLocationInWindow(fragLocation)
 
-        arguments?.takeIf { it.containsKey(ARG_POEM_POSITION) }?.apply {
+        val argumentsPoemPosition = arguments?.getInt(ARG_POEM_POSITION) ?: return
+        poemItem = arguments?.getParcelable(ARG_POEM_ITEM) ?: return
+
 //            poemItem = poemViewModel.poemList[getInt(ARG_POEM_POSITION)]
-            poemItem = getParcelable(ARG_POEM_ITEM)!!
-            binding.poemLayout.transitionName = poemViewModel.resultRowId1
-                .getOrElse(getInt(ARG_POEM_POSITION)) { poemItem.id }.toString()
-            binding.poemTitle.text = poemItem.text
+        binding.poemLayout.transitionName = poemViewModel.resultRowId1
+            .getOrElse(argumentsPoemPosition) { poemItem.id }.toString()
+        binding.poemTitle.text = poemItem.text
 
-            poemViewModel.apply {
+        poemViewModel.apply {
 
-                if (!selectedVerses.containsKey(poemItem.id))
-                    selectedVerses[poemItem.id] = MutableLiveData<MutableList<Int>>()
-                if (!noteOpenedVerses.containsKey(poemItem.id))
-                    noteOpenedVerses[poemItem.id] = mutableListOf()
+            if (!selectedVerses.containsKey(poemItem.id))
+                selectedVerses[poemItem.id] = MutableLiveData<MutableList<Int>>()
+            if (!noteOpenedVerses.containsKey(poemItem.id))
+                noteOpenedVerses[poemItem.id] = mutableListOf()
 
-                selectedVerses[poemItem.id]?.observe(viewLifecycleOwner){
+            selectedVerses[poemItem.id]?.observe(viewLifecycleOwner){
 //                    if (isResumed){
-                        val nItems = it.size
-                        it.forEach { id ->
-                            binding.poemList.findViewHolderForItemId(id.toLong())?.itemView?.isActivated = true
-                        }
-                        mSelectedVerses.subtract(it).forEach { id ->
-                            if (binding.poemList.findViewHolderForItemId(id.toLong())?.itemView != null)
-                                binding.poemList.findViewHolderForItemId(id.toLong()).itemView.isActivated = false
-                            else
-                                adapter!!.notifyItemChanged(verseOrderToItemPosition(id))
-                        }
-                        mSelectedVerses = it.map { data -> data }
-                        mainActivity = requireActivity() as? MainActivity
-
-                        if (nItems == 0){
-                            if (mainActivity?.poemActionMode != null)
-                                finishActionMode()
-                        } else {
-                            if (mainActivity?.poemActionMode == null) {
-                                mainActivity?.poemActionMode = mainActivity?.startSupportActionMode(callback)
-                                binding.toolbarSubtitle.visibility = View.INVISIBLE
-                            }
-                            mainActivity?.poemActionMode?.title = nItems.toString()
-                            mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isEnabled = (nItems == 1)
-                            mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isVisible = (nItems == 1)
-                        }
-//                    }
-                }
-
-                binding.poemList.addOnItemTouchListener(object : OnItemTouchListener{
-                    override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                        val itemView = rv.findChildViewUnder(e.x, e.y)
-                        itemView?.let {
-                            touchedViewID = rv.getChildItemId(it).toInt()
-                            val commentRect = Rect(it.comment.left, it.comment.top, it.comment.right,
-                                it.comment.bottom)
-                            val margin = 10
-                            val saveRect = Rect(it.save.left - margin, it.save.top - margin,
-                                it.save.right + margin, it.save.bottom + margin)
-
-                            val xPos = (e.x - it.x).toInt()
-                            val yPos = (e.y - it.y).toInt()
-
-                            return if (commentRect.contains(xPos, yPos) || saveRect.contains(xPos, yPos))
-                                false
-                            else
-                                mDetector!!.onTouchEvent(e)
-                        }
-                        return false
+                    val nItems = it.size
+                    it.forEach { id ->
+                        binding.poemList.findViewHolderForItemId(id.toLong())?.itemView?.isActivated = true
                     }
-
-                    override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
-                    override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
-                })
-
-                binding.appBar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener {
-                        appBarLayout, verticalOffset ->
-                    if (textMenuTextView != null){
-                        textMenuTextView?.getLocationInWindow(textMenuLocation)
-                        textMenuLocation[0] -= fragLocation[0]
-                        textMenuLocation[1] -= fragLocation[1]
-                        doRefreshTextMenu()
+                    mSelectedVerses.subtract(it).forEach { id ->
+                        if (binding.poemList.findViewHolderForItemId(id.toLong())?.itemView != null)
+                            binding.poemList.findViewHolderForItemId(id.toLong()).itemView.isActivated = false
+                        else
+                            adapter!!.notifyItemChanged(verseOrderToItemPosition(id))
                     }
-                })
+                    mSelectedVerses = it.map { data -> data }
+                    mainActivity = requireActivity() as? MainActivity
 
-                val allCats = allUpCategories(poemItem.parentID).map {
-                        elem -> allCategory.find { it.id == elem } }.reversed()
-
-                val field: Field = Toolbar::class.java.getDeclaredField("mTitleTextView")
-                field.isAccessible = true
-                (field.get(binding.poemToolbar) as TextView).doOnPreDraw {
-                    binding.toolbarTitle.updatePadding(
-                        right = (view.width - it.right).coerceAtLeast(64.dpTOpx(resources).toInt())
-                    )
-                    binding.toolbarSubtitle.updatePadding(
-                        right = (view.width - it.right).coerceAtLeast(64.dpTOpx(resources).toInt())
-                    )
-                }
-
-                binding.toolbarTitle.text = if (searchViewModel.openedFromDetailFrag)
-                    resources.getString(R.string.numbered_title,
-                        engNumToFarsiNum(getInt(ARG_POEM_POSITION)+1),
-                        allCats.getOrNull(0)?.text?.substringBefore("*") ?: "")
-                else
-                    allCats.getOrNull(0)?.text?.substringBefore("*") ?: ""
-
-                bookmarkAddress = ""
-                allCats.getOrNull(0)?.text?.let { bookmarkAddress += "${it.substringBefore('*')}، " }
-
-                if (allCats.size == 1){
-                    if (allCategory.count { it.parentID == allCats[0]?.id } == 0){ // if book count == 0
-                        binding.toolbarSubtitle.text = "مجموعه آثار"
-                        itemRoot = mutableListOf("مجموعه آثار", allCats[0]?.text ?: "")
+                    if (nItems == 0){
+                        if (mainActivity?.poemActionMode != null)
+                            finishActionMode()
                     } else {
-                        binding.toolbarSubtitle.text = "سایر آثار"
-                        itemRoot = mutableListOf("سایر آثار", allCats[0]?.text ?: "")
+                        if (mainActivity?.poemActionMode == null) {
+                            mainActivity?.poemActionMode = mainActivity?.startSupportActionMode(callback)
+                            binding.toolbarSubtitle.visibility = View.INVISIBLE
+                        }
+                        mainActivity?.poemActionMode?.title = nItems.toString()
+                        mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isEnabled = (nItems == 1)
+                        mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isVisible = (nItems == 1)
                     }
-                } else if (allCats.size > 1) {
-                    binding.toolbarSubtitle.text = allCats.subList(1, allCats.size).map { it?.text }
-                        .joinToString("، ") { it!! }
-                    itemRoot = allCats.reversed().map { it?.text }.toMutableList()
-
-                    allCats.subList(1, allCats.size).forEach { elem -> bookmarkAddress += "${elem?.text}، " }
-                }
-                bookmarkAddress += poemItem.text
-
-
-                getPoemBookmark(poemItem.id).observe(viewLifecycleOwner) {
-                    binding.bookMarkToggle.isChecked = (it != null)
-                    binding.poemToolbar.menu.findItem(R.id.bookmark).title =
-                        resources.getString(if (it != null) R.string.bookmark_remove_hint else R.string.bookmark_add_hint)
-                }
+//                    }
             }
 
-            viewHelper = PoemFastScrollViewHelper(binding.poemList,null, poemViewModel,
-                this@PoemPagerFragment)
-            FastScrollerBuilder(binding.poemList)/*.apply { disableScrollbarAutoHide() }*/
-                .setPadding(0, 0, 0, 0)
-                .setThumbDrawable(
-                    ResourcesCompat.getDrawable(resources, R.drawable.fast_scroll_thumb, context?.theme)!!)
-                .setTrackDrawable(
-                    ResourcesCompat.getDrawable(resources, R.drawable.fast_scroll_track, context?.theme)!!)
-                .setViewHelper(viewHelper)
-                .build()
+            binding.poemList.addOnItemTouchListener(object : OnItemTouchListener{
+                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                    val itemView = rv.findChildViewUnder(e.x, e.y)
+                    itemView?.let {
+                        touchedViewID = rv.getChildItemId(it).toInt()
+                        val commentRect = Rect(it.comment.left, it.comment.top, it.comment.right,
+                            it.comment.bottom)
+                        val margin = 10
+                        val saveRect = Rect(it.save.left - margin, it.save.top - margin,
+                            it.save.right + margin, it.save.bottom + margin)
 
-            poemViewModel.getVerseWithPoemID(poemItem.id).observe(viewLifecycleOwner) { verseItems ->
-                if (!verseItems.isNullOrEmpty()) {
-                    verses = verseItems.map { it.copy() }
-                    poemHilighter = PoemHilighter(verses, poemItem, poemViewModel, settingViewModel)
+                        val xPos = (e.x - it.x).toInt()
+                        val yPos = (e.y - it.y).toInt()
 
-                    mDetector = GestureDetectorCompat(
-                        requireContext(),
-                        PoemGestureListener(poemViewModel, this@PoemPagerFragment)
-                    )
+                        return if (commentRect.contains(xPos, yPos) || saveRect.contains(xPos, yPos))
+                            false
+                        else
+                            mDetector!!.onTouchEvent(e)
+                    }
+                    return false
+                }
 
-                    CoroutineScope(Dispatchers.Default).launch{
-                        val modifiedVerseItems = MutableList<Verse?>(verseItems.size) { null }
-                        var i = 0
-                        while (i < verseItems.size - 1) {
-                            when (verseItems[i].position) {
-                                0 -> {
-                                    if (verseItems[i + 1].position == 1) {
-                                        mesraWidth[i] =
-                                            settingViewModel.paint.measureText(verseItems[i].text?.trim())
-                                                .toInt()
-                                        mesraWidth[i + 1] =
-                                            settingViewModel.paint.measureText(verseItems[i + 1].text?.trim())
-                                                .toInt()
-                                        modifiedVerseItems[i] = verseItems[i].apply {
-                                            text = text?.trim() + "¶" + verseItems[i + 1].text?.trim()
-                                            hilight = (hilight ?: "") + "¶" + (verseItems[i + 1].hilight
-                                                ?: "")
-                                        }
-                                        i++
-                                    } else
-                                        modifiedVerseItems[i] = verseItems[i]
-                                }
-                                2 -> {
-                                    if (verseItems[i + 1].position == 3) {
-                                        mesraWidth[i] =
-                                            settingViewModel.paint.measureText(verseItems[i].text?.trim())
-                                                .toInt()
-                                        mesraWidth[i + 1] =
-                                            settingViewModel.paint.measureText(verseItems[i + 1].text?.trim())
-                                                .toInt()
-                                        modifiedVerseItems[i] = verseItems[i].apply {
-                                            text = text?.trim() + "¶" + verseItems[i + 1].text?.trim()
-//                                    hilight = (hilight ?: "") + "¶" + (verseItems[i + 1].hilight ?: "")
-                                        }
-                                        i++
-                                    } else
-                                        modifiedVerseItems[i] = verseItems[i]
-                                }
-                                else -> modifiedVerseItems[i] = verseItems[i]
+                override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+                override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+            })
+
+            binding.appBar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener {
+                    appBarLayout, verticalOffset ->
+                if (textMenuTextView != null){
+                    textMenuTextView?.getLocationInWindow(textMenuLocation)
+                    textMenuLocation[0] -= fragLocation[0]
+                    textMenuLocation[1] -= fragLocation[1]
+                    doRefreshTextMenu()
+                }
+            })
+
+            val allCats = allUpCategories(poemItem.parentID).map {
+                    elem -> allCategory.find { it.id == elem } }.reversed()
+
+            val field: Field = Toolbar::class.java.getDeclaredField("mTitleTextView")
+            field.isAccessible = true
+            (field.get(binding.poemToolbar) as TextView).doOnPreDraw {
+                binding.toolbarTitle.updatePadding(
+                    right = (view.width - it.right).coerceAtLeast(64.dpTOpx(resources).toInt())
+                )
+                binding.toolbarSubtitle.updatePadding(
+                    right = (view.width - it.right).coerceAtLeast(64.dpTOpx(resources).toInt())
+                )
+            }
+
+            binding.toolbarTitle.text = if (searchViewModel.openedFromDetailFrag)
+                resources.getString(R.string.numbered_title,
+                    engNumToFarsiNum(argumentsPoemPosition + 1),
+                    allCats.getOrNull(0)?.text?.substringBefore("*") ?: "")
+            else
+                allCats.getOrNull(0)?.text?.substringBefore("*") ?: ""
+
+            bookmarkAddress = ""
+            allCats.getOrNull(0)?.text?.let { bookmarkAddress += "${it.substringBefore('*')}، " }
+
+            if (allCats.size == 1){
+                if (allCategory.count { it.parentID == allCats[0]?.id } == 0){ // if book count == 0
+                    binding.toolbarSubtitle.text = "مجموعه آثار"
+                    itemRoot = mutableListOf("مجموعه آثار", allCats[0]?.text ?: "")
+                } else {
+                    binding.toolbarSubtitle.text = "سایر آثار"
+                    itemRoot = mutableListOf("سایر آثار", allCats[0]?.text ?: "")
+                }
+            } else if (allCats.size > 1) {
+                binding.toolbarSubtitle.text = allCats.subList(1, allCats.size).map { it?.text }
+                    .joinToString("، ") { it!! }
+                itemRoot = allCats.reversed().map { it?.text }.toMutableList()
+
+                allCats.subList(1, allCats.size).forEach { elem -> bookmarkAddress += "${elem?.text}، " }
+            }
+            bookmarkAddress += poemItem.text
+
+
+            getPoemBookmark(poemItem.id).observe(viewLifecycleOwner) {
+                binding.bookMarkToggle.isChecked = (it != null)
+                binding.poemToolbar.menu.findItem(R.id.bookmark).title =
+                    resources.getString(if (it != null) R.string.bookmark_remove_hint else R.string.bookmark_add_hint)
+            }
+        }
+
+        viewHelper = PoemFastScrollViewHelper(binding.poemList,null, poemViewModel,
+            this@PoemPagerFragment)
+        FastScrollerBuilder(binding.poemList)/*.apply { disableScrollbarAutoHide() }*/
+            .setPadding(0, 0, 0, 0)
+            .setThumbDrawable(
+                ResourcesCompat.getDrawable(resources, R.drawable.fast_scroll_thumb, context?.theme)!!)
+            .setTrackDrawable(
+                ResourcesCompat.getDrawable(resources, R.drawable.fast_scroll_track, context?.theme)!!)
+            .setViewHelper(viewHelper)
+            .build()
+
+        poemViewModel.getVerseWithPoemID(poemItem.id).observe(viewLifecycleOwner) { verseItems ->
+            if (!verseItems.isNullOrEmpty()) {
+                verses = verseItems.map { it.copy() }
+                poemHilighter = PoemHilighter(verses, poemItem, poemViewModel, settingViewModel)
+
+                mDetector = GestureDetectorCompat(
+                    requireContext(),
+                    PoemGestureListener(poemViewModel, this@PoemPagerFragment)
+                )
+
+                lifecycleScope.launch(Dispatchers.Default){
+                    val modifiedVerseItems = MutableList<Verse?>(verseItems.size) { null }
+                    var i = 0
+                    while (i < verseItems.size - 1) {
+                        when (verseItems[i].position) {
+                            0 -> {
+                                if (verseItems[i + 1].position == 1) {
+                                    mesraWidth[i] =
+                                        settingViewModel.paint.measureText(verseItems[i].text?.trim())
+                                            .toInt()
+                                    mesraWidth[i + 1] =
+                                        settingViewModel.paint.measureText(verseItems[i + 1].text?.trim())
+                                            .toInt()
+                                    modifiedVerseItems[i] = verseItems[i].apply {
+                                        text = text?.trim() + "¶" + verseItems[i + 1].text?.trim()
+                                        hilight = (hilight ?: "") + "¶" + (verseItems[i + 1].hilight
+                                            ?: "")
+                                    }
+                                    i++
+                                } else
+                                    modifiedVerseItems[i] = verseItems[i]
                             }
-                            i++
+                            2 -> {
+                                if (verseItems[i + 1].position == 3) {
+                                    mesraWidth[i] =
+                                        settingViewModel.paint.measureText(verseItems[i].text?.trim())
+                                            .toInt()
+                                    mesraWidth[i + 1] =
+                                        settingViewModel.paint.measureText(verseItems[i + 1].text?.trim())
+                                            .toInt()
+                                    modifiedVerseItems[i] = verseItems[i].apply {
+                                        text = text?.trim() + "¶" + verseItems[i + 1].text?.trim()
+//                                    hilight = (hilight ?: "") + "¶" + (verseItems[i + 1].hilight ?: "")
+                                    }
+                                    i++
+                                } else
+                                    modifiedVerseItems[i] = verseItems[i]
+                            }
+                            else -> modifiedVerseItems[i] = verseItems[i]
                         }
+                        i++
+                    }
 
-                        if (!(verseItems.last().position == 1 && verseItems[verseItems.size - 2].position == 0)
-                            && !(verseItems.last().position == 3 && verseItems[verseItems.size - 2].position == 2)
-                        )
-                            modifiedVerseItems[i] = verseItems.last()
+                    if (!(verseItems.last().position == 1 && verseItems[verseItems.size - 2].position == 0)
+                        && !(verseItems.last().position == 3 && verseItems[verseItems.size - 2].position == 2)
+                    )
+                        modifiedVerseItems[i] = verseItems.last()
 
+                    binding.poemList.postDelayed({
+                        measurePoemStructureDimensions()
 
-                        binding.poemList.post {
-                            measurePoemStructureDimensions()
-
-                            val submittedList = modifiedVerseItems.filterNotNull()
+                        val submittedList = modifiedVerseItems.filterNotNull()
 //                            if (!this@PoemPagerFragment::itemViewHeights.isInitialized)
 //                                itemViewHeights = IntArray(submittedList.size) { 0 }
 
-                            binding.poemList.requestFocus()
-                            adapter!!.submitList(submittedList)
-                            parentFragment?.startPostponedEnterTransition()
+                        binding.poemList.requestFocus()
+                        adapter!!.submitList(submittedList)
+                        parentFragment?.startPostponedEnterTransition()
+                        if(parentFragment is PoemFragment)
+                            poemViewModel.startPaging(true)
 
-                            if ((activity as? MainActivity)?.binding?.drawerLayout?.tag == "land_scape" &&
-                                firstObservation
+                        if ((activity as? MainActivity)?.binding?.drawerLayout?.tag == "land_scape" &&
+                            firstObservation
+                        ) {
+                            if (searchViewModel.openedFromDetailFrag &&
+                                argumentsPoemPosition == searchViewModel.poemPosition
                             ) {
-                                if (searchViewModel.openedFromDetailFrag &&
-                                    getInt(ARG_POEM_POSITION) == searchViewModel.poemPosition
-                                ) {
-                                    binding.poemList.doOnLayout { moveToSearchedPosition() }
-                                } else if (favoriteViewModel.openedFromFavoriteDetailFrag &&
-                                    getInt(ARG_POEM_POSITION) == favoriteViewModel.poemPosition
-                                ) {
-                                    binding.poemList.doOnLayout { moveToFavoritePosition() }
-                                }
-                                firstObservation = false
+                                binding.poemList.doOnLayout { moveToSearchedPosition() }
+                            } else if (favoriteViewModel.openedFromFavoriteDetailFrag &&
+                                argumentsPoemPosition == favoriteViewModel.poemPosition
+                            ) {
+                                binding.poemList.doOnLayout { moveToFavoritePosition() }
                             }
-
-                            if (submittedList.size < 20)
-                                poemHeight(poemItem.id)
+                            firstObservation = false
                         }
-                    }
+
+                        if (submittedList.size < 20)
+                            poemHeight(poemItem.id)
+                    }, 300)
+                }
 
 
-                    binding.root.post {
-                        binding.poemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                                super.onScrolled(recyclerView, dx, dy)
+                binding.root.post {
+                    binding.poemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                            super.onScrolled(recyclerView, dx, dy)
 //                            totalScroll += dy
 //                            if (submittedList.size >= 20) largePoemHeight(poemItem.id, totalScroll)
-                                if (textMenuTextView != null) {
-                                    poemViewModel.apply {
-                                        textMenuTextView?.getLocationInWindow(textMenuLocation)
-                                        if (textMenuLocation[0] == 0) // textMenuTextView has gone out of window
-                                            deselectText()
-                                        textMenuLocation[0] -= fragLocation[0]
-                                        textMenuLocation[1] -= fragLocation[1]
-                                        doRefreshTextMenu()
-                                    }
+                            if (textMenuTextView != null) {
+                                poemViewModel.apply {
+                                    textMenuTextView?.getLocationInWindow(textMenuLocation)
+                                    if (textMenuLocation[0] == 0) // textMenuTextView has gone out of window
+                                        deselectText()
+                                    textMenuLocation[0] -= fragLocation[0]
+                                    textMenuLocation[1] -= fragLocation[1]
+                                    doRefreshTextMenu()
                                 }
                             }
+                        }
 
-                            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                                super.onScrollStateChanged(recyclerView, newState)
-                                if (!recyclerView.canScrollVertically(1)) {
-                                    viewHelper!!.modifyScroll()
-                                }
-                                if (!recyclerView.canScrollVertically(-1)) {
-                                    viewHelper!!.apply {
-                                        scroll = 0
-                                        initialOffset = 0
-                                    }
+                        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                            super.onScrollStateChanged(recyclerView, newState)
+                            if (!recyclerView.canScrollVertically(1)) {
+                                viewHelper!!.modifyScroll()
+                            }
+                            if (!recyclerView.canScrollVertically(-1)) {
+                                viewHelper!!.apply {
+                                    scroll = 0
+                                    initialOffset = 0
                                 }
                             }
-                        })
-                    }
+                        }
+                    })
                 }
             }
         }
+
 
         binding.poemToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 
@@ -1177,7 +1183,7 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
         favoriteViewModel.apply {
 //            val favoriteItem = allFavorites[poemPosition]
             binding.resultSample.searchResult.updateLayoutParams {
-                width = rootWidth
+                width = LayoutParams.MATCH_PARENT
             }
             binding.resultSample.number.text = "${engNumToFarsiNum(poemPosition+1)}."
             binding.resultSample.address.text = bookmarkAddress
@@ -1215,7 +1221,7 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
             }
         }
 
-        binding.resultSample.searchResult.post {
+        binding.resultSample.searchResult.doOnLayout {
             val mHeight = binding.resultSample.searchResult.measuredHeight
             favoriteViewModel.apply {
                 when {
@@ -1383,9 +1389,9 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
         return rect
     }
 
-    override fun onShareDialogPositiveClick() {
+    fun onShareDialogPositiveClick() {
         if (poemViewModel.shareOutFiles.contains(true)) {
-            val poemExporter = PoemExporter(
+            poemExporter = PoemExporter(
                 requireActivity(), verses, mesraWidth, poemItem.text, itemRoot, settingViewModel
             )
             val reference =
@@ -1402,11 +1408,11 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
                 if (poemViewModel.shareOutFiles[i]) {
                     when (i) {
                         0 -> {
-                            fileSuccess = poemExporter.exportToPDF(false)
+                            fileSuccess = poemExporter?.exportToPDF(false) == true
                             filePath = "/poem/${poemItem.text}.pdf"
                         }
                         1 -> {
-                            fileSuccess = poemExporter.exportToJPG(false)
+                            fileSuccess = poemExporter?.exportToJPG(false) == true
                             filePath = "/poem/${poemItem.text}.jpg"
                         }
                     }
@@ -1467,63 +1473,15 @@ class PoemPagerFragment : Fragment(), ShareTypeChooseDialog.NoticeDialogListener
         }
     }
 
-    override fun onShareDialogNegativeClick() {
-
-    }
-
-    override fun onDismissClick() {
-
-    }
-
-    override fun onItemSelected(which: Int, isChecked: Boolean) {
-        poemViewModel.shareOutFiles[which] = isChecked
-    }
-
-    override fun onExportDialogPositiveClick() {
-        val poemExporter = PoemExporter(
+    fun onExportDialogPositiveClick() {
+        poemExporter = PoemExporter(
             requireActivity(), verses, mesraWidth, poemItem.text, itemRoot, settingViewModel
         )
-//        val exportIntent = Intent(Intent.ACTION_VIEW).setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-//        var fileSuccess = false
-//        var filePath = ""
-
         when (poemViewModel.exportOutFile) {
-            0 -> {
-                poemExporter.exportToPDF(true)
-//                filePath = "/poem/${poemItem.text}.pdf"
-            }
-            1 -> {
-                poemExporter.exportToJPG(true)
-//                filePath = "/poem/${poemItem.text}.jpg"
-            }
-            2 -> {
-                poemExporter.exportToText(true)
-//                filePath = "/poem/${poemItem.text}.txt"
-            }
+            0 -> poemExporter?.exportToPDF(true)
+            1 -> poemExporter?.exportToJPG(true)
+            2 -> poemExporter?.exportToText(true)
         }
-//        if (fileSuccess) {
-//            val exportFile = File(context?.filesDir, filePath)
-//            val filesUri =
-//                try {
-//                    FileProvider.getUriForFile(
-//                        requireContext(), "com.takaapoo.com.fileprovider",
-//                        exportFile
-//                    )
-//                } catch (e: IllegalArgumentException) {
-//                    Timber.e("The selected file can't be exported: $exportFile")
-//                    null
-//                }
-//            if (filesUri != null) {
-//                exportIntent.data = filesUri
-//                if (exportIntent.resolveActivity(requireContext().packageManager) != null)
-//                    startActivity(exportIntent)
-//                else
-//                    Snackbar.make(
-//                        binding.poemLayout, R.string.no_such_app_installed, Snackbar.LENGTH_LONG
-//                    ).show()
-//            }
-//        }
     }
 
     fun firebaseLog(){

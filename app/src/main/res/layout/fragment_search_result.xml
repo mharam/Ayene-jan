@@ -68,7 +68,8 @@
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_arrow_upward_24" />
+            app:srcCompat="@drawable/ic_baseline_arrow_upward_24"
+            android:contentDescription="up" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

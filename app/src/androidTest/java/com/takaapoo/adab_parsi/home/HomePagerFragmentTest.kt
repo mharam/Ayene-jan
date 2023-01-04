@@ -25,7 +25,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.Matchers.startsWith
+import org.hamcrest.core.StringStartsWith.startsWith
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

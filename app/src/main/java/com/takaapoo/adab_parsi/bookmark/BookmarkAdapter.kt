@@ -18,8 +18,6 @@ import com.takaapoo.adab_parsi.database.BookmarkContent
 import com.takaapoo.adab_parsi.databinding.SearchResultItemBinding
 import com.takaapoo.adab_parsi.poem.DARK_ALPHA_MAX
 import com.takaapoo.adab_parsi.setting.SettingViewModel
-import com.takaapoo.adab_parsi.util.allSubCategories
-import com.takaapoo.adab_parsi.util.allUpCategories
 import com.takaapoo.adab_parsi.util.engNumToFarsiNum
 import com.takaapoo.adab_parsi.util.widthNormalizer
 import kotlinx.coroutines.launch
@@ -73,15 +71,10 @@ class BookmarkAdapter(private val bookmarkFragment: BookmarkFragment, private va
                 frag.setTransitionType(binding.cardView)
 
                 bvm.bookmarkListDisplace = 0
+                bvm.selectedItemCatID = item.poemm.catID ?: 0
 
-                val upCatList = allUpCategories(item.poemm.catID)
                 bmf.holderScope.launch {
-                    val myPoemList = bvm.getPoemWithCatID(
-                        if (upCatList.size == 1) upCatList
-                        else allSubCategories(upCatList[upCatList.size - 2])
-                    )
-                    bvm.poemList = myPoemList
-                    bvm.poemCount = myPoemList.size
+                    val myPoemList = bvm.getPoemWithCatID(item.poemm.catID)
                     bvm.poemPosition = myPoemList.indexOfFirst {elem -> elem.id == item.poemm.id }
 
                     if (mainActivity.binding.drawerLayout.tag == "land_scape"){
@@ -99,28 +92,6 @@ class BookmarkAdapter(private val bookmarkFragment: BookmarkFragment, private va
                         } catch (e: Exception) { }
                     }
                 }
-//                bvm.getPoemWithCatID2(
-//                    if (upCatList.size == 1) upCatList
-//                    else allSubCategories(upCatList[upCatList.size - 2])
-//                ).observe(bmf.viewLifecycleOwner, {
-//
-//                    bvm.poemList = it
-//                    bvm.poemCount = it.size
-//                    bvm.poemPosition = it.indexOfFirst {elem -> elem.id == item.poemm.id }
-//
-//                    if (mainActivity.binding.drawerLayout.tag == "land_scape"){
-//                        if (mainActivity.getContainerFrag() is BookmarkDetailFragment)
-//                            (mainActivity.getContainerFrag() as BookmarkDetailFragment).setViewPagerItem()
-//                        else {
-//                            mainActivity.addFragmentToContainer(BookmarkDetailFragment())
-//                        }
-//                    } else {
-//                        val extras = FragmentNavigatorExtras(binding.cardView to
-//                                binding.cardView.transitionName)
-//                        val action = BookmarkFragmentDirections.actionBookmarkFragmentToBookmarkDetailFragment()
-//                        view.findNavController().navigate(action, extras)
-//                    }
-//                })
             }
 
             val mesra1 = item.verse1Text?.trim() ?: ""

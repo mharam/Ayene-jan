@@ -73,6 +73,8 @@ class FavoriteAdapter(private val favoriteFragment: FavoriteFragment, private va
                 fvm.comeFromFavoriteFragment = true
                 fvm.bottomViewedResultHeight = 0
                 fvm.topViewedResultHeight = 0
+                fvm.favoriteListDisplace = 0
+                fvm.favoriteListAddedScroll = 0
 
                 if (mainActivity.binding.drawerLayout.tag == "land_scape"){
                     if (mainActivity.getContainerFrag() is FavoriteDetailFragment)

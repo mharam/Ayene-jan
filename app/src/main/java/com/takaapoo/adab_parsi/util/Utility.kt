@@ -38,6 +38,11 @@ import kotlin.math.roundToInt
 
 val collator: Collator = Collator.getInstance(Locale("fa"))
 var allCategory = emptyList<Category>()
+    set(value) {
+        field = value.sortedWith { one, two ->
+            collator.compare(one.text, two.text)
+        }
+    }
 val appStore = AppStore.Bazaar
 
 var topPadding = 0
@@ -64,14 +69,14 @@ fun Context.getDimenFromAttr(@AttrRes attrDimension: Int): Int {
 }
 
 fun Fragment.barsPreparation(){
-    val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-    val myActivity = requireActivity()
-
-    myActivity.window.decorView.systemUiVisibility =
-        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-    if (currentNightMode == Configuration.UI_MODE_NIGHT_NO)
-        myActivity.window.decorView.systemUiVisibility = myActivity.window.decorView.systemUiVisibility or
-                (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+//    val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+//    val myActivity = requireActivity()
+//
+//    myActivity.window.decorView.systemUiVisibility =
+//        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//    if (currentNightMode == Configuration.UI_MODE_NIGHT_NO)
+//        myActivity.window.decorView.systemUiVisibility = myActivity.window.decorView.systemUiVisibility or
+//                (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
 }
 
 fun getAllVerseBiErab(tempVerses:  List<TempVerse>): List<Verse> =

@@ -4,13 +4,21 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.takaapoo.adab_parsi.R
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
 class UtilityTest {
+
+    @Test
+    fun makeTextBiErab_emptyString_returnEmptyString(){
+        val input = ""
+        val result = makeTextBiErab(input)
+
+        assertThat(result).isEqualTo("")
+    }
 
     @Test
     fun mySubString_spaceNo_returnStringBetweenSpaces() {

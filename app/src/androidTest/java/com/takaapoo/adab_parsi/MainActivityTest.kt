@@ -25,7 +25,8 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.Description
 import org.hamcrest.Matcher
-import org.hamcrest.Matchers.`is`
+import org.hamcrest.core.Is.`is`
+//import org.hamcrest.Matchers.`is`
 import org.junit.After
 import org.junit.Rule
 import org.junit.runner.RunWith

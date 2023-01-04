@@ -1,6 +1,5 @@
 package com.takaapoo.adab_parsi.favorite
 
-import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.os.Bundle
@@ -71,11 +70,11 @@ class FavoriteFragment : Fragment() {
     }
 
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        favoriteViewModel.favoriteListDisplace = 0
-        favoriteViewModel.scroll = 0
-    }
+//    override fun onAttach(context: Context) {
+//        super.onAttach(context)
+//        favoriteViewModel.favoriteListDisplace = 0
+//        favoriteViewModel.scroll = 0
+//    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -124,10 +123,9 @@ class FavoriteFragment : Fragment() {
                     } as MutableList<Content>
                     poemCount = it.size
 
-//                    binding.favoriteList.post {
                     val scroll = favoriteViewModel.scroll
 
-                    if ((activity as MainActivity).binding.drawerLayout.tag == "land_scape") {
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         binding.favoriteList.postDelayed({
                             if (favoriteListAddedScroll != 0) {
                                 favoriteViewModel.scroll = 0
@@ -140,27 +138,18 @@ class FavoriteFragment : Fragment() {
                         }, 100)
 
                     } else {
-                        val viewAtPosition = layoutManager!!.findViewByPosition(poemPosition)
-                        if (viewAtPosition == null || layoutManager!!
-                                .isViewPartiallyVisible(viewAtPosition, false, true)
-                        ) {
-                            favoriteListDisplace -= bottomViewedResultHeight
-
-                            favoriteViewModel.scroll = 0
-                            scrollViewHelper?.scroll = 0
-                            binding.favoriteList.scrollBy(
-                                0, favoriteListAddedScroll + favoriteListDisplace
-                                        + scroll
-                            )
-                            favoriteListDisplace = 0
-                            favoriteListAddedScroll = 0
-                        }
+                        favoriteListDisplace -= bottomViewedResultHeight
+                        favoriteViewModel.scroll = 0
+                        scrollViewHelper?.scroll = 0
+                        binding.favoriteList.scrollBy(
+                            0,
+                            favoriteListAddedScroll + favoriteListDisplace + scroll
+                        )
+                        favoriteListDisplace = 0
+                        favoriteListAddedScroll = 0
                     }
 
-
-
                     startPostponedEnterTransition()
-//                    }
                 }
             }
         }

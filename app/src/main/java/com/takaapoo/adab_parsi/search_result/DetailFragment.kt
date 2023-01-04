@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,6 +22,7 @@ import com.takaapoo.adab_parsi.search.SearchViewModel
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.pager_poem.*
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -66,9 +68,9 @@ class DetailFragment: BasePoemFragment() {
         searchViewModel.apply {
             comeFromDetailFragment = true
             openedFromDetailFrag = true
-            resultListDisplace = 0
-            bottomViewedResultHeight = 0
-            topViewedResultHeight = 0
+//            resultListDisplace = 0
+//            bottomViewedResultHeight = 0
+//            topViewedResultHeight = 0
         }
 
         return binding.root
@@ -79,15 +81,22 @@ class DetailFragment: BasePoemFragment() {
 
         motionInitialization()
 
-        val poemAdapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
-            searchViewModel.poemCount, searchViewModel.poemList)
-        viewPager.apply {
-            adapter = poemAdapter
-            setCurrentItem(searchViewModel.poemPosition, false)
-            setPageTransformer(PutAsideTransformer())
-            registerOnPageChangeCallback(pageCallBack)
-            offscreenPageLimit = 1
-            post { pageCallBack.onPageSelected(currentItem) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (searchViewModel.poemList.isEmpty()) {
+                val finalResult = searchViewModel.search()
+                poemViewModel.resultRowId1 = finalResult.map { it.rowId1 }
+            }
+
+            val poemAdapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
+                searchViewModel.poemCount, searchViewModel.poemList)
+            viewPager.apply {
+                adapter = poemAdapter
+                setCurrentItem(searchViewModel.poemPosition, false)
+                setPageTransformer(PutAsideTransformer())
+                registerOnPageChangeCallback(pageCallBack)
+                offscreenPageLimit = 1
+                post { pageCallBack.onPageSelected(currentItem) }
+            }
         }
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.

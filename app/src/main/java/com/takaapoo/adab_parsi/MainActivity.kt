@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.animation.doOnEnd
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.*
@@ -27,6 +28,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
@@ -45,6 +47,8 @@ import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.database.PoemDatabase
 import com.takaapoo.adab_parsi.databinding.ActivityMainBinding
 import com.takaapoo.adab_parsi.favorite.FavoriteViewModel
+import com.takaapoo.adab_parsi.home.HelpView
+import com.takaapoo.adab_parsi.home.HomeEvent
 import com.takaapoo.adab_parsi.home.HomeViewModel
 import com.takaapoo.adab_parsi.poem.PoemFragment
 import com.takaapoo.adab_parsi.poem.PoemViewModel
@@ -108,6 +112,8 @@ class MainActivity : AppCompatActivity() {
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
 //        binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
+        topPadding = savedInstanceState?.getInt("topPadding") ?: 0
+
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         settingViewModel = ViewModelProvider(this)[SettingViewModel::class.java]
         poemViewModel = ViewModelProvider(this)[PoemViewModel::class.java]
@@ -118,47 +124,149 @@ class MainActivity : AppCompatActivity() {
         favoriteViewModel = ViewModelProvider(this)[FavoriteViewModel::class.java]
         addViewModel = ViewModelProvider(this)[AddViewModel::class.java]
 
-        _binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         if (resources.configuration.smallestScreenWidthDp < 600) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
-        binding.navView.doOnPreDraw {
-            val headerView = LayoutInflater.from(this).inflate(R.layout.drawer_header, null)
-            headerView.layoutParams = ViewGroup.LayoutParams(it.width, (it.width * 0.7f).toInt())
-            binding.navView.addHeaderView(headerView)
+        lifecycleScope.launch {
+            if (allCategory.isEmpty())
+                homeViewModel.getAllCatSuspend()
+
+            _binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+
+            binding.navView.doOnPreDraw {
+                val headerView = LayoutInflater.from(this@MainActivity)
+                    .inflate(R.layout.drawer_header, null)
+                headerView.layoutParams = ViewGroup.LayoutParams(it.width, (it.width * 0.7f).toInt())
+                binding.navView.addHeaderView(headerView)
+            }
+
+            val navController = findNavController(R.id.nav_host_fragment)
+            binding.navView.setupWithNavController(navController)
+
+            bookmarkViewModel.bookmarkCount().observe(this@MainActivity) {
+                bookmarkViewModel.bookmarkCount = it
+                binding.navView.menu.findItem(R.id.book_marks).title =
+                    resources.getString(R.string.book_marks, engNumToFarsiNum(it))
+            }
+
+            favoriteViewModel.favoriteCount().observe(this@MainActivity) {
+                favoriteViewModel.favoriteCount = it
+                binding.navView.menu.findItem(R.id.favorites).title =
+                    resources.getString(R.string.favorites, engNumToFarsiNum(it))
+            }
+
+            binding.navView.setNavigationItemSelectedListener { menuItem ->
+                val currentDesID = navController.currentDestination?.id
+                try {
+                    when (menuItem.itemId){
+                        R.id.home -> {
+                            if (currentDesID != R.id.homeFragment)
+                                navController.navigate(R.id.action_global_homeFragment)
+                        }
+                        R.id.book_marks -> {
+                            if (currentDesID != R.id.bookmarkFragment) {
+                                try {
+                                    navController.getBackStackEntry(R.id.bookmarkFragment)
+                                    navController.popBackStack(R.id.bookmarkFragment, false)
+                                } catch (e: IllegalArgumentException) {
+                                    navController.navigate(R.id.action_global_bookmarkFragment)
+                                }
+                            }
+                        }
+                        R.id.favorites -> {
+                            if (currentDesID != R.id.favoriteFragment) {
+                                favoriteViewModel.apply {
+                                    scroll = 0
+                                    favoriteListDisplace = 0
+                                    bottomViewedResultHeight = 0
+                                    topViewedResultHeight = 0
+                                }
+                                try {
+                                    navController.getBackStackEntry(R.id.favoriteFragment)
+                                    navController.popBackStack(R.id.favoriteFragment, false)
+                                } catch (e: IllegalArgumentException) {
+                                    navController.navigate(R.id.action_global_favoriteFragment)
+                                }
+                            }
+                        }
+                        R.id.settings -> {
+                            if (currentDesID != R.id.settingFragment) {
+                                try {
+                                    navController.getBackStackEntry(R.id.settingFragment)
+                                    navController.popBackStack(R.id.settingFragment, false)
+                                } catch (e: IllegalArgumentException) {
+                                    navController.navigate(R.id.action_global_settingFragment)
+                                }
+                            }
+                        }
+                        R.id.contact -> {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:") // only email apps should handle this
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf("support@takaapoo.com"))
+//                        putExtra(Intent.EXTRA_SUBJECT, "subject")
+                                val appVersion = packageManager.getPackageInfo(packageName, 0).versionName
+                                putExtra(
+                                    Intent.EXTRA_TEXT, resources.getString(
+                                        R.string.app_name_and_version,
+                                        appVersion,
+                                        Build.VERSION.SDK_INT.toString(),
+                                        getDeviceName()
+                                    )
+                                )
+                            }
+                            if (intent.resolveActivity(packageManager) != null) {
+                                startActivity(intent)
+                            }
+                        }
+                        R.id.support -> {
+                            if (currentDesID != R.id.supportFragment)
+                                navController.navigate(R.id.action_global_supportFragment)
+                        }
+                        R.id.about -> {
+                            if (currentDesID != R.id.aboutFragment)
+                                navController.navigate(R.id.action_global_aboutFragment)
+                        }
+                        R.id.help -> {
+                            when (currentDesID) {
+                                R.id.homeFragment -> homeViewModel.reportEvent(
+                                    HomeEvent.OnShowHelp(HelpView.ADD_FAB)
+                                )
+                                R.id.poetFragment -> poetViewModel.doShowHelp()
+                                R.id.bookFragment -> bookViewModel.doShowHelp()
+                                R.id.poemFragment -> poemViewModel.doShowHelp()
+                            }
+                        }
+                    }
+                } catch (e: Exception) { }
+
+                binding.drawerLayout.closeDrawer(GravityCompat.START, true)
+                true
+            }
+
+//            binding.drawerLayout.doOnPreDraw {
+//                val navHostFrag = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+//                val fragView = navHostFrag?.childFragmentManager?.fragments?.firstOrNull()?.view
+//                val fragWidth = fragView?.width ?: (2 * it.width)
+//                val fragHeight = fragView?.height ?: it.height
+//                val bookShelfWidth = (resources.getDimension(R.dimen.book_height_on_shelf) *
+//                        fragWidth / fragHeight).coerceAtLeast(resources.getDimension(R.dimen.book_min_width)) * 0.915f
+//                bookViewModel.bookWidthMultiplier = fragWidth / bookShelfWidth
+//            }
+
         }
 
         firebaseAnalytics = Firebase.analytics
-        val navController = findNavController(R.id.nav_host_fragment)
+        connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
 
-        binding.navView.setupWithNavController(navController)
-        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-
-        bookmarkViewModel.bookmarkCount().observe(this) {
-            bookmarkViewModel.bookmarkCount = it
-            binding.navView.menu.findItem(R.id.book_marks).title =
-                resources.getString(R.string.book_marks, engNumToFarsiNum(it))
-        }
-
-        favoriteViewModel.favoriteCount().observe(this) {
-            favoriteViewModel.favoriteCount = it
-            binding.navView.menu.findItem(R.id.favorites).title =
-                resources.getString(R.string.favorites, engNumToFarsiNum(it))
-        }
-
-        when(Build.VERSION.SDK_INT){
-            in 23..25 -> {
-//                window.statusBarColor = Color.TRANSPARENT
-                window.navigationBarColor = ResourcesCompat.getColor(resources, R.color.black_overlay_light, theme)
-            }
-            else -> {
-//                window.statusBarColor = Color.TRANSPARENT
-//                window.navigationBarColor = android.R.attr.colorBackground
-            }
+        if(Build.VERSION.SDK_INT in 23..25){
+            window.navigationBarColor = ResourcesCompat.getColor(
+                resources,
+                R.color.black_overlay_light,
+                theme
+            )
         }
 
         val preferenceManager = PreferenceManager.getDefaultSharedPreferences(this)
@@ -186,87 +294,6 @@ class MainActivity : AppCompatActivity() {
             window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
 
-        binding.navView.setNavigationItemSelectedListener { menuItem ->
-            val currentDesID = navController.currentDestination?.id
-            try {
-                when (menuItem.itemId){
-                    R.id.home -> {
-                        if (currentDesID != R.id.homeFragment)
-                            navController.navigate(R.id.action_global_homeFragment)
-                    }
-                    R.id.book_marks -> {
-                        if (currentDesID != R.id.bookmarkFragment) {
-                            try {
-                                navController.getBackStackEntry(R.id.bookmarkFragment)
-                                navController.popBackStack(R.id.bookmarkFragment, false)
-                            } catch (e: IllegalArgumentException) {
-                                navController.navigate(R.id.action_global_bookmarkFragment)
-                            }
-                        }
-                    }
-                    R.id.favorites -> {
-                        if (currentDesID != R.id.favoriteFragment) {
-                            try {
-                                navController.getBackStackEntry(R.id.favoriteFragment)
-                                navController.popBackStack(R.id.favoriteFragment, false)
-                            } catch (e: IllegalArgumentException) {
-                                navController.navigate(R.id.action_global_favoriteFragment)
-                            }
-                        }
-                    }
-                    R.id.settings -> {
-                        if (currentDesID != R.id.settingFragment) {
-                            try {
-                                navController.getBackStackEntry(R.id.settingFragment)
-                                navController.popBackStack(R.id.settingFragment, false)
-                            } catch (e: IllegalArgumentException) {
-                                navController.navigate(R.id.action_global_settingFragment)
-                            }
-                        }
-                    }
-                    R.id.contact -> {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:") // only email apps should handle this
-                            putExtra(Intent.EXTRA_EMAIL, arrayOf("support@takaapoo.com"))
-//                        putExtra(Intent.EXTRA_SUBJECT, "subject")
-                            val appVersion = packageManager.getPackageInfo(packageName, 0).versionName
-                            putExtra(
-                                Intent.EXTRA_TEXT, resources.getString(
-                                    R.string.app_name_and_version,
-                                    appVersion,
-                                    Build.VERSION.SDK_INT.toString(),
-                                    getDeviceName()
-                                )
-                            )
-                        }
-                        if (intent.resolveActivity(packageManager) != null) {
-                            startActivity(intent)
-                        }
-                    }
-                    R.id.support -> {
-                        if (currentDesID != R.id.supportFragment)
-                            navController.navigate(R.id.action_global_supportFragment)
-                    }
-                    R.id.about -> {
-                        if (currentDesID != R.id.aboutFragment)
-                            navController.navigate(R.id.action_global_aboutFragment)
-                    }
-                    R.id.help -> {
-                        when (currentDesID) {
-                            R.id.homeFragment -> homeViewModel.doShowHelp()
-                            R.id.poetFragment -> poetViewModel.doShowHelp()
-                            R.id.bookFragment -> bookViewModel.doShowHelp()
-                            R.id.poemFragment -> poemViewModel.doShowHelp()
-                        }
-                    }
-                }
-            } catch (e: Exception) { }
-
-            binding.drawerLayout.closeDrawer(GravityCompat.START, true)
-            true
-        }
-
-
         settingViewModel.updateConstants()
 
         resources.configuration.setLayoutDirection(
@@ -291,18 +318,13 @@ class MainActivity : AppCompatActivity() {
 //        }
 //        registerReceiver(broadcastReceiver, filter)
 
-        binding.drawerLayout.doOnPreDraw {
-            val navHostFrag = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-            val fragView = navHostFrag?.childFragmentManager?.fragments?.firstOrNull()?.view
-            val fragWidth = fragView?.width ?: (2 * it.width)
-            val fragHeight = fragView?.height ?: it.height
-            val bookShelfWidth = (resources.getDimension(R.dimen.book_height_on_shelf) *
-                    fragWidth / fragHeight).coerceAtLeast(resources.getDimension(R.dimen.book_min_width)) * 0.915f
-            bookViewModel.bookWidthMultiplier = fragWidth / bookShelfWidth
-        }
-
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        barsPreparation()
+    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("topPadding", topPadding)
     }
 
     override fun onDestroy() {
@@ -312,6 +334,16 @@ class MainActivity : AppCompatActivity() {
         connectivityManager = null
 
         _binding = null
+    }
+
+    private fun barsPreparation(){
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_NO)
+            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or
+                    (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -352,10 +384,10 @@ class MainActivity : AppCompatActivity() {
 
     private suspend fun addHafezToDatabase(){
         poemDao.insertDatabase(
-            tempCatToCat(tempDao.getAllCat()),
-            tempDao.getAllPoem(),
-            tempDao.getAllPoet(),
-            getAllVerseBiErab(tempDao.getAllVerse())
+            category = tempCatToCat(tempDao.getAllCat()),
+            poem = tempDao.getAllPoem(),
+            poet = tempDao.getAllPoet(),
+            verse = getAllVerseBiErab(tempDao.getAllVerse())
         )
         addViewModel.modifyAllPoet(2)
     }

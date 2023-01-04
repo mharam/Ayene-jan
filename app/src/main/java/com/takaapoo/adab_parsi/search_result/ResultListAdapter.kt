@@ -69,6 +69,7 @@ class ResultListAdapter(private val resultFragment: ResultFragment, private val 
                 svm.comeFromResultFragment = true
                 svm.bottomViewedResultHeight = 0
                 svm.topViewedResultHeight = 0
+                svm.resultListDisplace = 0
 
                 if (mainActivity.binding.drawerLayout.tag == "land_scape"){
                     if (mainActivity.getContainerFrag() is DetailFragment) {

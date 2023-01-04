@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -23,7 +24,7 @@ import com.takaapoo.adab_parsi.poem.TurnPageTransformer
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.pager_poem.*
-import timber.log.Timber
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class BookmarkDetailFragment: BasePoemFragment() {
@@ -73,36 +74,41 @@ class BookmarkDetailFragment: BasePoemFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         motionInitialization()
 
-        val poemAdapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
-            bookmarkViewModel.poemCount, bookmarkViewModel.poemList)
-
-
-        viewPager.apply {
-            adapter = poemAdapter
-            setCurrentItem(bookmarkViewModel.poemPosition, false)
-            setPageTransformer(TurnPageTransformer())
-            registerOnPageChangeCallback(pageCallBack)
-            offscreenPageLimit = 1
-            post { pageCallBack.onPageSelected(currentItem) }
-        }
-
-        // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
-        setEnterSharedElementCallback(object : SharedElementCallback() {
-            override fun onMapSharedElements(
-                names: List<String>, sharedElements: MutableMap<String, View> ) {
-                val currentFragment =
-                    childFragmentManager.findFragmentByTag("f${bookmarkViewModel.poemPosition}")
-                currentFragment?.view ?: return
-//                currentFragment.poem_layout.transitionName = "TM${bookmarkViewModel.poemPosition}"
-                try {
-                    sharedElements[names[0]] = currentFragment.poem_layout
-                } catch (e: Exception) { }
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            bookmarkViewModel.let {
+                if (it.poemList.isEmpty())
+                    it.getPoemWithCatID(it.selectedItemCatID)
             }
-        })
+
+            val poemAdapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
+                bookmarkViewModel.poemCount, bookmarkViewModel.poemList)
+
+            viewPager.apply {
+                adapter = poemAdapter
+                setCurrentItem(bookmarkViewModel.poemPosition, false)
+                setPageTransformer(TurnPageTransformer())
+                registerOnPageChangeCallback(pageCallBack)
+                offscreenPageLimit = 1
+                post { pageCallBack.onPageSelected(currentItem) }
+            }
+
+            // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
+            setEnterSharedElementCallback(object : SharedElementCallback() {
+                override fun onMapSharedElements(
+                    names: List<String>, sharedElements: MutableMap<String, View> ) {
+                    val currentFragment =
+                        childFragmentManager.findFragmentByTag("f${bookmarkViewModel.poemPosition}")
+                    currentFragment?.view ?: return
+//                currentFragment.poem_layout.transitionName = "TM${bookmarkViewModel.poemPosition}"
+                    try {
+                        sharedElements[names[0]] = currentFragment.poem_layout
+                    } catch (e: Exception) { }
+
+                }
+            })
+        }
 
         (activity as? MainActivity)?.analyticsLogEvent(
             FirebaseAnalytics.Event.SCREEN_VIEW,

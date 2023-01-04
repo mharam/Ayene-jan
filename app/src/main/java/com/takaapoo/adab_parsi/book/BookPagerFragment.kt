@@ -24,6 +24,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -89,8 +90,8 @@ class BookPagerFragment : Fragment() {
         }
     }
 
-    private lateinit var holderJob: Job
-    private lateinit var holderScope: CoroutineScope
+//    private lateinit var holderJob: Job
+//    private lateinit var holderScope: CoroutineScope
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?
@@ -98,8 +99,8 @@ class BookPagerFragment : Fragment() {
 
         _binding = PagerBook2Binding.inflate(inflater, container, false)
         navController = findNavController()
-        holderJob = Job()
-        holderScope = CoroutineScope(Dispatchers.Main + holderJob)
+//        holderJob = Job()
+//        holderScope = CoroutineScope(Dispatchers.Main + holderJob)
 
         binding.bookToolbar
             .setupWithNavController(navController, AppBarConfiguration.Builder(navController.graph).build())
@@ -119,24 +120,29 @@ class BookPagerFragment : Fragment() {
         }
 
         //noinspection RestrictedApi
-        bookViewModel.bookWidthMultiplier.let {
-            (binding.bookTitle.layoutParams as ViewGroup.MarginLayoutParams).apply {
-                marginStart = (resources.getDimension(R.dimen.book_title_margin_start) * it).toInt()
-                marginEnd = (resources.getDimension(R.dimen.book_title_margin_end) * it).toInt()
-            }
 
-            binding.bookTitle.setAutoSizeTextTypeUniformWithConfiguration(
-            (resources.getDimension(R.dimen.book_title_min_size) * it).roundToInt(),
-            (resources.getDimension(R.dimen.book_title_max_size) * it).roundToInt(),
-            (resources.getDimension(R.dimen.book_title_size_step) * it).roundToInt(),
-            TypedValue.COMPLEX_UNIT_PX)
-        }
 
 
         binding.bookCover.doOnPreDraw {
             binding.pivX = it.measuredWidth.toFloat()
             binding.pivY = it.measuredHeight / 2f
             it.cameraDistance = 30f * it.measuredWidth
+
+            val bookShelfWidth = (resources.getDimension(R.dimen.book_height_on_shelf) *
+                    binding.root.width / binding.root.height).coerceAtLeast(resources.getDimension(R.dimen.book_min_width)) * 0.915f
+            (binding.root.width / bookShelfWidth).let { bookWidthMultiplier ->
+                (binding.bookTitle.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                    marginStart = (resources.getDimension(R.dimen.book_title_margin_start) * bookWidthMultiplier).toInt()
+                    marginEnd = (resources.getDimension(R.dimen.book_title_margin_end) * bookWidthMultiplier).toInt()
+                }
+
+                binding.bookTitle.setAutoSizeTextTypeUniformWithConfiguration(
+                    (resources.getDimension(R.dimen.book_title_min_size) * bookWidthMultiplier).roundToInt(),
+                    (resources.getDimension(R.dimen.book_title_max_size) * bookWidthMultiplier).roundToInt(),
+                    (resources.getDimension(R.dimen.book_title_size_step) * bookWidthMultiplier).roundToInt(),
+                    TypedValue.COMPLEX_UNIT_PX
+                )
+            }
         }
         binding.bookToolbar.setNavigationOnClickListener {
             closeBook(navController)
@@ -224,16 +230,17 @@ class BookPagerFragment : Fragment() {
                 poetViewModel.updatePoetDate(Calendar.getInstance().timeInMillis, parentId)
             }
 
-            holderScope.launch {
-                withContext(Dispatchers.IO){
-                    sortedItems = sortContent(poetViewModel.getAllPoemWithCatID(contentItem.id))
-                }
-                poetViewModel.poemListItems[contentItem.id] =
-                    if (contentItem.parentID == 0)
-                        sortedItems.filter { item ->
-                            item.parentID == contentItem.id && item.rowOrder == 1 }
-                    else
-                        sortedItems.filter { item -> item.rowOrder == 1 }
+            viewLifecycleOwner.lifecycleScope.launch {
+//                withContext(Dispatchers.IO){
+//                    sortedItems = sortContent(poetViewModel.getAllPoemWithCatID(contentItem.id))
+//                }
+//                poetViewModel.poemListItems[contentItem.id] =
+//                    if (contentItem.parentID == 0)
+//                        sortedItems.filter { item ->
+//                            item.parentID == contentItem.id && item.rowOrder == 1 }
+//                    else
+//                        sortedItems.filter { item -> item.rowOrder == 1 }
+                sortedItems = poetViewModel.sortedPoemItems(contentItem)
 
                 val poemItems = sortedItems.filter { item -> item.parentID == contentItem.id }
 
@@ -286,7 +293,7 @@ class BookPagerFragment : Fragment() {
                 }
 
                 bookViewModel.bookContentScrollPosition[contentItem.id]?.let { positionItem ->
-                    layoutManager?.scrollToPosition(newList.indexOf(positionItem))
+                    layoutManager?.scrollToPosition(newList.indexOfFirst { it.id == positionItem.id })
 
                     binding.bookContentList.doOnLayout {
                         ((binding.bookContentList.findViewHolderForItemId(positionItem.id.toLong())
@@ -324,7 +331,7 @@ class BookPagerFragment : Fragment() {
                         else resources.getDimension(R.dimen.not_nastaliq_vertical_padding)).toInt()
 
                     sortedItemsHeight = HashMap(sortedItems.size)
-                    while (parentFragment?.view?.width == null || requireParentFragment().requireView().width < 100)
+                    while ((parentFragment?.view?.width ?: 0) < 100)
                         delay(5)
 
                     sortedItems.forEach { item ->
@@ -359,7 +366,7 @@ class BookPagerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        holderJob.cancel()
+//        holderJob.cancel()
         binding.bookToolbar.setOnMenuItemClickListener(null)
         binding.bookToolbar.setNavigationOnClickListener(null)
         binding.bookContentList.removeOnScrollListener(contentScrollListener)
@@ -483,28 +490,28 @@ class BookPagerFragment : Fragment() {
         return location
     }
 
-    private fun sortContent(input: List<Content>): List<Content>{
-        val outList = input.filter { elem -> elem.rowOrder == 2 }.toMutableList()
-        var upCats = outList.map { allUpCategories(it.id).toMutableList() }
-        val maxUpCatsLength = upCats.map { it.size }.maxOrNull() ?: 0
-        upCats = upCats.map {
-            it.addAll(0, MutableList(maxUpCatsLength - it.size){0})
-            it }
-
-        val mapUpCats = mutableMapOf(*Array(upCats.size){i -> Pair(outList[i], upCats[i])})
-
-        for (i in 0 until maxUpCatsLength){
-            outList.sortBy { mapUpCats[it]?.get(i) }
-        }
-        outList.addAll(0, input.filter { it.parentID == contentItem.id && it.rowOrder == 1 })
-
-        outList.filter { elem -> elem.rowOrder == 2 }.forEach { item ->
-            val subItems = input.filter { elem -> elem.parentID == item.id && elem.rowOrder == 1 }
-            outList.addAll(outList.indexOfFirst { elem -> elem.id == item.id } + 1, subItems)
-        }
-
-        return outList
-    }
+//    private fun sortContent(input: List<Content>): List<Content>{
+//        val outList = input.filter { elem -> elem.rowOrder == 2 }.toMutableList()
+//        var upCats = outList.map { allUpCategories(it.id).toMutableList() }
+//        val maxUpCatsLength = upCats.map { it.size }.maxOrNull() ?: 0
+//        upCats = upCats.map {
+//            it.addAll(0, MutableList(maxUpCatsLength - it.size){0})
+//            it }
+//
+//        val mapUpCats = mutableMapOf(*Array(upCats.size){i -> Pair(outList[i], upCats[i])})
+//
+//        for (i in 0 until maxUpCatsLength){
+//            outList.sortBy { mapUpCats[it]?.get(i) }
+//        }
+//        outList.addAll(0, input.filter { it.parentID == contentItem.id && it.rowOrder == 1 })
+//
+//        outList.filter { elem -> elem.rowOrder == 2 }.forEach { item ->
+//            val subItems = input.filter { elem -> elem.parentID == item.id && elem.rowOrder == 1 }
+//            outList.addAll(outList.indexOfFirst { elem -> elem.id == item.id } + 1, subItems)
+//        }
+//
+//        return outList
+//    }
 
     fun refreshContent(){
         binding.bookContentList.adapter = adapter

@@ -235,8 +235,8 @@ class SearchFragment: Fragment() {
         searchViewModel.apply {
             insertOrUpdate(RecentSearch(submittedSearch, Calendar.getInstance().timeInMillis))
             scroll = 0
-            resultFirstItem = 0
-            resultLastItem = 0
+//            resultFirstItem = 0
+//            resultLastItem = 0
             detailPagerPosition = -1
             comeFromDetailFragment = false
             poemPosition = 0
@@ -286,14 +286,14 @@ class SearchFragment: Fragment() {
         returnTransition = MaterialFadeThrough().apply { duration = 500 }
     }
 
-    override fun onStop() {
+//    override fun onStop() {
 //        val height = windowHeightMethod.invoke(imm) as Int
 //        if (height>100) {
 //            imm?.toggleSoftInput(0, 0)
 //        }
 //        (activity as MainActivity).hideKeyBoard()
-        super.onStop()
-    }
+//        super.onStop()
+//    }
 
     override fun onDestroyView() {
         super.onDestroyView()

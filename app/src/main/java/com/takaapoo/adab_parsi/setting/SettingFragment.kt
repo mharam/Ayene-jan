@@ -44,7 +44,7 @@ import java.lang.Exception
 
 
 @AndroidEntryPoint
-class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.ClearDialogListener,
+class SettingFragment: PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val settingViewModel: SettingViewModel by activityViewModels()
@@ -95,13 +95,13 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
             findPreference<ListPreference>("theme")?.entries = resources.getStringArray(R.array.theme_entries_old)
 
         findPreference<Preference>("delete_history")?.setOnPreferenceClickListener {
-            ClearHistoryDialogFragment(this).show(parentFragmentManager, "ClearHistory")
+            ClearHistoryDialogFragment().show(parentFragmentManager, "ClearHistory")
             true
         }
 
         borderPreference = findPreference("border")
         borderPreference?.setOnPreferenceClickListener {
-            BorderSelectDialogFragment(settingViewModel).show(parentFragmentManager, "Border")
+            BorderSelectDialogFragment().show(parentFragmentManager, "Border")
             true
         }
         borderNames = resources.getStringArray(R.array.border_entries)
@@ -109,7 +109,7 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
 
         fontPreference = findPreference("font")
         fontPreference?.setOnPreferenceClickListener {
-            FontSelectDialogFragment(settingViewModel, poemViewModel).show(parentFragmentManager, "Font")
+            FontSelectDialogFragment().show(parentFragmentManager, "Font")
             true
         }
         fontNames = resources.getStringArray(R.array.font_entries)
@@ -117,7 +117,7 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
 
         paperPreference = findPreference("paper_color")
         paperPreference?.setOnPreferenceClickListener {
-            PaperSelectDialogFragment(settingViewModel).show(parentFragmentManager, "Paper")
+            PaperSelectDialogFragment().show(parentFragmentManager, "Paper")
             true
         }
         paperNames = resources.getStringArray(R.array.paper_entries)
@@ -126,7 +126,7 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
 
         hilightPreference = findPreference("hilight")
         hilightPreference?.setOnPreferenceClickListener {
-            HilightSelectDialogFragment(settingViewModel).show(parentFragmentManager, "Hilight")
+            HilightSelectDialogFragment().show(parentFragmentManager, "Hilight")
             true
         }
         hilightNames = resources.getStringArray(R.array.hilight_entries)
@@ -187,10 +187,6 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
         Firebase.crashlytics.setCustomKey("Enter Screen", "Setting screen")
     }
 
-    override fun onClearDialogPositiveClick() {
-        settingViewModel.deleteSearchHistory()
-    }
-
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key){
             "screen_on" -> {
@@ -209,7 +205,7 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
                     else -> if (Build.VERSION.SDK_INT > 28) AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                     else AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
                 })
-                barsPreparation()
+//                barsPreparation()
 //                settingViewModel.currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 //                paperPreference?.isEnabled = settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO
 
@@ -273,12 +269,8 @@ class SettingFragment: PreferenceFragmentCompat(), ClearHistoryDialogFragment.Cl
 
 
 
-class ClearHistoryDialogFragment(val listener: ClearDialogListener) : DialogFragment() {
-
-    interface ClearDialogListener {
-        fun onClearDialogPositiveClick()
-//        fun onClearDialogNegativeClick()
-    }
+class ClearHistoryDialogFragment : DialogFragment() {
+    val settingViewModel: SettingViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -287,7 +279,7 @@ class ClearHistoryDialogFragment(val listener: ClearDialogListener) : DialogFrag
                 .setTitle(R.string.delete_search_history_title)
                 .setMessage(resources.getString(R.string.delete_search_history_mess))
                 .setPositiveButton(R.string.delete_search_pos_button){ _, _ ->
-                    listener.onClearDialogPositiveClick()
+                    settingViewModel.deleteSearchHistory()
                     Toast.makeText(this.context, "حافظه جستجو پاک شد", Toast.LENGTH_LONG).show()
                 }
                 .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> }
@@ -296,7 +288,8 @@ class ClearHistoryDialogFragment(val listener: ClearDialogListener) : DialogFrag
     }
 }
 
-class BorderSelectDialogFragment(private val stvm: SettingViewModel) : DialogFragment() {
+class BorderSelectDialogFragment : DialogFragment() {
+    val settingViewModel: SettingViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val borderListAdapter = BorderListAdapter(requireActivity())
@@ -312,11 +305,8 @@ class BorderSelectDialogFragment(private val stvm: SettingViewModel) : DialogFra
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
 
-//        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
-
         listView.setOnItemClickListener { parent, view, position, id ->
-//            sharedPreferences.edit().putInt("border", position).apply()
-            stvm.updateBorder(position)
+            settingViewModel.updateBorder(position)
             builder.dismiss()
         }
 
@@ -324,19 +314,17 @@ class BorderSelectDialogFragment(private val stvm: SettingViewModel) : DialogFra
     }
 }
 
-class FontSelectDialogFragment(private val stvm: SettingViewModel, private val pvm: PoemViewModel)
-    : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val fontListAdapter = FontListAdapter(requireActivity())
-//        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+class FontSelectDialogFragment : DialogFragment() {
+    val settingViewModel: SettingViewModel by activityViewModels()
+    val poemViewModel: PoemViewModel by activityViewModels()
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(R.string.font)
-                .setSingleChoiceItems(fontListAdapter, 0){ dialog, which ->
-                    stvm.updateFont(which)
-                    pvm.refresh()
-//                    sharedPreferences.edit().putInt("font", which).apply()
+                .setSingleChoiceItems(FontListAdapter(it), 0){ dialog, which ->
+                    settingViewModel.updateFont(which)
+                    poemViewModel.refresh()
                     dismiss()
                 }
                 .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> dismiss() }
@@ -345,17 +333,15 @@ class FontSelectDialogFragment(private val stvm: SettingViewModel, private val p
     }
 }
 
-class PaperSelectDialogFragment(private val stvm: SettingViewModel) : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val paperListAdapter = PaperListAdapter(requireActivity())
-//        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+class PaperSelectDialogFragment : DialogFragment() {
+    val settingViewModel: SettingViewModel by activityViewModels()
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(R.string.paper)
-                .setSingleChoiceItems(paperListAdapter, 0){ dialog, which ->
-                    stvm.updatePaper(which)
-//                    sharedPreferences.edit().putInt("paper_color", which).apply()
+                .setSingleChoiceItems(PaperListAdapter(it), 0){ dialog, which ->
+                    settingViewModel.updatePaper(which)
                     dismiss()
                 }
                 .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> dismiss() }
@@ -364,17 +350,15 @@ class PaperSelectDialogFragment(private val stvm: SettingViewModel) : DialogFrag
     }
 }
 
-class HilightSelectDialogFragment(private val stvm: SettingViewModel) : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val hilightListAdapter = HilightListAdapter(requireActivity())
-//        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+class HilightSelectDialogFragment : DialogFragment() {
+    val settingViewModel: SettingViewModel by activityViewModels()
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(R.string.hilight_color)
-                .setSingleChoiceItems(hilightListAdapter, 0){ dialog, which ->
-                    stvm.updateHilight(which)
-//                    sharedPreferences.edit().putInt("hilight", which).apply()
+                .setSingleChoiceItems(HilightListAdapter(it), 0){ dialog, which ->
+                    settingViewModel.updateHilight(which)
                     dismiss()
                 }
                 .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> dismiss() }

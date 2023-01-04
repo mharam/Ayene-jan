@@ -85,8 +85,12 @@ class PoetPagerFragment : Fragment() {
                 }
                 R.id.biography -> {
                     poetItem.poetID?.let {
-                        poetViewModel.getPoet(it).observe(viewLifecycleOwner){ poet ->
-                            PoetBottomSheetFragment(poet).show(parentFragmentManager, "poet_bottom_sheet")
+                        val bundle = Bundle().apply {
+                            putInt("poet_id", it)
+                        }
+                        PoetBottomSheetFragment().apply {
+                            arguments = bundle
+                            show(this@PoetPagerFragment.parentFragmentManager, "poet_bottom_sheet")
                         }
                     }
                 }

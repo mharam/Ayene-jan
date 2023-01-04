@@ -1,21 +1,28 @@
 package com.takaapoo.adab_parsi.bookmark
 
 import android.app.Application
+import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.BookmarkContent
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.util.allCategory
+import com.takaapoo.adab_parsi.util.allSubCategories
 import com.takaapoo.adab_parsi.util.allUpCategories
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import javax.inject.Inject
 
 @HiltViewModel
-class BookmarkViewModel @Inject constructor(application: Application, private val dao: Dao)
-    : AndroidViewModel(application) {
-
-//    private val dao = PoemDatabase.getDatabase(application).dao()
+class BookmarkViewModel @Inject constructor(
+    application: Application,
+    private val dao: Dao,
+    savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
     var allBookmarks = mutableListOf<BookmarkContent>()
     var bookmarkCount = 0
@@ -30,6 +37,7 @@ class BookmarkViewModel @Inject constructor(application: Application, private va
     var poemPosition = 0
     var poemCount = 0
     var poemList = emptyList<Content>()
+    var selectedItemCatID = 0
 
     var scroll = 0
     var bookmarkHeight = 0
@@ -40,14 +48,33 @@ class BookmarkViewModel @Inject constructor(application: Application, private va
     var bookmarkListAddedScroll = 0
     var selectedBookmarkItem: BookmarkContent? = null
 
-//    var allBookmarkPoems = listOf<Content>()
+    init {
+        savedStateHandle.get<Bundle?>("bookmark_state")?.let {
+            selectedItemCatID = it.getInt("selected_item_cat_id")
+            poemPosition = it.getInt("poem_position")
+        }
+        savedStateHandle.setSavedStateProvider("bookmark_state"){
+            Bundle().apply {
+                putInt("selected_item_cat_id", selectedItemCatID)
+                putInt("poem_position", poemPosition)
+            }
+        }
+    }
 
 
 
     fun getAllBookmark() = dao.getAllBookmark()
-//    fun getPoemWithCatID2(catId: List<Int>) = dao.getPoemWithCatID2(catId)
     fun bookmarkCount() = dao.bookmarkCount()
-    suspend fun getPoemWithCatID(catId: List<Int>) = dao.getPoemWithCatID(catId)
+    suspend fun getPoemWithCatID(catId: Int?) = viewModelScope.async(Dispatchers.IO){
+        val upCatList = allUpCategories(catId)
+        val myPoemList = dao.getPoemWithCatID(
+            if (upCatList.size == 1) upCatList
+            else allSubCategories(upCatList[upCatList.size - 2])
+        )
+        poemList = myPoemList
+        poemCount = myPoemList.size
+        return@async myPoemList
+    }.await()
 
 
     fun bookmarkAddress(item: BookmarkContent): String {

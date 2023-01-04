@@ -14,6 +14,9 @@ interface Dao {
     @Query("SELECT * from cat ORDER BY text")
     fun getAllCat(): LiveData<List<Category>>
 
+    @Query("SELECT * from cat ORDER BY text")
+    suspend fun getAllCatSuspend(): List<Category>
+
     @Query("UPDATE cat SET last_open_date = :newDate WHERE id == :id")
     suspend fun updatePoetDate(newDate: Long, id: Int)
 
@@ -188,7 +191,7 @@ interface Dao {
         INNER JOIN poem ON poem.id = v1.poem_id
         WHERE (v1.poem_id == :poemId OR v1.poem_id IN (SELECT id from poem WHERE cat_id IN (:catId)))
         AND versefts MATCH :query LIMIT 12000""")
-    fun search(query: String, poemId: Int, catId: List<Int>): LiveData<List<SearchContent>>
+    suspend fun search(query: String, poemId: Int, catId: List<Int>): List<SearchContent>
 
     @Query("""
         SELECT v1.rowid AS row_id1, v2.rowid AS row_id2, v1.vorder, v1.position, v1.text AS text1, 
@@ -197,7 +200,7 @@ interface Dao {
         INNER JOIN verse AS v2 ON v2.rowid = v1.rowid + (-2)*(v1.position%2) + 1
         INNER JOIN poem ON poem.id = v1.poem_id
         WHERE versefts MATCH :query LIMIT 12000""")
-    fun searchAll(query: String): LiveData<List<SearchContent>>
+    suspend fun searchAll(query: String): List<SearchContent>
 
     @Query(""" 
         SELECT v1.text AS verse1_text, v1.position AS verse1_pos, v2.text AS verse2_text, poem.* from poem
@@ -213,6 +216,14 @@ interface Dao {
         INNER JOIN poem ON poem.id = v1.poem_id
         WHERE v1.favorite IS NOT NULL ORDER BY v1.favorite DESC""")
     fun getAllFavorite(): LiveData<List<FavoriteContent>>
+
+    @Query(""" 
+        SELECT v1.text AS verse1_text, v1.position AS verse1_pos, v1.vorder AS verse1_order, 
+        v2.text AS verse2_text, poem.* from verse AS v1
+        LEFT JOIN verse AS v2 ON v2.poem_id = v1.poem_id AND v2.rowid = v1.rowid + 1
+        INNER JOIN poem ON poem.id = v1.poem_id
+        WHERE v1.favorite IS NOT NULL ORDER BY v1.favorite DESC""")
+    suspend fun getAllFavoriteSuspend(): List<FavoriteContent>
 
 
 

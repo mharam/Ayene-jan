@@ -3,8 +3,6 @@ package com.takaapoo.adab_parsi.poem
 import android.animation.ObjectAnimator
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,37 +10,44 @@ import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.book.BookViewModel
+import com.takaapoo.adab_parsi.poet.PoetViewModel
 import com.takaapoo.adab_parsi.util.allUpCategories
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 @AndroidEntryPoint
 class PoemFragment : BasePoemFragment(){
 
     private val bookViewModel: BookViewModel by activityViewModels()
-
+    private val poetViewModel: PoetViewModel by activityViewModels()
     private var bookItemID: Int? = null
-
-    private lateinit var systemUiRunnable: Runnable
-    private lateinit var handler: Handler
-//    private var onPauseCalled = false
-
 
     private val pageCallBack = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             visibleChildFrag = childFragmentManager.findFragmentByTag("f${position}")
-                    as PoemPagerFragment
+                    as? PoemPagerFragment
             visibleChildFrag?.firebaseLog()
 
             val poemItem = poemViewModel.poemList[position]
+            bookViewModel.bookCurrentItem?.id?.let {
+                bookViewModel.bookContentScrollPosition[it] = poemItem!!
+            }
 
-            bookViewModel.bookContentScrollPosition[bookViewModel.bookCurrentItem.id] = poemItem!!
-
-            val upCategories = allUpCategories(poemItem.parentID)
+            val upCategories = allUpCategories(poemItem?.parentID)
             if (position != poemViewModel.poemPosition){
                 upCategories.subList(0, (upCategories.size-2).coerceAtLeast(0))
                     .forEach { id -> bookViewModel.listOpen[id] = true }
@@ -81,103 +86,89 @@ class PoemFragment : BasePoemFragment(){
         if (poemViewModel.contentShot != null)
             binding.bookImage.setImageBitmap(poemViewModel.contentShot)
 
-        systemUiRunnable = Runnable {
-            (activity as MainActivity).hideSystemBars()
-//            activity?.window?.decorView?.systemUiVisibility?.let {
-//                activity?.window?.decorView?.systemUiVisibility = it or
-//                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE
-//            }
-        }
-        handler = Handler(Looper.getMainLooper())
-//        binding.root.setOnSystemUiVisibilityChangeListener { visibility ->
-//            if (visibility and View.SYSTEM_UI_FLAG_HIDE_NAVIGATION == 0 && !onPauseCalled &&
-//                resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
-//                !poemViewModel.keyboardIsOpen) {
-//                handler.postDelayed( systemUiRunnable , 3500)
-//            }
-//        }
-
-//        ViewCompat.setOnApplyWindowInsetsListener(binding.root){ _, windowInsets ->
-//            if (windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars()) && !onPauseCalled &&
-//                resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
-//                !poemViewModel.keyboardIsOpen) {
-//                handler.postDelayed({ (activity as MainActivity).hideSystemBars() } , 3500)
-//            }
-//            windowInsets
-//        }
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (bookItemID != bookViewModel.bookCurrentItem.id ||
-            (activity as MainActivity).binding.drawerLayout.tag == "portrait") {
-            viewPager.apply {
-                adapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
-                    poemViewModel.poemCount, poemViewModel.poemList)
-                setCurrentItem(poemViewModel.poemPosition, false)
-                registerOnPageChangeCallback(pageCallBack)
-                post { pageCallBack.onPageSelected(currentItem) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (poemViewModel.poemList.isEmpty()){
+                poetViewModel.let {
+                    it.sortedPoemItems()
+                    poemViewModel.poemList = it.poemListItems[it.bookListItems[it.bookPosition]!!.id]!!
+                    poemViewModel.poemCount = poemViewModel.poemList.size
+                }
             }
-            bookItemID = bookViewModel.bookCurrentItem.id
 
-        } else {
-            viewPager.setCurrentItem(poemViewModel.poemPosition, false)
-        }
-        viewPager.setPageTransformer(TurnPageTransformer())
-        viewPager.offscreenPageLimit = 1
+            if (bookItemID != bookViewModel.bookCurrentItem?.id ||
+                resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewPager.apply {
+                    adapter = PoemAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
+                        poemViewModel.poemCount, poemViewModel.poemList)
+                    setCurrentItem(poemViewModel.poemPosition, false)
+                    registerOnPageChangeCallback(pageCallBack)
+                    post { pageCallBack.onPageSelected(currentItem) }
+                }
+                bookItemID = bookViewModel.bookCurrentItem?.id
 
-        view.doOnLayout {
-            binding.bookImage.apply {
-                doOnLayout {
-                    pivotX = width.toFloat()
-                    pivotY = height / 2f
-                    cameraDistance = 30f * width
+            } else {
+                viewPager.setCurrentItem(poemViewModel.poemPosition, false)
+            }
+            viewPager.setPageTransformer(TurnPageTransformer())
+            viewPager.offscreenPageLimit = 1
 
-                    if (poemViewModel.poemFirstOpening
-                        && (activity as MainActivity).binding.drawerLayout.tag == "portrait") {
-                        ObjectAnimator.ofFloat(this@apply, "rotationY", 0f, 90f).apply {
-                            startDelay = 700
-                            duration = 500
-                            interpolator = LinearInterpolator()
-                            doOnEnd {
-                                poemViewModel.contentShot = null
-                                binding.bookImage.setImageDrawable(null)
+            view.doOnLayout {
+                binding.bookImage.apply {
+                    doOnLayout {
+                        pivotX = width.toFloat()
+                        pivotY = height / 2f
+                        cameraDistance = 30f * width
+
+                        if (poemViewModel.poemFirstOpening &&
+                            resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                            poemViewModel.startPaging.distinctUntilChanged().onEach { start ->
+                                if (start)
+                                    ObjectAnimator.ofFloat(
+                                        this@apply,
+                                        "rotationY",
+                                        0f, 90f
+                                    ).apply {
+                                        startDelay = 500
+                                        duration = 500
+                                        interpolator = LinearInterpolator()
+                                        doOnEnd {
+                                            poemViewModel.contentShot = null
+                                            binding.bookImage.setImageDrawable(null)
+                                        }
+                                    }.start()
+
                             }
-                        }.start()
-                    } else
-                        binding.bookImage.rotationY = 90f
+                                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                                .launchIn(viewLifecycleOwner.lifecycleScope)
+                        } else
+                            binding.bookImage.rotationY = 90f
 
-                    poemViewModel.poemFirstOpening = false
+                        poemViewModel.poemFirstOpening = false
+                    }
                 }
             }
         }
 
         val preferenceManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val firstFragEnterance = preferenceManager.getBoolean("poemFragFirstEnter", true)
-        if (firstFragEnterance) {
+        val firstFragEntrance = preferenceManager.getBoolean("poemFragFirstEnter", true)
+        if (firstFragEntrance) {
             poemViewModel.doShowHelp()
             preferenceManager.edit().putBoolean("poemFragFirstEnter", false).apply()
         }
 
         val help = Help(this)
         poemViewModel.showHelp.observe(viewLifecycleOwner) {
-            help.showHelp(it, if (firstFragEnterance) 2500 else 500)
+            help.showHelp(it, if (firstFragEntrance) 2500 else 500)
         }
     }
 
-//    override fun onResume() {
-//        super.onResume()
-////        onPauseCalled = false
-//        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-//            handler.postDelayed( systemUiRunnable , 3500)
-//    }
-
     override fun onPause() {
         super.onPause()
-//        onPauseCalled = true
-        handler.removeCallbacks(systemUiRunnable)
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
             (activity as MainActivity).showSystemBars()
 
