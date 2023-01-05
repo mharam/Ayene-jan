@@ -43,7 +43,7 @@ var allCategory = emptyList<Category>()
             collator.compare(one.text, two.text)
         }
     }
-val appStore = AppStore.Bazaar
+val appStore = AppStore.GooglePlay
 
 var topPadding = 0
 

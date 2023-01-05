@@ -112,8 +112,8 @@ class Downloader(private val vm: AddViewModel, private val context: Context,
                 for (i in url.indices){
                     connection[i] = url[i]?.openConnection() as? HttpsURLConnection
                     connection[i]?.run {
-                        readTimeout = 5000
-                        connectTimeout = 5000
+                        readTimeout = 20000
+                        connectTimeout = 20000
                         requestMethod = "GET"
                         doInput = true
                         connect()
