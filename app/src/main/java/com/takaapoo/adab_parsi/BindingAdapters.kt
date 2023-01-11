@@ -11,8 +11,6 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.takaapoo.adab_parsi.add.imagePrefix
@@ -23,7 +21,6 @@ import kotlin.math.min
 
 @BindingAdapter("imageUrl" , "ancient")
 fun bindImage(imgView: ImageView, imgUrl: String?, ancient: Int) {
-//    val scale = imgView.context.resources.displayMetrics.density
     val width = imgView.layoutParams.width
 
     GlideApp.with(imgView)
@@ -32,6 +29,8 @@ fun bindImage(imgView: ImageView, imgUrl: String?, ancient: Int) {
                 if (ancient == 0) R.drawable.tomb else R.drawable.person
             } else imgUrl
         )
+        .timeout(15000)
+        .placeholder(R.drawable.poet_loading_placeholder)
         .transform(RoundedCorners((width/9)))
         .apply(
             RequestOptions()/*.override(width, width)*/

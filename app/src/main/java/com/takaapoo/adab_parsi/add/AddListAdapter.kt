@@ -17,6 +17,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -27,11 +28,14 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.PoetLoadingItemBinding
 import com.takaapoo.adab_parsi.network.PoetProperty
 import com.takaapoo.adab_parsi.util.GlideApp
+import timber.log.Timber
 import java.util.*
 
 
-class AddListAdapter(private val vm: AddViewModel, private val lifeOwner: LifecycleOwner) :
-    ListAdapter<PoetProperty, AddListAdapter.ViewHolder>(NotLoadedPoetDiffCallback()) {
+class AddListAdapter(
+    private val vm: AddViewModel,
+    private val lifeOwner: LifecycleOwner
+    ) : ListAdapter<PoetProperty, AddListAdapter.ViewHolder>(NotLoadedPoetDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent, lifeOwner, vm)
@@ -39,19 +43,9 @@ class AddListAdapter(private val vm: AddViewModel, private val lifeOwner: Lifecy
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        val downloader = Downloader(vm, holder.context, item)
-        holder.bind(item, downloader)
+        holder.bind(item)
         holder.addObserver(item)
     }
-
-//    override fun onViewDetachedFromWindow(holder: ViewHolder) {
-//        super.onViewDetachedFromWindow(holder)
-//        holder.itemView.setOnClickListener(null)
-//    }
-
-//    override fun onViewAttachedToWindow(holder: ViewHolder) {
-//        super.onViewAttachedToWindow(holder)
-//    }
 
     override fun onViewRecycled(holder: ViewHolder) {
         val position = holder.absoluteAdapterPosition
@@ -63,19 +57,26 @@ class AddListAdapter(private val vm: AddViewModel, private val lifeOwner: Lifecy
         super.onViewRecycled(holder)
     }
 
-
     class ViewHolder private constructor(val binding: PoetLoadingItemBinding,
-                                         val context: Context, private val owner: LifecycleOwner,
-                                         val viewModel: AddViewModel) :
-        RecyclerView.ViewHolder(binding.root){
+                                         val context: Context,
+                                         private val owner: LifecycleOwner,
+                                         val viewModel: AddViewModel)
+        : RecyclerView.ViewHolder(binding.root) {
 
         private var pubHeight = 0
         private val wrenchAnimator = AnimatorInflater.loadAnimator(context, R.animator.wrench_rotate)
 
-        fun bind(item: PoetProperty, download: Downloader) {
+        fun bind(item: PoetProperty) {
+            viewModel.progress.getOrPut(
+                key = item.poetID,
+                defaultValue = { MutableLiveData(-2) }
+            )
+            viewModel.installing.getOrPut(
+                key = item.poetID,
+                defaultValue = { MutableLiveData(false) }
+            )
             binding.apply {
                 property = item
-                downloader = download
                 addViewModel = viewModel
                 lifecycleOwner = owner
                 downloadButton.background = ResourcesCompat.getDrawable(context.resources
@@ -84,9 +85,6 @@ class AddListAdapter(private val vm: AddViewModel, private val lifeOwner: Lifecy
                     , R.drawable.stop_to_download, context.theme)
             }
             wrenchAnimator.setTarget(binding.wrench)
-
-
-
 
             binding.publications.apply {
                 doOnPreDraw {
@@ -130,7 +128,7 @@ class AddListAdapter(private val vm: AddViewModel, private val lifeOwner: Lifecy
                             , R.drawable.stop_to_download, context.theme)
 
                         (binding.stopButton.background as AnimatedVectorDrawable).reset()
-                        binding.downloadProgress.setProgressCompat(0, false)
+//                        binding.downloadProgress.setProgressCompat(0, false)
                     }
                     -2 -> {
                         binding.downloadButton.background = ResourcesCompat.getDrawable(context.resources

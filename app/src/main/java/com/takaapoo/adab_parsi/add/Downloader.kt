@@ -25,8 +25,9 @@ private const val minFileLength = 4000
 const val imagePrefix = "image"
 const val thumbnailPrefix = "thumbnail"
 
-class Downloader(private val vm: AddViewModel, private val context: Context,
-                 private val poetItem: PoetProperty){
+class Downloader(private val vm: AddViewModel,
+                 private val context: Context,
+                 private val poetItem: PoetProperty) {
 
     private var cancel = false
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
@@ -35,10 +36,10 @@ class Downloader(private val vm: AddViewModel, private val context: Context,
     private val fileCounts = 3
 
 
-    init {
-        vm.progress[poetItem.poetID] = vm.progress[poetItem.poetID] ?: MutableLiveData(-2)
-        vm.installing[poetItem.poetID] = vm.installing[poetItem.poetID] ?: MutableLiveData(false)
-    }
+//    init {
+//        vm.progress[poetItem.poetID] = vm.progress[poetItem.poetID] ?: MutableLiveData(-2)
+//        vm.installing[poetItem.poetID] = vm.installing[poetItem.poetID] ?: MutableLiveData(false)
+//    }
 
     private fun initialize(){
         cancel = false
@@ -54,7 +55,6 @@ class Downloader(private val vm: AddViewModel, private val context: Context,
 
             if (!isNetworkConnected()) {
                 vm.progress[poetItem.poetID]?.value = -3
-//                Toast.makeText(context, R.string.connection_failed, Toast.LENGTH_SHORT).show()
                 vm.setMess(R.string.connection_failed)
             } else
                 coroutineScope.launch {

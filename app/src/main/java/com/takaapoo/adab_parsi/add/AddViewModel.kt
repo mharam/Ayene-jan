@@ -48,6 +48,7 @@ class AddViewModel (application: Application): AndroidViewModel(application) {
     val allPoet = MutableLiveData<List<PoetProperty>?>()
     val progress: MutableMap<Int, MutableLiveData<Int>> = mutableMapOf()
     val installing: MutableMap<Int, MutableLiveData<Boolean>> = mutableMapOf()
+    private val downloader: MutableMap<Int, Downloader> = mutableMapOf()
 
 //    private val collator = Collator.getInstance(Locale("fa"))
 
@@ -58,6 +59,7 @@ class AddViewModel (application: Application): AndroidViewModel(application) {
         newAllPoet?.removeAll { it.poetID == poetId }
         allPoet.postValue(newAllPoet)
         installing.remove(poetId)
+        downloader.remove(poetId)
     }
 
     fun reloadAllPoet(){
@@ -93,5 +95,17 @@ class AddViewModel (application: Application): AndroidViewModel(application) {
         }
     }
 
+    fun downloadPoet(poetItem: PoetProperty){
+        downloader.getOrPut(
+            key = poetItem.poetID,
+            defaultValue = {
+                Downloader(
+                    vm = this,
+                    context = getApplication<Application>().applicationContext,
+                    poetItem = poetItem
+                )
+            }
+        ).download()
+    }
 
 }

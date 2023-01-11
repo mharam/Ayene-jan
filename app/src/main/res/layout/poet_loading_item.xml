@@ -10,10 +10,6 @@
             type="com.takaapoo.adab_parsi.network.PoetProperty" />
 
         <variable
-            name="downloader"
-            type="com.takaapoo.adab_parsi.add.Downloader" />
-
-        <variable
             name="addViewModel"
             type="com.takaapoo.adab_parsi.add.AddViewModel" />
     </data>
@@ -83,7 +79,7 @@
             android:background="@drawable/download_to_stop"
             android:visibility="@{addViewModel.progress[property.poetID] == -1 || addViewModel.progress[property.poetID] == -2 ? View.VISIBLE : View.GONE}"
             android:enabled="@{addViewModel.progress[property.poetID] >= 99 ? false : true}"
-            android:onClick="@{() -> downloader.download()}"
+            android:onClick="@{() -> addViewModel.downloadPoet(property)}"
             app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
             app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
             app:layout_constraintStart_toStartOf="@+id/downloadProgress"
@@ -96,7 +92,7 @@
             android:background="@drawable/stop_to_download"
             android:visibility="@{addViewModel.progress[property.poetID] == -1 || addViewModel.progress[property.poetID] == -2 || addViewModel.installing[property.poetID] ? View.GONE : View.VISIBLE}"
             android:enabled="@{addViewModel.progress[property.poetID] >= 99 ? false : true}"
-            android:onClick="@{() -> downloader.download()}"
+            android:onClick="@{() -> addViewModel.downloadPoet(property)}"
             app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
             app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
             app:layout_constraintStart_toStartOf="@+id/downloadProgress"
