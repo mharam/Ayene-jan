@@ -21,7 +21,6 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
@@ -43,8 +42,7 @@ class PoetPagerFragment : Fragment() {
 
     val homeViewModel: HomeViewModel by activityViewModels()
     val poetViewModel: PoetViewModel by activityViewModels()
-    val bookViewModel: BookViewModel by activityViewModels()
-
+    private val bookViewModel: BookViewModel by activityViewModels()
 
     private var _binding: PagerPoetBinding? = null
     val binding get() = _binding!!
@@ -67,7 +65,7 @@ class PoetPagerFragment : Fragment() {
         _binding = PagerPoetBinding.inflate(inflater, container, false)
         bookLayoutManager = binding.poetBookList.layoutManager as GridLayoutManager
 
-        adapter = BookListAdapter(this)
+        adapter = BookListAdapter(poetViewModel, bookViewModel)
         binding.poetBookList.adapter = adapter
         binding.poetBookList.edgeEffectFactory = ShelfEdgeEffectFactory(binding.shelfList)
 
@@ -76,22 +74,14 @@ class PoetPagerFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId){
                 R.id.search -> {
-                    requireParentFragment().exitTransition = MaterialFadeThrough().apply { duration = 500 }
-                    requireParentFragment().reenterTransition = MaterialFadeThrough().apply { duration = 500 }
-                    try {
-                        navController.navigate(
-                            NavGraphDirections.actionGlobalSearchFragment(-1, poetItem.id))
-                    } catch (e: Exception) { }
+                    poetViewModel.reportEvent(PoetEvent.Navigate(
+                        destination = Destinations.SEARCH,
+                        directions = NavGraphDirections.actionGlobalSearchFragment(-1, poetItem.id)
+                    ))
                 }
                 R.id.biography -> {
                     poetItem.poetID?.let {
-                        val bundle = Bundle().apply {
-                            putInt("poet_id", it)
-                        }
-                        PoetBottomSheetFragment().apply {
-                            arguments = bundle
-                            show(this@PoetPagerFragment.parentFragmentManager, "poet_bottom_sheet")
-                        }
+                        poetViewModel.reportEvent(PoetEvent.OnBiographyClicked(it))
                     }
                 }
             }
@@ -106,15 +96,6 @@ class PoetPagerFragment : Fragment() {
         val actionBarSize = requireContext().getDimenFromAttr(R.attr.actionBarSize)
         binding.toolbar.updatePadding(top = topPadding)
         (binding.toolbar.layoutParams as ViewGroup.MarginLayoutParams).height = topPadding + actionBarSize
-
-        view.doOnPreDraw {
-            val moldingHeight =
-                ((topPadding + actionBarSize) / 0.89f + view.height * (DEFAULT_SCALE - 1) / 2).toInt()
-            (binding.molding.layoutParams as ViewGroup.MarginLayoutParams).height = moldingHeight
-            binding.poetCoordinate.updatePadding(
-                top = (0.89f * moldingHeight - view.height * (DEFAULT_SCALE - 1) / 2).toInt()
-            )
-        }
 
         val moldingDrawable = ResourcesCompat.getDrawable(resources, R.drawable.molding2, context?.theme)
         val moldingBottomDrawable = ResourcesCompat.getDrawable(resources, R.drawable.molding_bottom, context?.theme)
@@ -135,6 +116,14 @@ class PoetPagerFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener { prepForGoingBack() }
 
         view.doOnPreDraw {
+            val moldingHeight =
+                ((topPadding + actionBarSize) / 0.89f + view.height * (DEFAULT_SCALE - 1) / 2).toInt()
+            (binding.molding.layoutParams as ViewGroup.MarginLayoutParams).height = moldingHeight
+            binding.poetCoordinate.updatePadding(
+                top = (0.89f * moldingHeight - view.height * (DEFAULT_SCALE - 1) / 2).toInt()
+            )
+            poetViewModel.poetViewAspectRatio = view.width.toFloat() / view.height
+
             val pivotX = view.width.toFloat()
             val pivotY = view.height / 2f
 

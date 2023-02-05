@@ -4,14 +4,13 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.lifecycle.MutableLiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.*
 import com.takaapoo.adab_parsi.network.PoetProperty
 import com.takaapoo.adab_parsi.util.FileIO
-import com.takaapoo.adab_parsi.util.tempCatToCat
 import com.takaapoo.adab_parsi.util.getAllVerseBiErab
+import com.takaapoo.adab_parsi.util.tempCatToCat
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.IOException
@@ -35,12 +34,6 @@ class Downloader(private val vm: AddViewModel,
     private var total: Long = 0
     private val fileCounts = 3
 
-
-//    init {
-//        vm.progress[poetItem.poetID] = vm.progress[poetItem.poetID] ?: MutableLiveData(-2)
-//        vm.installing[poetItem.poetID] = vm.installing[poetItem.poetID] ?: MutableLiveData(false)
-//    }
-
     private fun initialize(){
         cancel = false
         filesSize = 0
@@ -55,31 +48,25 @@ class Downloader(private val vm: AddViewModel,
 
             if (!isNetworkConnected()) {
                 vm.progress[poetItem.poetID]?.value = -3
-                vm.setMess(R.string.connection_failed)
+                vm.reportEvent(AddEvent.ShowSnack(R.string.connection_failed))
             } else
                 coroutineScope.launch {
-                    val result: String?
                     try {
-                        result = get()
-                        result ?: throw IOException("No response received.")
+                        get() ?: throw IOException("No response received.")
                     } catch (e: IllegalStateException){
-                        Timber.i("mess = ${e.message}")
                         if (vm.progress[poetItem.poetID]?.value!! >= -1 ){
                             vm.progress[poetItem.poetID]?.value = -3
-                            vm.setMess(R.string.install_failed)
+                            vm.reportEvent(AddEvent.ShowSnack(R.string.install_failed))
                         }
                         vm.installing[poetItem.poetID]?.postValue(false)
                     }
                     catch (e: Exception) {
-                        Timber.i("mess = ${e.message}")
                         if (vm.progress[poetItem.poetID]?.value!! >= -1 ){
                             vm.progress[poetItem.poetID]?.value = -3
-                            vm.setMess(R.string.download_failed)
+                            vm.reportEvent(AddEvent.ShowSnack(R.string.install_failed))
                         }
                         vm.installing[poetItem.poetID]?.postValue(false)
                     }
-//                    if (result == null)
-//                        vm.progress[poetItem.poetID]?.value = -3
                 }
         }
         else {
@@ -185,10 +172,10 @@ class Downloader(private val vm: AddViewModel,
                     databaseFile.delete()
                     for (i in url.indices){
                         connection[i]?.inputStream?.close()
-                        outStream[i]?.close()
+                        outStream[i].close()
                         connection[i]?.disconnect()
                     }
-                } catch (e: Exception){}
+                } catch (_: Exception){}
             }
         }
     }

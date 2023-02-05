@@ -3,26 +3,26 @@ package com.takaapoo.adab_parsi.poet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.doOnLayout
-import androidx.core.view.drawToBitmap
 import androidx.core.view.updateLayoutParams
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.takaapoo.adab_parsi.R
+import com.takaapoo.adab_parsi.book.BookViewModel
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.databinding.BookItemBinding
+import com.takaapoo.adab_parsi.util.Destinations
 import com.takaapoo.adab_parsi.util.dpTOpx
 
 
-class BookListAdapter(private val poetPagerFragment: PoetPagerFragment)
-    : ListAdapter<Content, RecyclerView.ViewHolder>(CategoryDiffCallback()) {
+class BookListAdapter(private val poetViewModel: PoetViewModel,
+                      private val bookViewModel: BookViewModel
+                      ) : ListAdapter<Content, RecyclerView.ViewHolder>(CategoryDiffCallback()) {
 
     override fun getItemViewType(position: Int): Int {
         return when (position) {
-            in 0 until poetPagerFragment.poetViewModel.bookShelfSpanCount  -> 0
+            in 0 until poetViewModel.bookShelfSpanCount  -> 0
             else -> 1
         }
     }
@@ -30,7 +30,7 @@ class BookListAdapter(private val poetPagerFragment: PoetPagerFragment)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
             0 -> EmptyViewHolder.from(parent)
-            else -> ViewHolder.from(parent, poetPagerFragment)
+            else -> ViewHolder.from(parent, poetViewModel, bookViewModel)
         }
     }
 
@@ -41,23 +41,19 @@ class BookListAdapter(private val poetPagerFragment: PoetPagerFragment)
         }
     }
 
-//    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
-//        super.onViewDetachedFromWindow(holder)
-//        holder.itemView.setOnClickListener(null)
-//    }
+    class ViewHolder(val binding: BookItemBinding,
+                     private val poetViewModel: PoetViewModel,
+                     private val bookViewModel: BookViewModel
+                     ) : RecyclerView.ViewHolder(binding.root){
 
-    class ViewHolder(val binding: BookItemBinding, private val poetPagerFragment: PoetPagerFragment)
-        : RecyclerView.ViewHolder(binding.root){
-
-        private val aspectRatio = poetPagerFragment.requireView().let { it.width.toFloat() / it.height}
         fun bind(item: Content, itemCount: Int, currentList: List<Content> ) {
 
             binding.bookItemLayout.transitionName = item.text
             binding.bookTitle.text = item.text
             binding.imageView.updateLayoutParams {
-                width =
-                    (aspectRatio * height).coerceAtLeast(
-                        poetPagerFragment.resources.getDimension(R.dimen.book_min_width)).toInt()
+                width = (poetViewModel.poetViewAspectRatio * height).coerceAtLeast(
+                        minimumValue = itemView.resources.getDimension(R.dimen.book_min_width)
+                ).toInt()
             }
 //            binding.imageView.drawable.apply {
 //                setTintMode(PorterDuff.Mode.SRC_ATOP)
@@ -75,39 +71,30 @@ class BookListAdapter(private val poetPagerFragment: PoetPagerFragment)
 //                }
 //            }
 
-            itemView.setOnClickListener { view ->
-                poetPagerFragment.poetViewModel.apply {
+            itemView.setOnClickListener {
+                poetViewModel.apply {
                     bookPosition = bindingAdapterPosition - bookShelfSpanCount
                     count = itemCount - bookShelfSpanCount
                     bookListItems = currentList.subList(bookShelfSpanCount, currentList.size)
                 }
-                poetPagerFragment.apply {
-                    bookViewModel.bookFirstOpening = true
-                    binding.root.doOnLayout {
-                        bookViewModel.poetLibContentShot = binding.poetLayout.drawToBitmap()
-                    }
-//                    bookViewModel.poetLibContentShot = Bitmap.createBitmap(binding.poetLayout.width
-//                        , binding.poetLayout.height, Bitmap.Config.ARGB_8888)
-//                    this.view?.draw(Canvas(bookViewModel.poetLibContentShot!!))
-                }
-
-
-//                poetPagerFragment.setTransitionType(binding.bookItemLayout)
-                try {
-                    val extras = FragmentNavigatorExtras(
+                bookViewModel.bookFirstOpening = true
+                poetViewModel.reportEvent(PoetEvent.Navigate(
+                    destination = Destinations.BOOK,
+                    directions = PoetFragmentDirections.actionPoetFragmentToBookFragment(),
+                    extras = FragmentNavigatorExtras(
                         binding.bookItemLayout to binding.bookItemLayout.transitionName)
-                    val action = PoetFragmentDirections.actionPoetFragmentToBookFragment()
-                    view.findNavController().navigate(action, extras)
-                } catch (e: Exception) { }
+                ))
             }
 
         }
 
         companion object {
-            fun from(parent: ViewGroup, poetPagerFragment: PoetPagerFragment): ViewHolder {
+            fun from(parent: ViewGroup,
+                     poetViewModel: PoetViewModel,
+                     bookViewModel: BookViewModel): ViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = BookItemBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding, poetPagerFragment)
+                return ViewHolder(binding, poetViewModel, bookViewModel)
             }
         }
     }

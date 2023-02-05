@@ -1,5 +1,6 @@
 package com.takaapoo.adab_parsi.poet
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.lifecycle.*
 import com.takaapoo.adab_parsi.database.Content
@@ -9,6 +10,8 @@ import com.takaapoo.adab_parsi.util.allUpCategories
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +30,8 @@ class PoetViewModel @Inject constructor(
 
     var enterBookFragment = false
     var bookShelfSpanCount = 2
+    var poetViewAspectRatio = 0f
+    var poetLibContentShot: Bitmap? = null
 
     init {
         savedStateHandle.get<Bundle?>("poet_state")?.let {
@@ -43,19 +48,16 @@ class PoetViewModel @Inject constructor(
         }
     }
 
-    private val _showHelp = MutableLiveData<Int?>(null)
-    val showHelp: LiveData<Int?>
-        get() = _showHelp
-    fun doShowHelp() { _showHelp.value = 1}
-    fun doneShowHelp() { _showHelp.value = null}
-    fun increaseShowHelp() { _showHelp.value = _showHelp.value?.plus(1) }
-
-
-
-
+    private val _uiEvent = Channel<PoetEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+    fun reportEvent(event: PoetEvent){
+        viewModelScope.launch {
+            _uiEvent.send(event)
+        }
+    }
 
     fun getPoemWithCatID(catId: Int) = dao.getAllPoemWithCatID(catId)
-    suspend fun getAllPoemWithCatID(catId: Int) = dao.getAllPoemWithCatID(allSubCategories(catId))
+    private suspend fun getAllPoemWithCatID(catId: Int) = dao.getAllPoemWithCatID(allSubCategories(catId))
     fun getPoet(id: Int) = dao.getPoet(id)
     fun updatePoetDate(newDate: Long, id: Int) = viewModelScope.launch {
         dao.updatePoetDate(newDate, id)

@@ -1,22 +1,19 @@
 package com.takaapoo.adab_parsi.poet
 
-import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EdgeEffect
 import androidx.core.app.SharedElementCallback
-import androidx.core.view.children
+import androidx.core.view.drawToBitmap
 import androidx.core.view.isVisible
-import androidx.dynamicanimation.animation.FloatValueHolder
-import androidx.dynamicanimation.animation.SpringAnimation
-import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,20 +21,24 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentPoetBinding
 import com.takaapoo.adab_parsi.home.HomeViewModel
-import com.takaapoo.adab_parsi.util.*
+import com.takaapoo.adab_parsi.util.Destinations
+import com.takaapoo.adab_parsi.util.GlideApp
+import com.takaapoo.adab_parsi.util.barsPreparation
+import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.book_item.view.*
 import kotlinx.android.synthetic.main.pager_poet.*
 import kotlinx.android.synthetic.main.pager_poet.view.*
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @AndroidEntryPoint
 class PoetFragment : FragmentWithTransformPage() {
 
-//    private val args: PoetFragmentArgs by navArgs()
     private var _binding: FragmentPoetBinding? = null
     val binding get() = _binding!!
     val homeViewModel: HomeViewModel by activityViewModels()
@@ -71,7 +72,7 @@ class PoetFragment : FragmentWithTransformPage() {
 
                         try {
                             sharedElements[names[0]] = selectedViewHolder.itemView.book_item_layout
-                        } catch (e: Exception) { }
+                        } catch (_: Exception) { }
                     }
                     else
                         poetViewModel.enterBookFragment = false
@@ -125,21 +126,62 @@ class PoetFragment : FragmentWithTransformPage() {
                 currentChildFragment?.view ?: return
                 try {
                     sharedElements[names[0]] = currentChildFragment!!.poet_layout
-                } catch (e: Exception) { }
+                } catch (_: Exception) { }
             }
         })
 
         val preferenceManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val firstFragEntrance = preferenceManager.getBoolean("poetFragFirstEnter", true)
         if (firstFragEntrance) {
-            poetViewModel.doShowHelp()
+            poetViewModel.reportEvent(PoetEvent.OnShowHelp(PoetHelpState.PAGING))
             preferenceManager.edit().putBoolean("poetFragFirstEnter", false).apply()
         }
 
         val help = Help(this)
-        poetViewModel.showHelp.observe(viewLifecycleOwner) {
-            help.showHelp(it, if (firstFragEntrance) 2000 else 500)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                poetViewModel.uiEvent.collect{ event ->
+                    when(event){
+                        is PoetEvent.OnBiographyClicked -> {
+                            val bundle = Bundle().apply {
+                                putInt("poet_id", event.poetID)
+                            }
+                            PoetBottomSheetFragment().run {
+                                arguments = bundle
+                                show(this@PoetFragment.childFragmentManager, "poet_bottom_sheet")
+                            }
+                        }
+                        is PoetEvent.Navigate -> {
+                            when(event.destination){
+                                Destinations.SEARCH -> {
+                                    exitTransition = MaterialFadeThrough().apply { duration = 500 }
+                                    try {
+                                        findNavController().navigate(
+                                            directions = event.directions
+                                        )
+                                    } catch (_: Exception) { }
+                                }
+                                Destinations.BOOK -> {
+                                    try {
+                                        poetViewModel.poetLibContentShot = binding.viewPager.drawToBitmap()
+                                        findNavController().navigate(
+                                            directions = event.directions,
+                                            navigatorExtras = event.extras!!
+                                        )
+                                    } catch (_: Exception) { }
+                                }
+                                else -> {}
+                            }
+                        }
+                        is PoetEvent.OnShowHelp -> {
+                            help.showHelp(event.state, if (firstFragEntrance) 2000 else 500)
+                        }
+                    }
+                }
+            }
         }
+
 //        preferenceManager.edit().putBoolean("poetFragFirstEnter", true).apply()
 
     }
@@ -147,7 +189,7 @@ class PoetFragment : FragmentWithTransformPage() {
     override fun onPause() {
         super.onPause()
         if (activity?.isChangingConfigurations == false)
-            poetViewModel.doneShowHelp()
+            poetViewModel.reportEvent(PoetEvent.OnShowHelp(PoetHelpState.NULL))
     }
 
     override fun onDestroyView() {
@@ -289,100 +331,5 @@ private const val MIN_SCALE2 = 0.9f
 class ZoomPageTransformer(private val poetFragment: PoetFragment) : ViewPager2.PageTransformer {
     override fun transformPage(view: View, position: Float) {
         poetFragment.transformPage(view, position)
-    }
-}
-
-
-class PoetBounceEdgeEffectFactory(private val fragment: FragmentWithTransformPage)
-    : RecyclerView.EdgeEffectFactory() {
-
-    override fun createEdgeEffect(recyclerView: RecyclerView, direction: Int): EdgeEffect {
-
-        val firstChild = recyclerView.children.first()
-        val lastChild = recyclerView.children.last()
-
-        val floatValueHolder = FloatValueHolder(0f)
-        val anim = SpringAnimation(floatValueHolder)
-            .setSpring(SpringForce(0f)
-                .setDampingRatio(0.6f)
-                .setStiffness(SpringForce.STIFFNESS_LOW)
-            )
-
-        return object : EdgeEffect(recyclerView.context) {
-
-            override fun onPull(deltaDistance: Float) {
-                super.onPull(deltaDistance)
-                handlePull(deltaDistance)
-            }
-
-            override fun onPull(deltaDistance: Float, displacement: Float) {
-                super.onPull(deltaDistance, displacement)
-                handlePull(deltaDistance)
-            }
-
-            private fun handlePull(deltaDistance: Float) {
-                // Translate the recyclerView with the distance
-                val sign = if (direction == DIRECTION_RIGHT) 1 else -1
-                val translationDelta = sign * recyclerView.width * deltaDistance * OVERSCROLL_TRANSLATION_MAGNITUDE
-
-                floatValueHolder.value +=  translationDelta
-                if (direction == DIRECTION_RIGHT)
-                    fragment.transformPage(firstChild, floatValueHolder.value / recyclerView.width)
-                else if (direction == DIRECTION_LEFT)
-                    fragment.transformPage(lastChild, floatValueHolder.value / recyclerView.width)
-
-                anim?.cancel()
-            }
-
-            override fun onRelease() {
-                super.onRelease()
-                // The finger is lifted. Start the animation to bring translation back to the resting state.
-                if (!isFinished)
-                    anim.cancel()
-
-                if (floatValueHolder.value != 0f){
-                    if (direction == DIRECTION_RIGHT) {
-                        anim.addUpdateListener { _, value, _ ->
-                            fragment.transformPage(firstChild, value / recyclerView.width)
-                        }.start()
-                    }
-                    else if (direction == DIRECTION_LEFT) {
-                        anim.addUpdateListener { _, value, _ ->
-                            fragment.transformPage(lastChild, value / recyclerView.width)
-                        }.start()
-                    }
-                }
-            }
-
-            override fun onAbsorb(velocity: Int) {
-                super.onAbsorb(velocity)
-                // The list has reached the edge on fling.
-                val sign = if (direction == DIRECTION_RIGHT) 1 else -1
-                val translationVelocity = sign * recyclerView.width * velocity * FLING_TRANSLATION_MAGNITUDE
-                anim?.cancel()
-                anim.setStartVelocity(translationVelocity)?.also {
-                    if (direction == DIRECTION_RIGHT) {
-                        it.addUpdateListener { _, value, _ ->
-                            fragment.transformPage(firstChild, value / recyclerView.width)
-                        }.start()
-                    }
-                    else if (direction == DIRECTION_LEFT) {
-                        it.addUpdateListener { _, value, _ ->
-                            fragment.transformPage(lastChild, value / recyclerView.width)
-                        }.start()
-                    }
-                }
-            }
-
-            override fun draw(canvas: Canvas?): Boolean {
-                // don't paint the usual edge effect
-                return false
-            }
-
-            override fun isFinished(): Boolean {
-                // Without this, will skip future calls to onAbsorb()
-                return anim.isRunning.not()
-            }
-        }
     }
 }

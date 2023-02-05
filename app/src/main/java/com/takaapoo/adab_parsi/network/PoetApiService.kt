@@ -4,6 +4,7 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
@@ -31,7 +32,7 @@ private val retrofit = Retrofit.Builder()
 
 interface PoetApiService {
     @GET("PoetAccess/Poet.php")
-    suspend fun getProperties(@Query("poet_id") id: Int): MutableList<PoetProperty>
+    suspend fun getProperties(@Query("poet_id") id: Int): Response<MutableList<PoetProperty>>
 }
 
 interface DictionaryApiService {

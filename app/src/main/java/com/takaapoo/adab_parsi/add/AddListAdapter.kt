@@ -1,7 +1,6 @@
 package com.takaapoo.adab_parsi.add
 
 import android.animation.AnimatorInflater
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Handler
@@ -11,7 +10,6 @@ import android.text.StaticLayout
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
@@ -28,7 +26,6 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.PoetLoadingItemBinding
 import com.takaapoo.adab_parsi.network.PoetProperty
 import com.takaapoo.adab_parsi.util.GlideApp
-import timber.log.Timber
 import java.util.*
 
 
@@ -100,10 +97,13 @@ class AddListAdapter(
             }
 
             itemView.setOnClickListener {
-                ObjectAnimator.ofInt(binding.publications, "height"
-                    , if (binding.publications.height == 0) pubHeight else 0).apply {
-                    interpolator = AccelerateInterpolator(1f)
-                }.start()
+                viewModel.reportEvent(AddEvent.PoetTouched(binding.publications, pubHeight))
+            }
+            binding.downloadButton.setOnClickListener {
+                viewModel.reportEvent(AddEvent.DownloadPoet(item))
+            }
+            binding.stopButton.setOnClickListener {
+                viewModel.reportEvent(AddEvent.DownloadPoet(item))
             }
 
             binding.executePendingBindings()
@@ -155,7 +155,6 @@ class AddListAdapter(
             viewModel.installing[item.poetID]?.removeObservers(owner)
             viewModel.progress[item.poetID]?.removeObservers(owner)
         }
-
 
         companion object {
             fun from(parent: ViewGroup, owner: LifecycleOwner, vm: AddViewModel): ViewHolder {

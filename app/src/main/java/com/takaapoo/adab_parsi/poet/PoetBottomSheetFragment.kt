@@ -16,7 +16,8 @@ class PoetBottomSheetFragment : BottomSheetDialogFragment() {
     val poetViewModel: PoetViewModel by activityViewModels()
     lateinit var binding: ButtomsheetPoetBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
 
         binding = ButtomsheetPoetBinding.inflate(inflater, container, false)

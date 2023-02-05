@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -115,6 +116,9 @@ class SearchFragment: Fragment() {
         binding.root.postDelayed({
             if (_binding != null) {
                 binding.searchView.search_src_text.let { searchText ->
+                    context?.let {
+                        (searchText as EditText).setTextColor(it.getColorFromAttr(R.attr.colorOnSurface))
+                    }
                     if (searchText.requestFocus())
                         (activity as MainActivity).showKeyBoard(searchText)
                 }
@@ -243,7 +247,7 @@ class SearchFragment: Fragment() {
         }
         try {
             findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToResultFragment())
-        } catch (e: Exception) { }
+        } catch (_: Exception) { }
     }
 
     fun String.mySplitToSequence(delimiter: String): List<String> {

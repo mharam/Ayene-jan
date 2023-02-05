@@ -1,13 +1,17 @@
 package com.takaapoo.adab_parsi.add
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -29,6 +33,7 @@ import com.takaapoo.adab_parsi.home.HomeViewModel
 import com.takaapoo.adab_parsi.network.PoetProperty
 import com.takaapoo.adab_parsi.util.*
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -83,10 +88,24 @@ class AddFragment : Fragment() {
 
         addViewModel.allPoet.observe(viewLifecycleOwner) { list -> initializeTab(list) }
 
-        addViewModel.snackMess.observe(viewLifecycleOwner){ stringId ->
-            stringId?.let {
-                Snackbar.make(binding.myLayout, it, Snackbar.LENGTH_LONG).show()
-                addViewModel.snackMessShown()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                addViewModel.uiEvent.collect { event ->
+                    when(event){
+                        is AddEvent.ShowSnack -> {
+                            Snackbar.make(binding.myLayout, event.mess, Snackbar.LENGTH_LONG).show()
+                        }
+                        is AddEvent.PoetTouched -> {
+                            ObjectAnimator.ofInt(event.poetView, "height"
+                                , if (event.poetView.height == 0) event.height else 0).apply {
+                                interpolator = AccelerateInterpolator(1f)
+                            }.start()
+                        }
+                        is AddEvent.DownloadPoet -> {
+                            addViewModel.downloadPoet(event.poetItem)
+                        }
+                    }
+                }
             }
         }
 

@@ -1,6 +1,5 @@
 package com.takaapoo.adab_parsi.book
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,10 +15,6 @@ class BookViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     var bookCurrentItem: Content? = null
     var bookContentScrollPosition = mutableMapOf<Int, Content>()
-//    var offset = 0
-
-    var poetLibContentShot: Bitmap? = null
-//    var bookWidthMultiplier = 1f
 
     init {
         savedStateHandle.get<Bundle?>("book_state")?.let {

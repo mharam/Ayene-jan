@@ -3,14 +3,12 @@ package com.takaapoo.adab_parsi.util
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.util.TypedValue
-import android.view.View
 import android.widget.EdgeEffect
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -19,10 +17,7 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.tasks.*
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
-//import com.google.android.play.core.tasks.RuntimeExecutionException
 import com.takaapoo.adab_parsi.AppStore
 import com.takaapoo.adab_parsi.database.Category
 import com.takaapoo.adab_parsi.database.TempCategory
@@ -51,8 +46,6 @@ var topPadding = 0
 fun Int.spTOpx(resources: Resources) = this * resources.displayMetrics.scaledDensity
 
 fun Int.dpTOpx(resources: Resources) = this * resources.displayMetrics.density
-
-fun Float.pxTOdp(resources: Resources) = this / resources.displayMetrics.density
 
 @ColorInt
 fun Context.getColorFromAttr(@AttrRes attrColor: Int, typedValue: TypedValue = TypedValue(),
@@ -242,7 +235,7 @@ fun List<String>.myIndexOf(element: String): Int{
 
 
 fun String.findSpanIndex2(elements: List<String>): List<Int>?{
-    if (this.trim().isEmpty() || elements.isNullOrEmpty()) return null
+    if (this.trim().isEmpty() || elements.isEmpty()) return null
     val input = String(this.map { c -> when (c) {
         'إ', 'أ', 'آ' -> 'ا'
         'ة', 'ۀ' -> 'ه'
@@ -360,7 +353,7 @@ fun String.findSpanIndex3(element: String?): List<Int>{
 }
 
 fun String.shorten(keyWords: List<String>, maxChars: Int): String?{ //Shorten a String based on keywords inside it
-    if (this.trim().isEmpty() || keyWords.isNullOrEmpty()) return null
+    if (this.trim().isEmpty() || keyWords.isEmpty()) return null
 
     val spanIndex = this.findSpanIndex2(keyWords)?.toMutableList()
     spanIndex?.removeFirstOrNull()
@@ -392,14 +385,14 @@ fun String.shorten(keyWords: List<String>, maxChars: Int): String?{ //Shorten a 
     }
 
     if (modifiedSpanIndex.size == 0) return null
-    var outString = if (modifiedSpanIndex[0] == 0) "" else "... "
+    val outString = if (modifiedSpanIndex[0] == 0) StringBuilder("") else StringBuilder("... ")
     for (j in modifiedSpanIndex.indices step 2){
-        outString += this.substring(modifiedSpanIndex[j], modifiedSpanIndex[j+1])
+        outString.append(this.substring(modifiedSpanIndex[j], modifiedSpanIndex[j+1]))
         if (modifiedSpanIndex[j+1] < this.length)
-            outString += " ... "
+            outString.append(" ... ")
     }
 
-    return outString
+    return outString.toString()
 }
 
 fun indexInNormalizedFinder(text: String, normalizedText: String, index: Int): Int {

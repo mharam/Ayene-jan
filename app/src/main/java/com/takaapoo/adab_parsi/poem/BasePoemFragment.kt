@@ -2,6 +2,7 @@ package com.takaapoo.adab_parsi.poem
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -286,6 +287,9 @@ abstract class BasePoemFragment: Fragment(), PoemTextMenu.FragmentPreparer {
         _binding = null
     }
 
+    fun setBookImageBitmap(bitmap: Bitmap?){
+        _binding?.bookImage?.setImageBitmap(bitmap)
+    }
 
 }
 

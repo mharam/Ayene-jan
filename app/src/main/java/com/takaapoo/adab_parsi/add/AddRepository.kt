@@ -25,14 +25,14 @@ class AddRepository(context: Context) {
 
     private val collator = Collator.getInstance(Locale("fa"))
     val allPoet: MutableLiveData<List<PoetProperty>> = liveData(Dispatchers.IO + handler) {
-        val poetList = PoetApi.retrofitService.getProperties(-1)
+        val poetList = PoetApi.retrofitService.getProperties(-1).body()
         val catPoet = PoemDatabase.getDatabase(context).dao().getCatPoet()
 
-        poetList.removeAll { item ->  catPoet.any { it.poetID == item.poetID } }
+        poetList?.removeAll { item ->  catPoet.any { it.poetID == item.poetID } }
         _loadStatus.postValue(ListLoadStatus.DONE)
 
-        poetList.sortWith { one, two -> collator.compare(one.text, two.text) }
-        emit(poetList.toList())
+        poetList?.sortWith { one, two -> collator.compare(one.text, two.text) }
+        emit(poetList?.toList())
     } as MutableLiveData<List<PoetProperty>>
 
     init {

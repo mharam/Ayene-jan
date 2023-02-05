@@ -73,7 +73,7 @@ class BookFragment : FragmentWithTransformPage() {
         _binding = FragmentBookBinding.inflate(inflater, container, false)
 
         if (bookViewModel.bookFirstOpening)
-            binding.bookViewPager.background = bookViewModel.poetLibContentShot?.toDrawable(resources)
+            binding.bookViewPager.background = poetViewModel.poetLibContentShot?.toDrawable(resources)
         else
             changeBackgroundImage()
 
@@ -118,7 +118,7 @@ class BookFragment : FragmentWithTransformPage() {
                 currentChildFragment?.view ?: return
                 try {
                     sharedElements[names[0]] = currentChildFragment!!.book_layout
-                } catch (e: Exception) { }
+                } catch (_: Exception) { }
             }
         })
 
@@ -206,7 +206,7 @@ class BookFragment : FragmentWithTransformPage() {
                 override fun onLoadCleared(placeholder: Drawable?) { }
             }
         )
-        bookViewModel.poetLibContentShot = null
+        poetViewModel.poetLibContentShot = null
 
         //        binding.bookViewPager.background =
 //            ResourcesCompat.getDrawable(resources, R.drawable.background_wood, context?.theme)
@@ -218,7 +218,7 @@ class BookFragment : FragmentWithTransformPage() {
         view.apply {
             when {
                 position == 0f && bookViewModel.bookFirstOpening -> {
-                    book_cover.rotationY = 0f
+                    book_cover?.rotationY = 0f
                 }
                 position <= -1 -> { // [-Infinity,-1]
                     translationX = 0f
@@ -238,16 +238,19 @@ class BookFragment : FragmentWithTransformPage() {
                         position <= MIN_SCALE -> x = (-0.1f / MIN_SCALE - 1) * position * width
                     }
 
-                    bookLayout.translationX = transX
-                    bookLayout.scaleX = scaleFactor / scaleXOutValue.float
-                    bookLayout.scaleY = scaleFactor / scaleYOutValue.float
-
-                    book_cover.rotationY = (1 - abs(position)).pow(4) * 90f
+                    bookLayout?.run {
+                        translationX = transX
+                        scaleX = scaleFactor / scaleXOutValue.float
+                        scaleY = scaleFactor / scaleYOutValue.float
+                    }
+                    book_cover?.rotationY = (1 - abs(position)).pow(4) * 90f
                 }
                 else -> { // [1,+Infinity]
                     translationX = 0f
-                    bookLayout.scaleX = 1 / scaleXOutValue.float
-                    bookLayout.scaleY = 1 / scaleYOutValue.float
+                    bookLayout?.run {
+                        scaleX = 1 / scaleXOutValue.float
+                        scaleY = 1 / scaleYOutValue.float
+                    }
                 }
             }
         }

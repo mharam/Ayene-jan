@@ -13,12 +13,9 @@ import com.takaapoo.adab_parsi.util.dpTOpx
 
 class Help(val poetFragment: PoetFragment) {
 
-//    val screamColor = poetFragment.requireContext().getColorFromAttr(R.attr.colorHelpScream)
     val binding = poetFragment.binding
     val poetViewModel = poetFragment.poetViewModel
 
-//    private val searchScreamer = (binding.helpScrimmerCircle.drawable as GradientDrawable)
-//    private val helpScrimDim = poetFragment.resources.getDimension(R.dimen.help_scream_dim)
     val resources: Resources = poetFragment.resources
     private val initialRadius = 1500.dpTOpx(resources)
     private val finalRadius = 24.dpTOpx(resources)
@@ -29,30 +26,31 @@ class Help(val poetFragment: PoetFragment) {
     }
 
 
-    fun showHelp(helpState: Int?, startDelay: Long) {
+    fun showHelp(helpState: PoetHelpState, startDelay: Long) {
 
-        if (helpState != null){
-            when (helpState) {
-                1 -> {
-                    if (!binding.flasher.isVisible){
-                        openHelp1(startDelay)
-                    }
-                }
-                2 -> {
-                    binding.helpDialog.root.visibility = View.INVISIBLE
-                    closeHelp1 { openHelp2() }
+        when (helpState) {
+            PoetHelpState.PAGING -> {
+                if (!binding.flasher.isVisible){
+                    openHelp1(startDelay)
                 }
             }
-        } else {
-            binding.helpDialog.root.visibility = View.INVISIBLE
-            binding.helpDialog.bullets.forEach { circ -> circ.isActivated = false }
+            PoetHelpState.SEARCH -> {
+                binding.helpDialog.root.visibility = View.INVISIBLE
+                closeHelp1 { openHelp2() }
+            }
+            else -> {
+                binding.helpDialog.root.visibility = View.INVISIBLE
+                binding.helpDialog.bullets.forEach { circ -> circ.isActivated = false }
 
-            if (binding.flasher.isVisible)
-                closeHelp1 {}
+                if (binding.flasher.isVisible)
+                    closeHelp1 {}
 
-            if (binding.helpFocusCirc.isVisible)
-                closeHelp2 {}
+                if (binding.helpFocusCirc.isVisible)
+                    closeHelp2 {}
+            }
         }
+
+
     }
 
     private fun openHelp1(delay: Long){
@@ -62,8 +60,12 @@ class Help(val poetFragment: PoetFragment) {
                 root.x = (binding.root.width - root.width) / 2f
                 root.doOnLayout { root.y = (binding.root.height - root.height) / 2f }
 
-                dismiss.setOnClickListener{ poetViewModel.doneShowHelp() }
-                next.setOnClickListener { poetViewModel.increaseShowHelp() }
+                dismiss.setOnClickListener {
+                    poetViewModel.reportEvent(PoetEvent.OnShowHelp(PoetHelpState.NULL))
+                }
+                next.setOnClickListener {
+                    poetViewModel.reportEvent(PoetEvent.OnShowHelp(PoetHelpState.SEARCH))
+                }
                 c1.isActivated = true
             }
         }
@@ -81,8 +83,6 @@ class Help(val poetFragment: PoetFragment) {
     }
 
     private fun openHelp2(){
-        val gap = 40.dpTOpx(resources)
-
         poetFragment.currentChildFragment?.binding?.toolbar?.doOnPreDraw {
             val searchIconPos = poetFragment.currentChildFragment?.searchIconCenter()
             binding.helpFocusCirc.apply {
@@ -98,7 +98,9 @@ class Help(val poetFragment: PoetFragment) {
                     root.y = (searchIconPos?.get(1) ?: 0) + 40.dpTOpx(resources)
                     dismiss.isVisible = false
                     next.text = resources.getString(R.string.got_it)
-                    next.setOnClickListener { poetViewModel.doneShowHelp() }
+                    next.setOnClickListener {
+                        poetViewModel.reportEvent(PoetEvent.OnShowHelp(PoetHelpState.NULL))
+                    }
                     c1.isActivated = true
                     c2.isActivated = true
                 }

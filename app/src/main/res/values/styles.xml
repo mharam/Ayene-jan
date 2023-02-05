@@ -64,17 +64,17 @@
         <item name="android:popupBackground">@null</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColorHint">@android:color/tab_indicator_text</item>
+        <item name="android:editTextColor">?attr/colorOnSurface</item>
         <item name="searchIcon">@null</item>
-
-<!--        <item name="colorControlNormal">@color/material_light_active_icon</item>-->
-<!--        <item name="colorControlHighlight">@color/material_ripple_light</item>-->
-        <item name="autoCompleteTextViewStyle">@style/AutoCompleteTextViewStyle</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewStyle</item>
+<!--        <item name="autoCompleteTextViewStyle">@style/AutoCompleteTextViewStyle</item>-->
         <item name="commitIcon">@drawable/ic_baseline_arrow_upward_24</item>
-<!--        <item name="android:maxWidth">9999dp</item>-->
     </style>
     <style name="AutoCompleteTextViewStyle" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:popupBackground">#ff0000</item>
         <item name="android:popupElevation">0dp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:editTextColor">?attr/colorOnSurface</item>
     </style>
 
 <!--    Cotextual Toolbar-->
@@ -129,8 +129,8 @@
 
     <style name="toggleButton"  parent="Base.Theme.MyApp">
         <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
-        <item name="android:textOn"></item>
-        <item name="android:textOff"></item>
+<!--        <item name="android:textOn"></item>-->
+<!--        <item name="android:textOff"></item>-->
     </style>
 
 <!--    Setting preference-->

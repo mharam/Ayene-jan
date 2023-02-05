@@ -20,7 +20,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.animation.doOnEnd
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.*
@@ -52,6 +51,8 @@ import com.takaapoo.adab_parsi.home.HomeEvent
 import com.takaapoo.adab_parsi.home.HomeViewModel
 import com.takaapoo.adab_parsi.poem.PoemFragment
 import com.takaapoo.adab_parsi.poem.PoemViewModel
+import com.takaapoo.adab_parsi.poet.PoetEvent
+import com.takaapoo.adab_parsi.poet.PoetHelpState
 import com.takaapoo.adab_parsi.poet.PoetViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.*
@@ -82,7 +83,7 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     val binding get() = _binding!!
 //    val broadcastReceiver = NetworkReceiver()
-    var imm : InputMethodManager? = null
+    private var imm : InputMethodManager? = null
     private var connectivityManager: ConnectivityManager? = null
     private val mRunnable = Runnable {
         val keyboardIsVisible =
@@ -233,13 +234,15 @@ class MainActivity : AppCompatActivity() {
                                 R.id.homeFragment -> homeViewModel.reportEvent(
                                     HomeEvent.OnShowHelp(HelpView.ADD_FAB)
                                 )
-                                R.id.poetFragment -> poetViewModel.doShowHelp()
+                                R.id.poetFragment -> poetViewModel.reportEvent(
+                                    PoetEvent.OnShowHelp(PoetHelpState.PAGING)
+                                )
                                 R.id.bookFragment -> bookViewModel.doShowHelp()
                                 R.id.poemFragment -> poemViewModel.doShowHelp()
                             }
                         }
                     }
-                } catch (e: Exception) { }
+                } catch (_: Exception) { }
 
                 binding.drawerLayout.closeDrawer(GravityCompat.START, true)
                 true

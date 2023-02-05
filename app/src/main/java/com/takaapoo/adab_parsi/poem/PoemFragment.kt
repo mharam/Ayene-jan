@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.takaapoo.adab_parsi.MainActivity
@@ -21,12 +20,10 @@ import com.takaapoo.adab_parsi.book.BookViewModel
 import com.takaapoo.adab_parsi.poet.PoetViewModel
 import com.takaapoo.adab_parsi.util.allUpCategories
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 
 @AndroidEntryPoint
@@ -84,7 +81,7 @@ class PoemFragment : BasePoemFragment(){
 
         poemViewModel.bookContentScrollY = 0
         if (poemViewModel.contentShot != null)
-            binding.bookImage.setImageBitmap(poemViewModel.contentShot)
+            setBookImageBitmap(bitmap = poemViewModel.contentShot)
 
         return binding.root
     }
@@ -138,7 +135,7 @@ class PoemFragment : BasePoemFragment(){
                                         interpolator = LinearInterpolator()
                                         doOnEnd {
                                             poemViewModel.contentShot = null
-                                            binding.bookImage.setImageDrawable(null)
+                                            setBookImageBitmap(bitmap = null)
                                         }
                                     }.start()
 
