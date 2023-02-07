@@ -3,10 +3,10 @@ package com.takaapoo.adab_parsi.book
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -20,6 +20,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -31,12 +32,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
-import com.takaapoo.adab_parsi.NavGraphDirections
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.databinding.PagerBook2Binding
@@ -47,7 +46,10 @@ import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.*
 import com.takaapoo.adab_parsi.util.fastScroll.BookContentFastScrollViewHelper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.lang.reflect.Field
 import java.util.*
@@ -59,7 +61,7 @@ import kotlin.math.roundToInt
 class BookPagerFragment : Fragment() {
 
     val poetViewModel: PoetViewModel by activityViewModels()
-    val bookViewModel: BookViewModel by activityViewModels()
+    private val bookViewModel: BookViewModel by activityViewModels()
     val poemViewModel: PoemViewModel by activityViewModels()
     val settingViewModel: SettingViewModel by activityViewModels()
 
@@ -68,7 +70,7 @@ class BookPagerFragment : Fragment() {
     private var adapter: BookContentAdapter? = null
     private lateinit var navController: NavController
     private var layoutManager: LinearLayoutManager? = null
-    lateinit var contentItem: Content
+    private lateinit var contentItem: Content
     var scrollViewHelper: BookContentFastScrollViewHelper? = null
 
     val rect = Rect()
@@ -103,12 +105,7 @@ class BookPagerFragment : Fragment() {
         binding.bookToolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId){
                 R.id.search -> {
-                    try {
-                        requireParentFragment().exitTransition = MaterialFadeThrough()
-                        requireParentFragment().reenterTransition = MaterialFadeThrough()
-                        navController.navigate(NavGraphDirections
-                            .actionGlobalSearchFragment(-2, contentItem.id))
-                    } catch (e: Exception) { e.printStackTrace() }
+                    bookViewModel.reportEvent(BookEvent.NavigateToSearch(contentItem.id))
                 }
             }
             true
@@ -212,7 +209,7 @@ class BookPagerFragment : Fragment() {
         arguments?.takeIf { it.containsKey(ARG_BOOK_POSITION) }?.apply {
             contentItem = poetViewModel.bookListItems[getInt(ARG_BOOK_POSITION)]!!
             binding.title = contentItem.text
-            adapter = BookContentAdapter(this@BookPagerFragment)
+            adapter = BookContentAdapter(bookViewModel, poetViewModel, contentItem.id)
             binding.bookContentList.adapter = adapter
             binding.bookContentList.edgeEffectFactory = BounceEdgeEffectFactory(Orientation.VERTICAL)
 
@@ -350,7 +347,6 @@ class BookPagerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-//        holderJob.cancel()
         binding.bookToolbar.setOnMenuItemClickListener(null)
         binding.bookToolbar.setNavigationOnClickListener(null)
         binding.bookContentList.removeOnScrollListener(contentScrollListener)
@@ -361,6 +357,43 @@ class BookPagerFragment : Fragment() {
         scrollViewHelper = null
 
         _binding = null
+    }
+
+    fun endAction(newList: MutableList<Content>){
+        binding.bookContentList.doOnNextLayout {
+            Handler(Looper.getMainLooper()).postDelayed(
+                {
+                    lifecycleScope.launch(Dispatchers.Default) {
+                        modifyAggregatedHeight(newList)
+                        if((binding.bookContentList.layoutManager as LinearLayoutManager)
+                                .findLastCompletelyVisibleItemPosition() == newList.size-1)
+                            scrollViewHelper?.modifyScroll()
+
+                        withContext(Dispatchers.Main) {
+                            binding.bookContentList.scrollBy(0, 0)
+                        }
+                    }
+                },
+                500
+            )
+        }
+    }
+
+    fun prepareForNavigationToPoem(itemId: Int){
+        poemViewModel.apply {
+            poemPosition = poetViewModel
+                .poemListItems[contentItem.id]!!.indexOfFirst { it.id == itemId }
+            poemList = poetViewModel.poemListItems[contentItem.id]!!
+            poemCount = poemList.size
+            contentShot = Bitmap.createBitmap(
+                binding.bookContent.width,
+                binding.bookContent.height,
+                Bitmap.Config.ARGB_8888
+            ).also {
+                binding.bookContent.draw(Canvas(it))
+            }
+            poemFirstOpening = true
+        }
     }
 
     fun firebaseLog(){
@@ -388,7 +421,7 @@ class BookPagerFragment : Fragment() {
         return newListAggregatedHeight.lastOrNull() ?: binding.bookContentList.height
     }
 
-    suspend fun modifyAggregatedHeight(currentList: MutableList<Content>){
+    private suspend fun modifyAggregatedHeight(currentList: MutableList<Content>){
         while (!::sortedItemsHeight.isInitialized || !sortedItemsHeight.containsKey(sortedItems.last().id))
             delay(20)
         newListAggregatedHeight = MutableList(currentList.size){ 0 }
@@ -407,11 +440,6 @@ class BookPagerFragment : Fragment() {
             return newListAggregatedHeight.getOrElse(firstItem - 1){0} - firstViewTop
         }
         return 0
-    }
-
-    fun setTransitionType(){
-        requireParentFragment().exitTransition = null
-        requireParentFragment().reenterTransition = null
     }
 
     private fun closeBook(navController: NavController) {

@@ -14,6 +14,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -22,17 +25,21 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialFadeThrough
+import com.takaapoo.adab_parsi.MainActivity
+import com.takaapoo.adab_parsi.NavGraphDirections
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentBookBinding
+import com.takaapoo.adab_parsi.poem.PoemFragment
 import com.takaapoo.adab_parsi.poet.FragmentWithTransformPage
 import com.takaapoo.adab_parsi.poet.PoetBounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.poet.PoetViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.GlideApp
-import com.takaapoo.adab_parsi.util.barsPreparation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.pager_book2.*
 import kotlinx.android.synthetic.main.pager_book2.view.*
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -53,10 +60,10 @@ class BookFragment : FragmentWithTransformPage() {
             poetViewModel.bookPosition = position
             bookViewModel.bookCurrentItem = poetViewModel.bookListItems[position]!!
 
-            currentChildFragment =
-                childFragmentManager.findFragmentByTag("f${poetViewModel.bookPosition}")
-                        as? BookPagerFragment
-            currentChildFragment?.apply {
+            currentChildFragment = childFragmentManager.findFragmentByTag(
+                "f${poetViewModel.bookPosition}"
+            ) as? BookPagerFragment
+            currentChildFragment?.run {
                 backCallback()
                 firebaseLog()
             }
@@ -97,10 +104,58 @@ class BookFragment : FragmentWithTransformPage() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val bookAdapter = BookAdapter(childFragmentManager, viewLifecycleOwner.lifecycle,
             poetViewModel.count)
-        barsPreparation()
 
-        currentChildFragment = childFragmentManager.findFragmentByTag("f${poetViewModel.bookPosition}")
-                as? BookPagerFragment
+        val help = Help(this)
+        val preferenceManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val firstFragEntrance = preferenceManager.getBoolean("bookFragFirstEnter", true)
+        if (firstFragEntrance) {
+            bookViewModel.reportEvent(BookEvent.OnShowHelp(BookHelpState.PAGING))
+            preferenceManager.edit().putBoolean("bookFragFirstEnter", false).apply()
+        }
+
+        currentChildFragment = childFragmentManager.findFragmentByTag(
+            "f${poetViewModel.bookPosition}"
+        ) as? BookPagerFragment
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                bookViewModel.uiEvent.collect{ event ->
+                    when(event){
+                        is BookEvent.OpenCloseContent -> {
+                            currentChildFragment?.endAction(event.newList)
+                        }
+                        is BookEvent.NavigateToPoem -> {
+                            currentChildFragment?.prepareForNavigationToPoem(event.itemId)
+                            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+                                (activity as? MainActivity)?.addFragmentToContainer(PoemFragment())
+                            else {
+                                try {
+                                    exitTransition = null
+                                    reenterTransition = null
+                                    findNavController().navigate(
+                                        directions = BookFragmentDirections.actionBookFragmentToPoemFragment()
+                                    )
+                                } catch (_: Exception) { }
+                            }
+                        }
+                        is BookEvent.OnShowHelp -> {
+                            help.showHelp(event.state, if (firstFragEntrance) 3000 else 500)
+                        }
+                        is BookEvent.NavigateToSearch -> {
+                            try {
+                                exitTransition = MaterialFadeThrough()
+                                findNavController().navigate(
+                                    directions = NavGraphDirections.actionGlobalSearchFragment(
+                                        -2,
+                                        event.bookItemId
+                                    )
+                                )
+                            } catch (_: Exception) { }
+                        }
+                    }
+                }
+            }
+        }
 
         binding.bookViewPager.apply {
             adapter = bookAdapter
@@ -131,24 +186,12 @@ class BookFragment : FragmentWithTransformPage() {
                 settingViewModel.doneRefreshing()
             }
         }
-
-        val preferenceManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val firstFragEntrance = preferenceManager.getBoolean("bookFragFirstEnter", true)
-        if (firstFragEntrance) {
-            bookViewModel.doShowHelp()
-            preferenceManager.edit().putBoolean("bookFragFirstEnter", false).apply()
-        }
-
-        val help = Help(this)
-        bookViewModel.showHelp.observe(viewLifecycleOwner) {
-            help.showHelp(it, if (firstFragEntrance) 3000 else 500)
-        }
     }
 
     override fun onPause() {
         super.onPause()
         if (activity?.isChangingConfigurations == false)
-            bookViewModel.doneShowHelp()
+            bookViewModel.reportEvent(BookEvent.OnShowHelp(BookHelpState.NULL))
     }
 
     override fun onDestroyView() {
@@ -164,13 +207,6 @@ class BookFragment : FragmentWithTransformPage() {
 
         GlideApp.get(requireContext()).trimMemory(Glide.TRIM_MEMORY_COMPLETE)
     }
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        poetViewModel.poemListItems.clear()
-//        poetViewModel.poemListSubItems.clear()
-//    }
-
 
     private fun motionInitialization(){
         postponeEnterTransition()
@@ -259,8 +295,10 @@ class BookFragment : FragmentWithTransformPage() {
 
 
 const val ARG_BOOK_POSITION = "book_position"
-class BookAdapter(fragManager: FragmentManager, lifeCycle: Lifecycle, private val itemNumber: Int)
-    : FragmentStateAdapter(fragManager, lifeCycle) {
+class BookAdapter(fragManager: FragmentManager,
+                  lifeCycle: Lifecycle,
+                  private val itemNumber: Int
+                  ) : FragmentStateAdapter(fragManager, lifeCycle) {
 
     override fun getItemCount(): Int = itemNumber
 

@@ -28,7 +28,6 @@ import com.takaapoo.adab_parsi.databinding.FragmentBookmarkBinding
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.util.Orientation
-import com.takaapoo.adab_parsi.util.barsPreparation
 import com.takaapoo.adab_parsi.util.fastScroll.ResultFastScrollViewHelper
 import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
@@ -175,7 +174,7 @@ class BookmarkFragment: Fragment() {
             }
         }
 
-        barsPreparation()
+//        barsPreparation()
 
         (activity as? MainActivity)?.analyticsLogEvent(
             FirebaseAnalytics.Event.SCREEN_VIEW,

@@ -27,7 +27,6 @@ import com.takaapoo.adab_parsi.databinding.FragmentPoetBinding
 import com.takaapoo.adab_parsi.home.HomeViewModel
 import com.takaapoo.adab_parsi.util.Destinations
 import com.takaapoo.adab_parsi.util.GlideApp
-import com.takaapoo.adab_parsi.util.barsPreparation
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.book_item.view.*
@@ -93,7 +92,7 @@ class PoetFragment : FragmentWithTransformPage() {
         binding.lifecycleOwner = viewLifecycleOwner
         homeViewModel.enterPoetFragment = true
 
-        barsPreparation()
+//        barsPreparation()
         return binding.root
     }
 

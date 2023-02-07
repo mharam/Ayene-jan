@@ -129,8 +129,9 @@
 
     <style name="toggleButton"  parent="Base.Theme.MyApp">
         <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
-<!--        <item name="android:textOn"></item>-->
-<!--        <item name="android:textOff"></item>-->
+<!--        If delete bottom 2 lines toggle button will show ON/OFF text-->
+        <item name="android:textOn">""</item>
+        <item name="android:textOff">""</item>
     </style>
 
 <!--    Setting preference-->

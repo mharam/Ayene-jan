@@ -122,7 +122,7 @@ class ResultFragment : Fragment() {
         })
         binding.resultToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 
-        barsPreparation()
+//        barsPreparation()
         return binding.root
     }
 

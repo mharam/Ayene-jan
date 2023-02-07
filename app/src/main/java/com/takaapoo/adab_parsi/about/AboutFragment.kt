@@ -14,7 +14,7 @@ import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentAboutBinding
-import com.takaapoo.adab_parsi.util.barsPreparation
+//import com.takaapoo.adab_parsi.util.barsPreparation
 import com.takaapoo.adab_parsi.util.topPadding
 
 class AboutFragment : Fragment() {
@@ -38,7 +38,7 @@ class AboutFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.aboutToolbar.setPadding(0, topPadding, 0, 0)
-        barsPreparation()
+//        barsPreparation()
 
         (activity as? MainActivity)?.analyticsLogEvent(
             FirebaseAnalytics.Event.SCREEN_VIEW,

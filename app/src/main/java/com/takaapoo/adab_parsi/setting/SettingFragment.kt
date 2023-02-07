@@ -36,7 +36,6 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.util.Orientation
-import com.takaapoo.adab_parsi.util.barsPreparation
 import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_setting.view.*
@@ -157,7 +156,7 @@ class SettingFragment: PreferenceFragmentCompat(),
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        barsPreparation()
+//        barsPreparation()
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 

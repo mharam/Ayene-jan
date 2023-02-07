@@ -1,11 +1,11 @@
 package com.takaapoo.adab_parsi.book
 
 import android.os.Bundle
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.takaapoo.adab_parsi.database.Content
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 
 class BookViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
@@ -29,14 +29,13 @@ class BookViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         }
     }
 
-    private val _showHelp = MutableLiveData<Int?>(null)
-    val showHelp: LiveData<Int?>
-        get() = _showHelp
-    fun doShowHelp() { _showHelp.value = 1}
-    fun doneShowHelp() { _showHelp.value = null}
-    fun increaseShowHelp() { _showHelp.value = _showHelp.value?.plus(1) }
+    private val _uiEvent = Channel<BookEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
-
-
+    fun reportEvent(event: BookEvent){
+        viewModelScope.launch {
+            _uiEvent.send(event)
+        }
+    }
 
 }

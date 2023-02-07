@@ -26,7 +26,6 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.bookmark.BookmarkDetailFragment
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.databinding.FragmentPoemBinding
-import com.takaapoo.adab_parsi.util.barsPreparation
 import com.takaapoo.adab_parsi.util.custom_views.TextSelectableView
 import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.makeTextBiErab
@@ -250,7 +249,7 @@ abstract class BasePoemFragment: Fragment(), PoemTextMenu.FragmentPreparer {
             windowInsets
         }
 
-        barsPreparation()
+//        barsPreparation()
     }
 
     private fun setTooltip(){

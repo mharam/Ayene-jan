@@ -39,6 +39,8 @@ import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.add.AddViewModel
 import com.takaapoo.adab_parsi.add.TempDao
 import com.takaapoo.adab_parsi.add.TempDatabase
+import com.takaapoo.adab_parsi.book.BookEvent
+import com.takaapoo.adab_parsi.book.BookHelpState
 import com.takaapoo.adab_parsi.book.BookViewModel
 import com.takaapoo.adab_parsi.bookmark.BookmarkDetailFragment
 import com.takaapoo.adab_parsi.bookmark.BookmarkViewModel
@@ -232,12 +234,14 @@ class MainActivity : AppCompatActivity() {
                         R.id.help -> {
                             when (currentDesID) {
                                 R.id.homeFragment -> homeViewModel.reportEvent(
-                                    HomeEvent.OnShowHelp(HelpView.ADD_FAB)
+                                    event = HomeEvent.OnShowHelp(HelpView.ADD_FAB)
                                 )
                                 R.id.poetFragment -> poetViewModel.reportEvent(
-                                    PoetEvent.OnShowHelp(PoetHelpState.PAGING)
+                                    event = PoetEvent.OnShowHelp(PoetHelpState.PAGING)
                                 )
-                                R.id.bookFragment -> bookViewModel.doShowHelp()
+                                R.id.bookFragment -> bookViewModel.reportEvent(
+                                    event = BookEvent.OnShowHelp(BookHelpState.PAGING)
+                                )
                                 R.id.poemFragment -> poemViewModel.doShowHelp()
                             }
                         }

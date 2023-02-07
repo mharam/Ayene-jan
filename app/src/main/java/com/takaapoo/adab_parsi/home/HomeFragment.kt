@@ -153,7 +153,7 @@ class HomeFragment : Fragment() {
         }
 
         homeViewModel.poetFirstOpening = true
-        barsPreparation()
+//        barsPreparation()
         return binding.root
     }
 

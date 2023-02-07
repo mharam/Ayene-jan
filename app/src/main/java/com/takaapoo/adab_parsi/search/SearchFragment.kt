@@ -126,7 +126,7 @@ class SearchFragment: Fragment() {
 
         binding.toolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 
-        barsPreparation()
+//        barsPreparation()
         return binding.root
     }
 

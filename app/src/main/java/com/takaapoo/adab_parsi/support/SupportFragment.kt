@@ -20,7 +20,6 @@ import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentSupportBinding
 import com.takaapoo.adab_parsi.util.GlideApp
-import com.takaapoo.adab_parsi.util.barsPreparation
 import com.takaapoo.adab_parsi.util.rateApp
 import com.takaapoo.adab_parsi.util.topPadding
 
@@ -53,7 +52,7 @@ class SupportFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.supportToolbar.setPadding(0, topPadding, 0, 0)
         binding.supportToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
-        barsPreparation()
+//        barsPreparation()
 
         salavatInAnimator =
             AnimatorInflater.loadAnimator(requireContext(), R.animator.salavat_rotate_in).apply {

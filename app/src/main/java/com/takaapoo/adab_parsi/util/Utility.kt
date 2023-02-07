@@ -15,7 +15,6 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.takaapoo.adab_parsi.AppStore
@@ -38,7 +37,7 @@ var allCategory = emptyList<Category>()
             collator.compare(one.text, two.text)
         }
     }
-val appStore = AppStore.GooglePlay
+val appStore = AppStore.Bazaar
 
 var topPadding = 0
 
@@ -61,7 +60,7 @@ fun Context.getDimenFromAttr(@AttrRes attrDimension: Int): Int {
     return dimension
 }
 
-fun Fragment.barsPreparation(){
+//fun Fragment.barsPreparation(){
 //    val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 //    val myActivity = requireActivity()
 //
@@ -70,7 +69,7 @@ fun Fragment.barsPreparation(){
 //    if (currentNightMode == Configuration.UI_MODE_NIGHT_NO)
 //        myActivity.window.decorView.systemUiVisibility = myActivity.window.decorView.systemUiVisibility or
 //                (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
-}
+//}
 
 fun getAllVerseBiErab(tempVerses:  List<TempVerse>): List<Verse> =
     tempVerses.map { Verse(it.poem_id, it.verseOrder, it.position, it.text,
