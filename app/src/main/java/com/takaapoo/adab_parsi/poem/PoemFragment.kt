@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.book.BookViewModel
@@ -151,17 +150,6 @@ class PoemFragment : BasePoemFragment(){
             }
         }
 
-        val preferenceManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val firstFragEntrance = preferenceManager.getBoolean("poemFragFirstEnter", true)
-        if (firstFragEntrance) {
-            poemViewModel.doShowHelp()
-            preferenceManager.edit().putBoolean("poemFragFirstEnter", false).apply()
-        }
-
-        val help = Help(this)
-        poemViewModel.showHelp.observe(viewLifecycleOwner) {
-            help.showHelp(it, if (firstFragEntrance) 2500 else 500)
-        }
     }
 
     override fun onPause() {
@@ -170,17 +158,12 @@ class PoemFragment : BasePoemFragment(){
             (activity as MainActivity).showSystemBars()
 
         if (activity?.isChangingConfigurations == false)
-            poemViewModel.doneShowHelp()
+            poemViewModel.reportEvent(PoemEvent.OnShowHelp(PoemHelpState.NULL))
     }
 
     override fun onDestroyView() {
         viewPager.unregisterOnPageChangeCallback(pageCallBack)
         super.onDestroyView()
-    }
-
-    override fun getFragment(): PoemPagerFragment? {
-        return childFragmentManager.findFragmentByTag("f${poemViewModel.poemPosition}")
-                as? PoemPagerFragment
     }
 
 }

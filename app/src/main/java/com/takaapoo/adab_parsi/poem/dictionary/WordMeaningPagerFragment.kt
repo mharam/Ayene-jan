@@ -1,4 +1,4 @@
-package com.takaapoo.adab_parsi.poem
+package com.takaapoo.adab_parsi.poem.dictionary
 
 import android.animation.ValueAnimator
 import android.os.Bundle
@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.PagerPoemMeaningBinding
+import com.takaapoo.adab_parsi.poem.MeaningLoadStatus
+import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.util.Orientation
 import com.takaapoo.adab_parsi.util.getColorFromAttr

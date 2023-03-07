@@ -2,6 +2,9 @@ package com.takaapoo.adab_parsi.home
 
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.workDataOf
 import com.takaapoo.adab_parsi.database.Category
 import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.database.Poet
@@ -15,16 +18,20 @@ class HomeRepository(val dao: Dao) {
     val allPoet: LiveData<List<Poet>> = dao.getAllPoet()
 
 
-    suspend fun deletePoet(poetID: List<Int>){
+    fun deletePoet(poetID: List<Int>){
 //        withContext(Dispatchers.IO){
-            dao.run {
-                deleteVerse(poetID)
-                deletePoet(poetID)
-                deletePoem(poetID)
-                deleteCat(poetID)
-                vacuum(SimpleSQLiteQuery("VACUUM"))
-            }
+//            dao.run {
+//                deleteVerse(poetID)
+//                deletePoet(poetID)
+//                deletePoem(poetID)
+//                deleteCat(poetID)
+//                vacuum(SimpleSQLiteQuery("VACUUM"))
+//            }
 //        }
+        val deletePoetWorker = OneTimeWorkRequestBuilder<DeletePoetWorker>()
+            .setInputData(workDataOf("POET_ID" to poetID))
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .build()
     }
 
 

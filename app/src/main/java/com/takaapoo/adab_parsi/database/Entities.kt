@@ -2,9 +2,18 @@ package com.takaapoo.adab_parsi.database
 
 import android.os.Parcelable
 import androidx.room.*
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "cat")
+//import androidx.room.ForeignKey.CASCADE
+//import kotlinx.android.parcel.Parcelize
+
+@Entity(
+    tableName = "cat"
+//    foreignKeys = [
+//        ForeignKey(entity = Poet::class, parentColumns = ["id"], childColumns = ["poet_id"], onDelete = CASCADE)
+//    ],
+//    indices = [Index("poet_id")]
+)
 data class Category(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: Int,
@@ -31,7 +40,13 @@ data class TempCategory(
     @ColumnInfo(name = "version") val version: Int
 )
 
-@Entity(tableName = "poem")
+@Entity(
+    tableName = "poem"
+//    foreignKeys = [
+//        ForeignKey(entity = Category::class, parentColumns = ["id"], childColumns = ["cat_id"], onDelete = CASCADE)
+//    ],
+//    indices = [Index("cat_id")]
+)
 data class Poem(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: Int? = 0,
@@ -51,8 +66,14 @@ data class Poet(
     @ColumnInfo(name = "wiki") val wiki: String?,
 )
 
-//@Fts4(notIndexed = ["poem_id", "vorder", "position"])
-@Entity(tableName = "verse", primaryKeys = ["poem_id", "vorder"])
+@Entity(
+    tableName = "verse",
+    primaryKeys = ["poem_id", "vorder"]
+//    foreignKeys = [
+//        ForeignKey(entity = Poem::class, parentColumns = ["id"], childColumns = ["poem_id"], onDelete = CASCADE)
+//    ],
+//    indices = [Index("poem_id")]
+)
 data class Verse(
     @ColumnInfo(name = "poem_id") val poemId: Int,
     @ColumnInfo(name = "vorder") val verseOrder: Int,

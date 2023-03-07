@@ -23,7 +23,6 @@ import com.takaapoo.adab_parsi.poem.PoemPagerFragment
 import com.takaapoo.adab_parsi.poem.TurnPageTransformer
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.pager_poem.*
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -98,13 +97,13 @@ class BookmarkDetailFragment: BasePoemFragment() {
             setEnterSharedElementCallback(object : SharedElementCallback() {
                 override fun onMapSharedElements(
                     names: List<String>, sharedElements: MutableMap<String, View> ) {
-                    val currentFragment =
-                        childFragmentManager.findFragmentByTag("f${bookmarkViewModel.poemPosition}")
+                    val currentFragment = childFragmentManager
+                        .findFragmentByTag("f${bookmarkViewModel.poemPosition}") as? PoemPagerFragment
                     currentFragment?.view ?: return
 //                currentFragment.poem_layout.transitionName = "TM${bookmarkViewModel.poemPosition}"
                     try {
-                        sharedElements[names[0]] = currentFragment.poem_layout
-                    } catch (e: Exception) { }
+                        sharedElements[names[0]] = currentFragment.binding.poemLayout
+                    } catch (_: Exception) { }
 
                 }
             })
@@ -156,11 +155,6 @@ class BookmarkDetailFragment: BasePoemFragment() {
 
         sharedElementEnterTransition = enterMatConTrans
         sharedElementReturnTransition = returnMatConTrans
-    }
-
-    override fun getFragment(): PoemPagerFragment? {
-        return childFragmentManager.findFragmentByTag("f${bookmarkViewModel.poemPosition}")
-                as? PoemPagerFragment
     }
 
     fun setViewPagerItem(){

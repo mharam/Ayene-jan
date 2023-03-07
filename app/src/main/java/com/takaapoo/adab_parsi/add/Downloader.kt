@@ -139,7 +139,7 @@ class Downloader(private val vm: AddViewModel,
 
                 result[2]?.let {
                     if (it == "Success"){
-                        delay(500)
+                        delay(800)
                         vm.installing[poetItem.poetID]?.postValue(true)
                         val tempDao = TempDatabase.getDatabase(context, filename[2], false).dao()
                         poemDao.insertDatabase(

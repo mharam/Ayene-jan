@@ -15,6 +15,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.slider.Slider
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentSettingFontSizeBinding
+import com.takaapoo.adab_parsi.poem.PoemEvent
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.util.dpTOpx
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,7 +88,7 @@ class SettingFontSizeFragment: Fragment() {
             fontSize = value.toInt()
 //            sharedPreferences.edit().putInt("font_size", fontSize).apply()
             settingViewModel.updateFontSize(fontSize)
-            poemViewModel.refresh()
+            poemViewModel.reportEvent(PoemEvent.OnRefreshContent)
             binding.previewText.textSize = resources.getInteger(fontSizeIds[fontSize]).toFloat()
             binding.value.text = fontSizeNames[fontSize]
         }

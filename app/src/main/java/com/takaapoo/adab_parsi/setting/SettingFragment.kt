@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ListView
@@ -33,13 +32,12 @@ import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
+import com.takaapoo.adab_parsi.poem.PoemEvent
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.util.Orientation
 import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_setting.view.*
-import java.lang.Exception
 
 
 @AndroidEntryPoint
@@ -47,7 +45,7 @@ class SettingFragment: PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val settingViewModel: SettingViewModel by activityViewModels()
-    private val poemViewModel: PoemViewModel by activityViewModels()
+//    private val poemViewModel: PoemViewModel by activityViewModels()
     private lateinit var navController: NavController
 
     private var borderPreference: Preference? = null
@@ -136,7 +134,7 @@ class SettingFragment: PreferenceFragmentCompat(),
             try {
                 navController.navigate(
                     SettingFragmentDirections.actionSettingFragmentToSettingFontSizeFragment())
-            } catch (e: Exception) { }
+            } catch (_: Exception) { }
 
             true
         }
@@ -154,15 +152,10 @@ class SettingFragment: PreferenceFragmentCompat(),
         preferenceManager.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
-//        barsPreparation()
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.setting_toolbar.setPadding(0, topPadding, 0, 0)
+        val settingToolbar = view.findViewById<Toolbar>(R.id.setting_toolbar)
+        settingToolbar.setPadding(0, topPadding, 0, 0)
         view.findViewById<FrameLayout>(android.R.id.list_container)?.getChildAt(0)?.apply {
             (this as RecyclerView).edgeEffectFactory = BounceEdgeEffectFactory(Orientation.VERTICAL)
             isVerticalScrollBarEnabled = false
@@ -171,11 +164,11 @@ class SettingFragment: PreferenceFragmentCompat(),
         navController = findNavController()
 //        val appBarConfiguration = (requireActivity() as MainActivity).appBarConfiguration
 //        (view.setting_toolbar).setupWithNavController(navController, appBarConfiguration)
-        (view.setting_toolbar).setupWithNavController(navController,
+        settingToolbar.setupWithNavController(navController,
             AppBarConfiguration.Builder(navController.graph).build())
 
         onSharedPreferenceChanged(preferenceManager.sharedPreferences, "font_size")
-        view.setting_toolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
+        settingToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 
         (activity as? MainActivity)?.analyticsLogEvent(
             FirebaseAnalytics.Event.SCREEN_VIEW,
@@ -292,8 +285,7 @@ class BorderSelectDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val borderListAdapter = BorderListAdapter(requireActivity())
-        val listView = LayoutInflater.from(this.context)
-            .inflate(R.layout.setting_border_list, null) as ListView
+        val listView = layoutInflater.inflate(R.layout.setting_border_list, null) as ListView
         listView.adapter = borderListAdapter
 
         val builder = activity?.let {
@@ -323,7 +315,7 @@ class FontSelectDialogFragment : DialogFragment() {
                 .setTitle(R.string.font)
                 .setSingleChoiceItems(FontListAdapter(it), 0){ dialog, which ->
                     settingViewModel.updateFont(which)
-                    poemViewModel.refresh()
+                    poemViewModel.reportEvent(PoemEvent.OnRefreshContent)
                     dismiss()
                 }
                 .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> dismiss() }

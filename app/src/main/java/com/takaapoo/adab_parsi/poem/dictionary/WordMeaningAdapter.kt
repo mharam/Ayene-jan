@@ -1,4 +1,4 @@
-package com.takaapoo.adab_parsi.poem
+package com.takaapoo.adab_parsi.poem.dictionary
 
 import android.animation.ObjectAnimator
 import android.util.DisplayMetrics
@@ -16,7 +16,9 @@ import com.takaapoo.adab_parsi.network.DictionaryProperty
 import com.takaapoo.adab_parsi.util.engNumToFarsiNum
 import kotlin.math.abs
 
-class WordMeaningAdapter : ListAdapter<DictionaryProperty, WordMeaningAdapter.ViewHolder>(DictionaryDiffCallback()) {
+class WordMeaningAdapter : ListAdapter<DictionaryProperty, WordMeaningAdapter.ViewHolder>(
+    DictionaryDiffCallback()
+) {
 
     override fun getItemViewType(position: Int) = 0
 

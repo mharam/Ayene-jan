@@ -19,6 +19,7 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import com.takaapoo.adab_parsi.R
+import com.takaapoo.adab_parsi.poem.PoemEvent
 import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import com.takaapoo.adab_parsi.util.spTOpx
@@ -117,7 +118,7 @@ class ParagraphView(context: Context, attrs: AttributeSet) : TextSelectableView(
             poemViewModel.apply {
                 textMenuX = ((layout.getLineLeft(0)+layout.getLineRight(0))/2).toInt()
                 textMenuY = layout.getLineTop(layout.getLineForOffset(selStart))
-                doRefreshTextMenu()
+                reportEvent(PoemEvent.OnRefreshTextMenu)
             }
     }
 
@@ -313,7 +314,7 @@ class ParagraphView(context: Context, attrs: AttributeSet) : TextSelectableView(
                 rightHandleY = leftHandleY
                 textMenuX = ((right+left)/2).toInt()
                 textMenuY = layout.getLineTop(i)
-                doRefreshTextMenu()
+                reportEvent(PoemEvent.OnRefreshTextMenu)
             }
         else
             poemViewModel.apply {
@@ -494,7 +495,7 @@ class Verse1View(context: Context, attrs: AttributeSet) : TextSelectableView(con
             rightHandleY = leftHandleY
             textMenuX = ((right+left)/2).toInt()
             textMenuY = layout.getLineTop(0)
-            doRefreshTextMenu()
+            reportEvent(PoemEvent.OnRefreshTextMenu)
         }
     }
 
@@ -665,7 +666,7 @@ class Verse2View(context: Context, attrs: AttributeSet) : TextSelectableView(con
             rightHandleY = leftHandleY
             textMenuX = ((right+left)/2).toInt()
             textMenuY = layout.getLineTop(0)
-            doRefreshTextMenu()
+            reportEvent(PoemEvent.OnRefreshTextMenu)
         }
     }
 

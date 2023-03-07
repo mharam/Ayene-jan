@@ -29,7 +29,6 @@ import com.takaapoo.adab_parsi.databinding.FragmentSearchBinding
 import com.takaapoo.adab_parsi.util.*
 import com.takaapoo.adab_parsi.util.eventHandler.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.search_layout.view.*
 import java.util.*
 
 @AndroidEntryPoint
@@ -113,16 +112,17 @@ class SearchFragment: Fragment() {
         }
 
 //        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        binding.root.postDelayed({
-            if (_binding != null) {
-                binding.searchView.search_src_text.let { searchText ->
+        binding.root.postDelayed(
+            { if (_binding != null) {
+                binding.searchView.findViewById<EditText>(R.id.search_src_text).let { searchText ->
                     context?.let {
-                        (searchText as EditText).setTextColor(it.getColorFromAttr(R.attr.colorOnSurface))
+                        searchText.setTextColor(it.getColorFromAttr(R.attr.colorOnSurface))
                     }
                     if (searchText.requestFocus())
                         (activity as MainActivity).showKeyBoard(searchText)
                 }
-            } }, 600)
+            } },
+            600)
 
         binding.toolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 

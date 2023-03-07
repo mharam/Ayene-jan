@@ -67,7 +67,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
         init {
             try {
                 commentHeight = poemPagerFragment.resources.getDimension(R.dimen.comment_height).toInt()
-            } catch (e: Exception){}
+            } catch (_: Exception){}
         }
 
         inner class Watcher(val item: Verse) : TextWatcher {
@@ -171,7 +171,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                             textHilight = verseHilight
                             textVerseOrder = item.verseOrder
                             textNoteVerseOrder = item.verseOrder
-                            doRefreshTextMenu()
+                            reportEvent(PoemEvent.OnRefreshTextMenu)
                         }
                         true
                     }
@@ -232,7 +232,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                             textHilight = verseHilight
                             textVerseOrder = item.verseOrder + 1
                             textNoteVerseOrder = item.verseOrder
-                            doRefreshTextMenu()
+                            reportEvent(PoemEvent.OnRefreshTextMenu)
                         }
                         true
                     }
@@ -241,16 +241,16 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                 val mesra1 = item.text!!.substringBefore("¶").trim()
                 val mesra2 = item.text!!.substringAfter("¶").trim()
                 val mesra1Normalized = widthNormalizer(
-                    mesra1,
-                    poemPagerFragment.mesraWidth[item.verseOrder - 1]!!,
-                    poemPagerFragment.mesraMaxWidth,
-                    stvm
+                    inString = mesra1,
+                    initialWidth = poemPagerFragment.mesraWidth[item.verseOrder - 1]!!,
+                    finalWidth = poemPagerFragment.mesraMaxWidth,
+                    stvm = stvm
                 )
                 val mesra2Normalized = widthNormalizer(
-                    mesra2,
-                    poemPagerFragment.mesraWidth[item.verseOrder]!!,
-                    poemPagerFragment.mesraMaxWidth,
-                    stvm
+                    inString = mesra2,
+                    initialWidth = poemPagerFragment.mesraWidth[item.verseOrder]!!,
+                    finalWidth = poemPagerFragment.mesraMaxWidth,
+                    stvm = stvm
                 )
 
                 binding.mesra1Text.visibility = View.GONE
@@ -298,7 +298,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                             textHilight = item.hilight
                             textVerseOrder = item.verseOrder
                             textNoteVerseOrder = item.verseOrder
-                            doRefreshTextMenu()
+                            reportEvent(PoemEvent.OnRefreshTextMenu)
                         }
                         true
                     }
@@ -380,7 +380,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                             textHilight = item.hilight
                             textVerseOrder = item.verseOrder
                             textNoteVerseOrder = item.verseOrder
-                            doRefreshTextMenu()
+                            reportEvent(PoemEvent.OnRefreshTextMenu)
                         }
                         true
                     }

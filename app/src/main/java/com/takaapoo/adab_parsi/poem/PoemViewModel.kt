@@ -3,6 +3,7 @@ package com.takaapoo.adab_parsi.poem
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.*
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.database.Dao
@@ -11,7 +12,6 @@ import com.takaapoo.adab_parsi.network.DictionaryProperty
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -30,7 +30,6 @@ class PoemViewModel @Inject constructor(
     var poemList = emptyList<Content?>()
     var poemFirstOpening = false
     var bookContentScrollY = 0
-//    var bPFcontentItem : Content? = null
 
     var contentShot: Bitmap? = null
 
@@ -53,16 +52,8 @@ class PoemViewModel @Inject constructor(
     val noteOpenedVerses = mutableMapOf<Int, MutableList<Int>>()    // Int = poemID
     var commentTextFocused = false
 
-    private val _refreshContent = MutableLiveData<Boolean?>()
-    val refreshContent: LiveData<Boolean?>
-        get() = _refreshContent
-    fun refresh() { _refreshContent.value = true}
-    fun doneRefreshing() { _refreshContent.value = null}
-
-    var textMenuHide = false
     var textMenuVisible = false
 
-//    var textMenuTextView: TextView? = null
     var textMenuText: String? = null
     var textMenuStart = 0
     var textMenuEnd = 0
@@ -78,6 +69,8 @@ class PoemViewModel @Inject constructor(
     var textVerseOrder = 0
     var textNoteVerseOrder = 0
 
+    var gestureDetector: GestureDetectorCompat? = null
+
     init {
         savedStateHandle.get<Bundle?>("poem_state")?.let {
             poemPosition = it.getInt("poem_position")
@@ -90,14 +83,6 @@ class PoemViewModel @Inject constructor(
             }
         }
     }
-
-    private val _refreshTextMenu = MutableLiveData<Boolean?>()
-    val refreshTextMenu: LiveData<Boolean?>
-        get() = _refreshTextMenu
-    fun doRefreshTextMenu() { _refreshTextMenu.value = true}
-    fun doneRefreshingTextMenu() { _refreshTextMenu.value = null}
-
-//    val appBarExpanded = MutableLiveData(true)
 
     private val _meanLoadStatus = MutableLiveData<MeaningLoadStatus>()
     val meanLoadStatus: LiveData<MeaningLoadStatus>
@@ -112,13 +97,6 @@ class PoemViewModel @Inject constructor(
     fun savePoemToFile() { _savePoem.value = true}
     fun notSavePoemToFile() { _savePoem.value = false}
     fun doneSavePoemToFile() { _savePoem.value = null}
-
-    private val _showHelp = MutableLiveData<Int?>(null)
-    val showHelp: LiveData<Int?>
-        get() = _showHelp
-    fun doShowHelp() { _showHelp.value = 1}
-    fun doneShowHelp() { _showHelp.value = null}
-    fun increaseShowHelp() { _showHelp.value = _showHelp.value?.plus(1) }
 
     val poemListLayoutCompleted = MutableLiveData(false)
 

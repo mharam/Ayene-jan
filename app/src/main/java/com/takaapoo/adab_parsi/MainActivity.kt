@@ -51,7 +51,9 @@ import com.takaapoo.adab_parsi.favorite.FavoriteViewModel
 import com.takaapoo.adab_parsi.home.HelpView
 import com.takaapoo.adab_parsi.home.HomeEvent
 import com.takaapoo.adab_parsi.home.HomeViewModel
+import com.takaapoo.adab_parsi.poem.PoemEvent
 import com.takaapoo.adab_parsi.poem.PoemFragment
+import com.takaapoo.adab_parsi.poem.PoemHelpState
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.poet.PoetEvent
 import com.takaapoo.adab_parsi.poet.PoetHelpState
@@ -242,7 +244,9 @@ class MainActivity : AppCompatActivity() {
                                 R.id.bookFragment -> bookViewModel.reportEvent(
                                     event = BookEvent.OnShowHelp(BookHelpState.PAGING)
                                 )
-                                R.id.poemFragment -> poemViewModel.doShowHelp()
+                                R.id.poemFragment -> poemViewModel.reportEvent(
+                                    event = PoemEvent.OnShowHelp(PoemHelpState.PAGING)
+                                )
                             }
                         }
                     }

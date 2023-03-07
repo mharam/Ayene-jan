@@ -12,13 +12,13 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.enlarge
 
-class Help(private val poemFragment: PoemFragment) {
 
-    val binding = poemFragment.binding
-    private val poemViewModel = poemFragment.poemViewModel
-//    private var currentPPF: PoemPagerFragment? = null
+class Help(private val basePoemFragment: BasePoemFragment) {
 
-    val resources: Resources = poemFragment.resources
+    val binding = basePoemFragment.binding
+    private val poemViewModel = basePoemFragment.poemViewModel
+
+    val resources: Resources = basePoemFragment.resources
     private val initialRadius = 1500.dpTOpx(resources)
 
     private var help3Shown = false
@@ -28,36 +28,34 @@ class Help(private val poemFragment: PoemFragment) {
     }
 
 
-    fun showHelp(helpState: Int?, startDelay: Long) {
-        if (helpState != null){
-            when (helpState) {
-                1 -> {
-                    if (!binding.flasher.isVisible){
-                        openHelp1(startDelay)
-                    }
-                }
-                2 -> {
-                    binding.helpDialog.root.visibility = View.INVISIBLE
-                    closeHelp1 { openHelp2() }
-                }
-                3 -> {
-                    binding.helpDialog.root.visibility = View.INVISIBLE
-                    help3Shown = false
-                    closeHelp2 { openHelp3() }
-                }
+    fun showHelp(helpState: PoemHelpState, startDelay: Long) {
+        when (helpState) {
+            PoemHelpState.PAGING -> {
+                if (!binding.flasher.isVisible)
+                    openHelp1(startDelay)
             }
-        } else {
-            binding.helpDialog.root.visibility = View.INVISIBLE
-            binding.helpDialog.bullets.forEach { circ -> circ.isActivated = false }
+            PoemHelpState.TOOLBAR -> {
+                binding.helpDialog.root.visibility = View.INVISIBLE
+                closeHelp1 { openHelp2() }
+            }
+            PoemHelpState.VERSE -> {
+                binding.helpDialog.root.visibility = View.INVISIBLE
+                help3Shown = false
+                closeHelp2 { openHelp3() }
+            }
+            else -> {
+                binding.helpDialog.root.visibility = View.INVISIBLE
+                binding.helpDialog.bullets.forEach { circ -> circ.isActivated = false }
 
-            if (binding.flasher.isVisible)
-                closeHelp1 {}
+                if (binding.flasher.isVisible)
+                    closeHelp1 {}
 
-            if (binding.flasherDown.isVisible)
-                closeHelp2 {}
+                if (binding.flasherDown.isVisible)
+                    closeHelp2 {}
 
-            if (binding.helpFocusRect.isVisible)
-                closeHelp3 {}
+                if (binding.helpFocusRect.isVisible)
+                    closeHelp3 {}
+            }
         }
     }
 
@@ -69,8 +67,12 @@ class Help(private val poemFragment: PoemFragment) {
                 root.x = (binding.root.width - root.width) / 2f
                 root.doOnLayout { root.y = (binding.root.height - root.height) / 2f }
 
-                dismiss.setOnClickListener{ poemViewModel.doneShowHelp() }
-                next.setOnClickListener { poemViewModel.increaseShowHelp() }
+                dismiss.setOnClickListener {
+                    poemViewModel.reportEvent(PoemEvent.OnShowHelp(PoemHelpState.NULL))
+                }
+                next.setOnClickListener {
+                    poemViewModel.reportEvent(PoemEvent.OnShowHelp(PoemHelpState.TOOLBAR))
+                }
                 c1.isActivated = true
             }
         }
@@ -97,8 +99,12 @@ class Help(private val poemFragment: PoemFragment) {
                         .coerceAtMost(binding.root.height - root.height - 16.dpTOpx(resources))
                 }
 
-                dismiss.setOnClickListener{ poemViewModel.doneShowHelp() }
-                next.setOnClickListener { poemViewModel.increaseShowHelp() }
+                dismiss.setOnClickListener {
+                    poemViewModel.reportEvent(PoemEvent.OnShowHelp(PoemHelpState.NULL))
+                }
+                next.setOnClickListener {
+                    poemViewModel.reportEvent(PoemEvent.OnShowHelp(PoemHelpState.VERSE))
+                }
                 c1.isActivated = true
                 c2.isActivated = true
             }
@@ -121,15 +127,12 @@ class Help(private val poemFragment: PoemFragment) {
         binding.helpDialog.mainText.text = resources.getString(R.string.help_poem_verse)
         binding.helpFocusRect.isVisible = false
 
-//        currentPPF = poemFragment.childFragmentManager.findFragmentByTag("f${poemViewModel.poemPosition}")
-//                as? PoemPagerFragment
-
         binding.root.doOnLayout {
-            poemViewModel.poemListLayoutCompleted.observe(poemFragment.viewLifecycleOwner) { completed ->
+            poemViewModel.poemListLayoutCompleted.observe(basePoemFragment.viewLifecycleOwner) { completed ->
                 if (completed && !help3Shown){
                     help3Shown = true
                     binding.helpFocusRect.isVisible = true
-                    val rect = poemFragment.visibleChildFrag?.firstVerseRectangle()!!
+                    val rect = basePoemFragment.visibleChildFrag?.firstVerseRectangle()!!
 
                     binding.helpDialog.apply {
                         val y1 = rect.bottom + binding.bookViewPager.top + gap
@@ -141,7 +144,9 @@ class Help(private val poemFragment: PoemFragment) {
                         }
                         dismiss.isVisible = false
                         next.text = resources.getString(R.string.got_it)
-                        next.setOnClickListener { poemViewModel.doneShowHelp() }
+                        next.setOnClickListener {
+                            poemViewModel.reportEvent(PoemEvent.OnShowHelp(PoemHelpState.NULL))
+                        }
                         c1.isActivated = true
                         c2.isActivated = true
                         c3.isActivated = true
@@ -164,7 +169,7 @@ class Help(private val poemFragment: PoemFragment) {
     }
 
     private fun closeHelp3(endAction: () -> Unit){
-        val rect = poemFragment.visibleChildFrag?.firstVerseRectangle()!!.toRectF()
+        val rect = basePoemFragment.visibleChildFrag?.firstVerseRectangle()!!.toRectF()
 
         ValueAnimator.ofFloat(0f, initialRadius).apply {
             duration = 400

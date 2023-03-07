@@ -17,24 +17,21 @@ abstract class TempDatabase : RoomDatabase() {
     abstract fun dao(): TempDao
 
     companion object {
-//        @Volatile
-//        private var INSTANCE: TempDatabase? = null
-
         fun getDatabase(context: Context, filename: String, createFromAsset: Boolean): TempDatabase {
             val file = FileIO(context)
             val builder = Room.databaseBuilder(
-                context.applicationContext, TempDatabase::class.java,
-                "temporary_Database")
+                context.applicationContext,
+                TempDatabase::class.java,
+                "temporary_Database"
+            )
 
-            return /*INSTANCE ?:*/ synchronized(this) {
-                val instance = (if (createFromAsset)
-                    builder.createFromAsset("database/hafez.db") else
-                        builder.createFromFile(file.openFile(filename)))
+            return synchronized(this) {
+                (if (createFromAsset)
+                    builder.createFromAsset("database/hafez.db")
+                else
+                    builder.createFromFile(file.openFile(filename)))
                     .fallbackToDestructiveMigration()
                     .build()
-//                INSTANCE = instance
-                // return instance
-                instance
             }
         }
     }

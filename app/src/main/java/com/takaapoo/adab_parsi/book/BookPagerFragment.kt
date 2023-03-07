@@ -23,6 +23,7 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.updatePadding
+import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -124,7 +125,8 @@ class BookPagerFragment : Fragment() {
                     marginEnd = (resources.getDimension(R.dimen.book_title_margin_end) * bookWidthMultiplier).toInt()
                 }
 
-                binding.bookTitle.setAutoSizeTextTypeUniformWithConfiguration(
+                TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                    binding.bookTitle,
                     (resources.getDimension(R.dimen.book_title_min_size) * bookWidthMultiplier).roundToInt(),
                     (resources.getDimension(R.dimen.book_title_max_size) * bookWidthMultiplier).roundToInt(),
                     (resources.getDimension(R.dimen.book_title_size_step) * bookWidthMultiplier).roundToInt(),

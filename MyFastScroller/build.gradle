@@ -1,10 +1,10 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 32
+        targetSdkVersion 33
         consumerProguardFiles 'proguard-rules.pro'
         signingConfig signingConfigs.debug
     }
@@ -20,8 +20,8 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation "androidx.appcompat:appcompat:$version_appcompat"
+    implementation "androidx.recyclerview:recyclerview:$version_recyclerview"
 }
 
 buildscript {

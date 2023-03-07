@@ -8,6 +8,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.findFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import com.takaapoo.adab_parsi.poem.PoemEvent
 import com.takaapoo.adab_parsi.poem.PoemPagerFragment
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
@@ -80,7 +81,7 @@ open class TextSelectableView(context: Context, attrs: AttributeSet) : AppCompat
                 fragment.setTextMenuParams(this)
             else if (fragment.textMenuTextView == this)
                 fragment.textMenuTextView = null
-        } catch (e: Exception){}
+        } catch (_: Exception){}
     }
 
     fun saveInitialCharsXY(){
@@ -104,7 +105,7 @@ open class TextSelectableView(context: Context, attrs: AttributeSet) : AppCompat
             selStart = charOffset
             poemViewModel.textMenuStart = selStart
             invalidate()
-            poemViewModel.doRefreshTextMenu()
+            poemViewModel.reportEvent(PoemEvent.OnRefreshTextMenu)
         }
     }
 
@@ -124,7 +125,7 @@ open class TextSelectableView(context: Context, attrs: AttributeSet) : AppCompat
             selEnd = charOffset
             poemViewModel.textMenuEnd = selEnd
             invalidate()
-            poemViewModel.doRefreshTextMenu()
+            poemViewModel.reportEvent(PoemEvent.OnRefreshTextMenu)
         }
     }
 

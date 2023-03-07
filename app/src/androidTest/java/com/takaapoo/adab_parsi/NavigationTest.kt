@@ -24,7 +24,7 @@ import androidx.test.filters.LargeTest
 import com.takaapoo.adab_parsi.util.DataBindingIdlingResource
 import com.takaapoo.adab_parsi.util.EspressoIdlingResource
 import com.takaapoo.adab_parsi.util.monitorActivity
-import kotlinx.android.synthetic.main.activity_main.*
+//import kotlinx.android.synthetic.main.activity_main.*
 import com.google.common.truth.Truth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

@@ -106,7 +106,7 @@ class FavoriteDetailFragment: BasePoemFragment() {
                     }
                     try {
                         sharedElements[names[0]] = binding.bookFrame
-                    } catch (e: Exception) { }
+                    } catch (_: Exception) { }
                 }
             })
         }
@@ -157,11 +157,6 @@ class FavoriteDetailFragment: BasePoemFragment() {
 
         sharedElementEnterTransition = enterMatConTrans
         sharedElementReturnTransition = returnMatConTrans
-    }
-
-    override fun getFragment(): PoemPagerFragment? {
-        return childFragmentManager.findFragmentByTag("f${favoriteViewModel.poemPosition}")
-                as? PoemPagerFragment
     }
 
     fun setViewPagerItem(){

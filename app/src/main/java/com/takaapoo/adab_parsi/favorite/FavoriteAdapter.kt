@@ -88,7 +88,7 @@ class FavoriteAdapter(private val favoriteFragment: FavoriteFragment, private va
                             FragmentNavigatorExtras(binding.cardView to binding.cardView.transitionName)
                         val action = FavoriteFragmentDirections.actionFavoriteFragmentToFavoriteDetailFragment()
                         view.findNavController().navigate(action, extras)
-                    } catch (e: Exception){}
+                    } catch (_: Exception){}
                 }
             }
 

@@ -1,9 +1,6 @@
 package com.takaapoo.adab_parsi.poem
 
 import android.animation.ValueAnimator
-import android.app.ProgressDialog.show
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -23,9 +20,9 @@ import androidx.core.animation.doOnEnd
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.*
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -50,6 +47,7 @@ import com.takaapoo.adab_parsi.database.Verse
 import com.takaapoo.adab_parsi.databinding.PagerPoemBinding
 import com.takaapoo.adab_parsi.favorite.FavoriteDetailFragment
 import com.takaapoo.adab_parsi.favorite.FavoriteViewModel
+import com.takaapoo.adab_parsi.poem.touch_handler.OnRecyclerViewItemTouchListener
 import com.takaapoo.adab_parsi.search.SearchViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.*
@@ -57,9 +55,6 @@ import com.takaapoo.adab_parsi.util.Orientation
 import com.takaapoo.adab_parsi.util.custom_views.TextSelectableView
 import com.takaapoo.adab_parsi.util.fastScroll.PoemFastScrollViewHelper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.poem_item.view.*
-import kotlinx.android.synthetic.main.search_layout.view.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
@@ -113,8 +108,7 @@ class PoemPagerFragment : Fragment() {
     private var mainActivity: MainActivity? = null
     private var collapseButton: ImageButton? = null
     private var searchMenuItem: MenuItem? = null
-    private var mDetector: GestureDetectorCompat? = null
-    private var mSelectedVerses = listOf<Int>()
+    var mSelectedVerses = listOf<Int>()
 
     private var commentHeight = 0
     private var imm : InputMethodManager? = null
@@ -149,48 +143,8 @@ class PoemPagerFragment : Fragment() {
 
         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
             binding.poemList.requestFocus()
-
-            return when (item?.itemId) {
-                R.id.favorite -> {
-                    applyFavorite()
-                    true
-                }
-                R.id.note -> {
-                    addNote(mSelectedVerses[0])
-                    finishActionMode()
-                    true
-                }
-                R.id.hilight -> {
-                    poemHilighter.fullHilight(mSelectedVerses)
-                    true
-                }
-                R.id.copy -> {
-                    val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    var text = ""
-                    mSelectedVerses.sorted().let {
-                        for (i in it.indices){
-                            text += if (i == 0) verses[it[0]-1].text else "\n${verses[it[i]-1].text}"
-                            when (verses[it[i]-1].position){
-                                0 -> {
-                                    if (it[i]<verses.size && verses[it[i]].position == 1)
-                                        text += "          ${verses[it[i]].text}"
-                                }
-                                2 -> {
-                                    if (it[i]<verses.size && verses[it[i]].position == 3) {
-                                        text += "\n${verses[it[i]].text}"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    val clip = ClipData.newPlainText("sher", text)
-                    clipboard.setPrimaryClip(clip)
-                    Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
-                    true
-                }
-
-                else -> false
-            }
+            poemViewModel.reportEvent(PoemEvent.OnContextMenuItemClicked(item))
+            return true
         }
 
         override fun onDestroyActionMode(mode: ActionMode?) {
@@ -218,16 +172,18 @@ class PoemPagerFragment : Fragment() {
 
         mySearchView = searchMenuItem!!.actionView as SearchView
         mySearchView!!.maxWidth = Int.MAX_VALUE
-        mySearchView!!.search_bar.layoutDirection = LAYOUT_DIRECTION_LTR
-        mySearchView!!.search_plate.layoutDirection = LAYOUT_DIRECTION_RTL
+        mySearchView!!.findViewById<LinearLayout>(R.id.search_bar).layoutDirection = LAYOUT_DIRECTION_LTR
         val searchPlate = mySearchView!!.findViewById<LinearLayout>(androidx.appcompat.R.id.search_plate)
+        searchPlate.layoutDirection = LAYOUT_DIRECTION_RTL
         val searchText = mySearchView!!.findViewById<AutoCompleteTextView>(androidx.appcompat.R.id.search_src_text)
 
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             val navController = findNavController()
-            binding.poemToolbar.setupWithNavController(navController,
-                AppBarConfiguration.Builder(navController.graph).build())
+            binding.poemToolbar.setupWithNavController(
+                navController = navController,
+                configuration = AppBarConfiguration.Builder(navController.graph).build()
+            )
         }
         smoothScroller = object : LinearSmoothScroller(requireContext()) {
             override fun getVerticalSnapPreference() = SNAP_TO_START
@@ -395,50 +351,17 @@ class PoemPagerFragment : Fragment() {
         if (!mySearchView!!.isActivated)  poemViewModel.searchQuery = ""
 
         binding.bookMarkToggle.setOnClickListener{
-            if ((it as ToggleButton).isChecked) {
-                poemViewModel.updateBookmark(Calendar.getInstance().timeInMillis, poemItem.id)
-                if (bookmarkViewModel.selectedBookmarkItem != null) bookmarkItemMeasure(true)
-            } else {
-                poemViewModel.updateBookmark(null, poemItem.id)
-                if (bookmarkViewModel.selectedBookmarkItem != null) bookmarkItemMeasure(false)
-            }
+            poemViewModel.reportEvent(PoemEvent.OnToggleButtonClicked((it as ToggleButton).isChecked))
         }
 
         binding.poemToolbar.menu.findItem(R.id.help).isVisible =
             findNavController().currentDestination?.id == R.id.poemFragment
 
         binding.poemToolbar.setOnMenuItemClickListener { menuItem ->
+            poemViewModel.reportEvent(PoemEvent.OnMenuItemClicked(menuItem))
             File(requireContext().filesDir, "poem").let {
                 if (it.exists())
                     it.listFiles()?.forEach { file -> file.delete() }
-            }
-            when(menuItem.itemId){
-                R.id.share -> {
-                    ShareTypeChooseDialog().show(parentFragmentManager, "share_choose_type")
-                }
-                R.id.search -> {
-//                    navController.navigate(NavGraphDirections.actionGlobalSearchFragment(poemItem.id, -1))
-                }
-                R.id.export -> {
-                    PoemExportDialog().show(parentFragmentManager, "export_dialog")
-                }
-                R.id.setting -> {
-                    PoemSettingDialog().show(parentFragmentManager, "poem_setting")
-                }
-                R.id.bookmark -> {
-                    if (menuItem.title == resources.getString(R.string.bookmark_add_hint)) {
-                        poemViewModel.updateBookmark(Calendar.getInstance().timeInMillis, poemItem.id)
-                        menuItem.title = resources.getString(R.string.bookmark_remove_hint)
-                        if (bookmarkViewModel.selectedBookmarkItem != null) bookmarkItemMeasure(true)
-                    } else {
-                        poemViewModel.updateBookmark(null, poemItem.id)
-                        menuItem.title = resources.getString(R.string.bookmark_add_hint)
-                        if (bookmarkViewModel.selectedBookmarkItem != null) bookmarkItemMeasure(false)
-                    }
-                }
-                R.id.help -> {
-                    poemViewModel.doShowHelp()
-                }
             }
             true
         }
@@ -466,7 +389,7 @@ class PoemPagerFragment : Fragment() {
         setBackgroundColor()
         imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-        if (!searchViewModel.openedFromDetailFrag && ! favoriteViewModel.openedFromFavoriteDetailFrag)
+        if (!searchViewModel.openedFromDetailFrag && !favoriteViewModel.openedFromFavoriteDetailFrag)
             fullBookPage()
 
         return  binding.root
@@ -548,41 +471,16 @@ class PoemPagerFragment : Fragment() {
 //                    }
             }
 
-            binding.poemList.addOnItemTouchListener(object : OnItemTouchListener{
-                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                    val itemView = rv.findChildViewUnder(e.x, e.y)
-                    itemView?.let {
-                        touchedViewID = rv.getChildItemId(it).toInt()
-                        val commentRect = Rect(it.comment.left, it.comment.top, it.comment.right,
-                            it.comment.bottom)
-                        val margin = 10
-                        val saveRect = Rect(it.save.left - margin, it.save.top - margin,
-                            it.save.right + margin, it.save.bottom + margin)
+            binding.poemList.addOnItemTouchListener(OnRecyclerViewItemTouchListener(poemViewModel))
 
-                        val xPos = (e.x - it.x).toInt()
-                        val yPos = (e.y - it.y).toInt()
-
-                        return if (commentRect.contains(xPos, yPos) || saveRect.contains(xPos, yPos))
-                            false
-                        else
-                            mDetector!!.onTouchEvent(e)
-                    }
-                    return false
-                }
-
-                override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
-                override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
-            })
-
-            binding.appBar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener {
-                    appBarLayout, verticalOffset ->
-                if (textMenuTextView != null){
+            binding.appBar.addOnOffsetChangedListener { _: AppBarLayout, _: Int ->
+                if (textMenuTextView != null) {
                     textMenuTextView?.getLocationInWindow(textMenuLocation)
                     textMenuLocation[0] -= fragLocation[0]
                     textMenuLocation[1] -= fragLocation[1]
-                    doRefreshTextMenu()
+                    reportEvent(PoemEvent.OnRefreshTextMenu)
                 }
-            })
+            }
 
             val allCats = allUpCategories(poemItem.parentID).map {
                     elem -> allCategory.find { it.id == elem } }.reversed()
@@ -628,6 +526,8 @@ class PoemPagerFragment : Fragment() {
 
             getPoemBookmark(poemItem.id).observe(viewLifecycleOwner) {
                 binding.bookMarkToggle.isChecked = (it != null)
+                if (bookmarkViewModel.selectedBookmarkItem != null && verses.isNotEmpty())
+                    bookmarkItemMeasure(addOrRemove = it != null)
                 binding.poemToolbar.menu.findItem(R.id.bookmark).title =
                     resources.getString(if (it != null) R.string.bookmark_remove_hint else R.string.bookmark_add_hint)
             }
@@ -649,10 +549,6 @@ class PoemPagerFragment : Fragment() {
                 verses = verseItems.map { it.copy() }
                 poemHilighter = PoemHilighter(verses, poemItem, poemViewModel, settingViewModel)
 
-                mDetector = GestureDetectorCompat(
-                    requireContext(),
-                    PoemGestureListener(poemViewModel, this@PoemPagerFragment)
-                )
 
                 lifecycleScope.launch(Dispatchers.Default){
                     val modifiedVerseItems = MutableList<Verse?>(verseItems.size) { null }
@@ -749,7 +645,7 @@ class PoemPagerFragment : Fragment() {
                                         deselectText()
                                     textMenuLocation[0] -= fragLocation[0]
                                     textMenuLocation[1] -= fragLocation[1]
-                                    doRefreshTextMenu()
+                                    reportEvent(PoemEvent.OnRefreshTextMenu)
                                 }
                             }
                         }
@@ -834,7 +730,6 @@ class PoemPagerFragment : Fragment() {
         super.onDestroyView()
 
         imm = null
-        mDetector = null
         smoothScroller = null
         searchMenuItem = null
         textMenuTextView = null
@@ -864,7 +759,7 @@ class PoemPagerFragment : Fragment() {
                 openNote(verseOrder)
             } else {
                 binding.poemList.findViewHolderForItemId(verseOrder.toLong())?.itemView
-                    ?.comment_text?.apply {
+                    ?.findViewById<EditText>(R.id.comment_text)?.apply {
                         requestFocus()
                         imm?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 //                        (activity as MainActivity).showKeyBoard()
@@ -875,7 +770,8 @@ class PoemPagerFragment : Fragment() {
 
     fun openNote(viewId: Int){
         val mItemView = binding.poemList.findViewHolderForItemId(viewId.toLong())?.itemView ?: return
-        val mComment = mItemView.comment
+        val mComment = mItemView.findViewById<NestedScrollView>(R.id.comment)
+        val commentText = mItemView.findViewById<EditText>(R.id.comment_text)
         poemViewModel.noteOpenedVerses[poemItem.id]?.add(viewId)
 
 //        itemViewHeights[verseOrderToItemPosition(viewId)] += (commentHeight + 8.dpTOpx(resources).toInt())
@@ -892,8 +788,8 @@ class PoemPagerFragment : Fragment() {
                 }
                 doOnEnd {
                     if (poemViewModel.commentTextFocused) {
-                        comment_text.requestFocus()
-                        imm?.showSoftInput(comment_text, InputMethodManager.SHOW_IMPLICIT)
+                        commentText.requestFocus()
+                        imm?.showSoftInput(commentText, InputMethodManager.SHOW_IMPLICIT)
 //                        (activity as MainActivity).showKeyBoard()
                     }
                     poemViewModel.poemContentHeight[poemItem.id] =
@@ -907,12 +803,16 @@ class PoemPagerFragment : Fragment() {
     fun closeNote(viewId: Int){
         poemViewModel.noteOpenedVerses[poemItem.id]?.remove(viewId)
         val mItemView = binding.poemList.findViewHolderForItemId(viewId.toLong())?.itemView ?: return
-        val mComment = mItemView.comment
+        val mComment = mItemView.findViewById<NestedScrollView>(R.id.comment)
+        val commentText = mItemView.findViewById<EditText>(R.id.comment_text)
+        val saveButton = mItemView.findViewById<Button>(R.id.save)
 
-        if (mItemView.save.isVisible)
-            saveComment(mItemView.comment_text.text.toString(), viewId, mItemView.save)
-
-//        itemViewHeights[verseOrderToItemPosition(viewId)] -= (commentHeight + 8.dpTOpx(resources).toInt())
+        if (saveButton.isVisible)
+            saveComment(
+                note = commentText.text.toString(),
+                verseOrder = viewId,
+                saveButton = saveButton
+            )
 
         mItemView.apply {
             val params = mComment.layoutParams
@@ -978,6 +878,7 @@ class PoemPagerFragment : Fragment() {
     }
 
     private fun measurePoemStructureDimensions(){
+        if (_binding == null) return
         val mesraContainerWidth = (binding.root.measuredWidth
                 - (startMargin + endMargin + guidWidth + verseSeparation)) / 2
 
@@ -1130,7 +1031,7 @@ class PoemPagerFragment : Fragment() {
         }
     }
 
-    private fun bookmarkItemMeasure(addOrRemove: Boolean){
+    fun bookmarkItemMeasure(addOrRemove: Boolean){
         val item = bookmarkViewModel.allBookmarks.find { it.poemm.id == poemItem.id }
 
         bookmarkViewModel.apply {
@@ -1256,10 +1157,16 @@ class PoemPagerFragment : Fragment() {
         if (parentFragment is FavoriteDetailFragment){
             favoriteViewModel.apply {
                 if (favoriteList.contains(null)) {
-                    val favoriteContent = mSelectedVerses.map { it }
-                        .filter { verses[it - 1].favorite == null }.map {
-                            FavoriteContent(verses[it - 1].text, verses[it - 1].position,
-                                verses[it - 1].verseOrder, verses.getOrNull(it)?.text ?: "", Poem())
+                    val favoriteContent = mSelectedVerses
+                        .filter { verses[it - 1].favorite == null }
+                        .map {
+                            FavoriteContent(
+                                verse1Text = verses[it - 1].text,
+                                verse1Position = verses[it - 1].position,
+                                verse1Order = verses[it - 1].verseOrder,
+                                verse2Text = verses.getOrNull(it)?.text ?: "",
+                                poemm = Poem()
+                            )
                         }
 
                     allFavorites.addAll(0, favoriteContent)
@@ -1280,19 +1187,29 @@ class PoemPagerFragment : Fragment() {
                     } , 30L * favoriteContent.size)
 
                 } else {
-                    val favoriteContent = mSelectedVerses.filter { verses[it - 1].favorite!! >=
+                    val favoriteContent = mSelectedVerses
+                        .filter { verses[it - 1].favorite!! >=
                                 verses[allFavorites[poemPosition].verse1Order - 1].favorite!! }
                         .map {
-                            FavoriteContent(verses[it - 1].text, verses[it - 1].position,
-                                verses[it - 1].verseOrder, verses.getOrNull(it)?.text ?: "", Poem())
+                            FavoriteContent(
+                                verse1Text = verses[it - 1].text,
+                                verse1Position = verses[it - 1].position,
+                                verse1Order = verses[it - 1].verseOrder,
+                                verse2Text = verses.getOrNull(it)?.text ?: "",
+                                poemm = Poem()
+                            )
                         }
 
-                    val selectedVerseIndices = verses.asSequence().filter { it.favorite != null }
-                        .sortedByDescending { it.favorite }.map { it.verseOrder }.mapIndexed { index, vOrder ->
-                            if (mSelectedVerses.contains(vOrder)) index else -1 }.filter { it != -1 }
+                    val selectedVerseIndices = verses.asSequence()
+                        .filter { it.favorite != null }
+                        .sortedByDescending { it.favorite }
+                        .map { it.verseOrder }
+                        .mapIndexed { index, vOrder -> if (mSelectedVerses.contains(vOrder)) index else -1 }
+                        .filter { it != -1 }
 
-                    val toBeRemovedIndices = poemList.mapIndexed { index, content ->
-                        if (content == poemItem) index else -1 }.filterNot { it == -1 }
+                    val toBeRemovedIndices = poemList
+                        .mapIndexed { index, content -> if (content == poemItem) index else -1 }
+                        .filterNot { it == -1 }
                         .filterIndexed { index, _ -> selectedVerseIndices.contains(index) }
 
                     val updatedPoemList = MutableList(poemList.size - toBeRemovedIndices.size) {Content()}
@@ -1316,7 +1233,6 @@ class PoemPagerFragment : Fragment() {
                             { favoriteItemMeasure(fc, true) } , 30L * index)
                     }
                     Handler(Looper.getMainLooper()).postDelayed({
-//                        finishActionMode()
                         poemViewModel.updateFavorite(null, poemItem.id,
                             mSelectedVerses.map { it.toString() }.toList())
                         favoriteViewModel.comeFromFavoriteFragment = false
@@ -1364,7 +1280,7 @@ class PoemPagerFragment : Fragment() {
             textMenuVisible = false
             textVerseOrder = 0
             textNoteVerseOrder = 0
-            doRefreshTextMenu()
+            reportEvent(PoemEvent.OnRefreshTextMenu)
         }
     }
 
@@ -1498,6 +1414,27 @@ class PoemPagerFragment : Fragment() {
                         ", Poem = ${poemItem.text}"
             )
         }
+    }
+
+    fun selectedVersesText(): String {
+        val text = StringBuilder()
+        mSelectedVerses.sorted().let {
+            for (i in it.indices){
+                text.append(if (i == 0) verses[it[0]-1].text else "\n\n${verses[it[i]-1].text}")
+                when (verses[it[i]-1].position){
+                    0 -> {
+                        if (it[i]<verses.size && verses[it[i]].position == 1)
+                            text.append("\n${verses[it[i]].text}")
+                    }
+                    2 -> {
+                        if (it[i]<verses.size && verses[it[i]].position == 3) {
+                            text.append("\n${verses[it[i]].text}")
+                        }
+                    }
+                }
+            }
+        }
+        return text.toString()
     }
 
 }

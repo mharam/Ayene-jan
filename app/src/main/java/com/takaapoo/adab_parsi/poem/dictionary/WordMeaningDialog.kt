@@ -1,4 +1,4 @@
-package com.takaapoo.adab_parsi.poem
+package com.takaapoo.adab_parsi.poem.dictionary
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -16,6 +16,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentPoemMeaningBinding
+import com.takaapoo.adab_parsi.poem.PoemViewModel
 
 
 class WordMeaningDialog : BottomSheetDialogFragment() {

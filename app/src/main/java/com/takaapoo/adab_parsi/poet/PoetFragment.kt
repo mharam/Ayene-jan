@@ -29,14 +29,11 @@ import com.takaapoo.adab_parsi.util.Destinations
 import com.takaapoo.adab_parsi.util.GlideApp
 import com.takaapoo.adab_parsi.util.getColorFromAttr
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.book_item.view.*
-import kotlinx.android.synthetic.main.pager_poet.*
-import kotlinx.android.synthetic.main.pager_poet.view.*
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class PoetFragment : FragmentWithTransformPage() {
+class PoetFragment : Fragment() {
 
     private var _binding: FragmentPoetBinding? = null
     val binding get() = _binding!!
@@ -60,17 +57,19 @@ class PoetFragment : FragmentWithTransformPage() {
                 override fun onMapSharedElements(names: List<String>,
                                                  sharedElements: MutableMap<String, View>) {
                     val destID = findNavController().currentDestination?.id
-                    val currentFragment = childFragmentManager.findFragmentByTag("f$position")
+                    val currentFragment =
+                        childFragmentManager.findFragmentByTag("f$position") as? PoetPagerFragment
                     currentFragment?.view ?: return
 
                     if (destID == R.id.bookFragment
                         || destID == R.id.poetFragment && poetViewModel.enterBookFragment){
-                        val selectedViewHolder: RecyclerView.ViewHolder = currentFragment.poet_book_list
+                        val selectedViewHolder: RecyclerView.ViewHolder = currentFragment.binding.poetBookList
                             .findViewHolderForAdapterPosition(poetViewModel.bookPosition +
                                     poetViewModel.bookShelfSpanCount) ?: return
 
                         try {
-                            sharedElements[names[0]] = selectedViewHolder.itemView.book_item_layout
+                            sharedElements[names[0]] =
+                                selectedViewHolder.itemView.findViewById(R.id.book_item_layout)
                         } catch (_: Exception) { }
                     }
                     else
@@ -105,10 +104,10 @@ class PoetFragment : FragmentWithTransformPage() {
         binding.viewPager.apply {
             adapter = poetBookAdapter
             (getChildAt(0) as RecyclerView).edgeEffectFactory =
-                PoetBounceEdgeEffectFactory(this@PoetFragment)
+                PoetBounceEdgeEffectFactory(::transformPage)
 //            val pos = homeViewModel.viewpagePosition
             setCurrentItem(homeViewModel.viewpagePosition, false)
-            setPageTransformer(ZoomPageTransformer(this@PoetFragment))
+            setPageTransformer(ZoomPageTransformer(::transformPage))
             registerOnPageChangeCallback(pageCallBack)
             post {
 //                homeViewModel.viewpagePosition = pos
@@ -120,11 +119,9 @@ class PoetFragment : FragmentWithTransformPage() {
         setEnterSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(
                 names: List<String>, sharedElements: MutableMap<String, View> ) {
-//                val currentFragment =
-//                    childFragmentManager.findFragmentByTag("f${homeViewModel.viewpagePosition}")
                 currentChildFragment?.view ?: return
                 try {
-                    sharedElements[names[0]] = currentChildFragment!!.poet_layout
+                    sharedElements[names[0]] = currentChildFragment!!.binding.poetLayout
                 } catch (_: Exception) { }
             }
         })
@@ -224,7 +221,7 @@ class PoetFragment : FragmentWithTransformPage() {
         sharedElementReturnTransition = returnMatConTrans
     }
 
-    override fun transformPage(view: View, position: Float){
+    private fun transformPage(view: View, position: Float){
         view.apply {
             // Move it behind the left page
             translationZ = -position
@@ -288,16 +285,16 @@ class PoetFragment : FragmentWithTransformPage() {
     }
 
     private fun scaleView(scale: Float, view: View){
-        val widget = view.widgets
-        val poetCoordinate = view.poet_coordinate
-        val wall = view.wall
+        val widget = view.findViewById<View>(R.id.widgets) ?: return
+        val poetCoordinate = view.findViewById<View>(R.id.poet_coordinate) ?: return
+        val wall = view.findViewById<View>(R.id.wall) ?: return
 
-        widget?.scaleX = DEFAULT_SCALE * scale
-        widget?.scaleY = DEFAULT_SCALE * scale
-        poetCoordinate?.scaleX = scale
-        poetCoordinate?.scaleY = scale
-        wall?.scaleX = scaleXWall * scale
-        wall?.scaleY = DEFAULT_SCALE * scale
+        widget.scaleX = DEFAULT_SCALE * scale
+        widget.scaleY = DEFAULT_SCALE * scale
+        poetCoordinate.scaleX = scale
+        poetCoordinate.scaleY = scale
+        wall.scaleX = scaleXWall * scale
+        wall.scaleY = DEFAULT_SCALE * scale
     }
 }
 
@@ -327,8 +324,6 @@ const val scaleXWall = 1.035f
 private const val MIN_SCALE = 0.5f
 private const val MIN_SCALE2 = 0.9f
 
-class ZoomPageTransformer(private val poetFragment: PoetFragment) : ViewPager2.PageTransformer {
-    override fun transformPage(view: View, position: Float) {
-        poetFragment.transformPage(view, position)
-    }
+class ZoomPageTransformer(val transform: (view: View, position: Float) -> Unit) : ViewPager2.PageTransformer {
+    override fun transformPage(view: View, position: Float) = transform(view, position)
 }

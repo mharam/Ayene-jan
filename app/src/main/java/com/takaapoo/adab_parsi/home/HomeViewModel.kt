@@ -12,16 +12,16 @@ import com.takaapoo.adab_parsi.add.imagePrefix
 import com.takaapoo.adab_parsi.add.thumbnailPrefix
 import com.takaapoo.adab_parsi.database.Category
 import com.takaapoo.adab_parsi.database.Dao
-import com.takaapoo.adab_parsi.util.*
+import com.takaapoo.adab_parsi.util.Destinations
+import com.takaapoo.adab_parsi.util.FileIO
+import com.takaapoo.adab_parsi.util.allCategory
+import com.takaapoo.adab_parsi.util.wrapEspressoIdlingResource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
@@ -30,8 +30,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     app: Application,
     savedStateHandle: SavedStateHandle,
-    private val dao: Dao) : AndroidViewModel(app)
-{
+    private val dao: Dao
+    ) : AndroidViewModel(app) {
     val allCat: LiveData<List<Category>> = dao.getAllCat()
 
     var viewpagePosition = 0
@@ -41,12 +41,8 @@ class HomeViewModel @Inject constructor(
     var ancient = 0
     var enterPoetFragment = false
     var homePagerPosition = 0
-//    var deleteDialogTitle = ""
 
     var poetFirstOpening = false
-//    var spanCount = 1
-
-//    var selectedPoetCount = 0
     var navigatorExtra: FragmentNavigator.Extras? = null
 
     var ancientPoetIds = listOf<Int?>()
@@ -66,14 +62,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-//    private val _showHelp = MutableLiveData<Int?>(null)
-//    val showHelp: LiveData<Int?>
-//        get() = _showHelp
-//    fun doShowHelp() { _showHelp.value = 1}
-//    fun doneShowHelp() { _showHelp.value = null}
-//    fun increaseShowHelp() { _showHelp.value = _showHelp.value?.plus(1) }
-
 
     private val _actionModeState = MutableStateFlow(ActionModeState.GONE)
     val actionModeState = _actionModeState.asStateFlow()
@@ -114,7 +102,7 @@ class HomeViewModel @Inject constructor(
                         file.openFile(imagePrefix + "$it").delete()
                         file.openFile(thumbnailPrefix + "$it").delete()
                     }
-                } catch (e: IOException) { }
+                } catch (_: IOException) { }
             }
         }
     }

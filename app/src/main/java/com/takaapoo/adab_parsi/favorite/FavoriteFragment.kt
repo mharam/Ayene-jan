@@ -34,7 +34,6 @@ import com.takaapoo.adab_parsi.util.Orientation
 import com.takaapoo.adab_parsi.util.fastScroll.ResultFastScrollViewHelper
 import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.search_result_item.view.*
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 
 @AndroidEntryPoint
@@ -156,13 +155,12 @@ class FavoriteFragment : Fragment() {
         setExitSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(names: List<String>, sharedElements: MutableMap<String, View>) {
 
-//                val destID = findNavController().currentDestination?.id
                 val selectedViewHolder: RecyclerView.ViewHolder = binding.favoriteList
                     .findViewHolderForAdapterPosition(favoriteViewModel.poemPosition) ?: return
 //                selectedViewHolder.itemView.card_view.transitionName = "Result_transition"
                 try {
-                    sharedElements[names[0]] = selectedViewHolder.itemView.card_view
-                } catch (e: Exception) { }
+                    sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.card_view)
+                } catch (_: Exception) { }
             }
         })
         binding.favoriteToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)

@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.app.SharedElementCallback
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
@@ -31,21 +32,18 @@ import com.takaapoo.adab_parsi.NavGraphDirections
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.databinding.FragmentBookBinding
 import com.takaapoo.adab_parsi.poem.PoemFragment
-import com.takaapoo.adab_parsi.poet.FragmentWithTransformPage
 import com.takaapoo.adab_parsi.poet.PoetBounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.poet.PoetViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.GlideApp
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.pager_book2.*
-import kotlinx.android.synthetic.main.pager_book2.view.*
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.pow
 
 
 @AndroidEntryPoint
-class BookFragment : FragmentWithTransformPage() {
+class BookFragment : Fragment() {
 
     private val poetViewModel: PoetViewModel by activityViewModels()
     val bookViewModel: BookViewModel by activityViewModels()
@@ -160,9 +158,9 @@ class BookFragment : FragmentWithTransformPage() {
         binding.bookViewPager.apply {
             adapter = bookAdapter
             (getChildAt(0) as RecyclerView).edgeEffectFactory =
-                PoetBounceEdgeEffectFactory(this@BookFragment)
+                PoetBounceEdgeEffectFactory(::transformPage)
             setCurrentItem(poetViewModel.bookPosition, false)
-            setPageTransformer(ZoomOutPageTransformer(this@BookFragment))
+            setPageTransformer(ZoomOutPageTransformer(::transformPage))
             registerOnPageChangeCallback(pageCallBack)
             post { pageCallBack.onPageSelected(binding.bookViewPager.currentItem) }
         }
@@ -172,7 +170,7 @@ class BookFragment : FragmentWithTransformPage() {
             override fun onMapSharedElements(names: List<String>, sharedElements: MutableMap<String, View> ) {
                 currentChildFragment?.view ?: return
                 try {
-                    sharedElements[names[0]] = currentChildFragment!!.book_layout
+                    sharedElements[names[0]] = currentChildFragment?.binding?.bookLayout!!
                 } catch (_: Exception) { }
             }
         })
@@ -248,13 +246,14 @@ class BookFragment : FragmentWithTransformPage() {
 //            ResourcesCompat.getDrawable(resources, R.drawable.background_wood, context?.theme)
     }
 
-    override fun transformPage(view: View, position: Float) {
-        val bookLayout = view.book_layout
+    private fun transformPage(view: View, position: Float) {
+        val bookLayout = view.findViewById<FrameLayout>(R.id.book_layout) ?: return
+        val bookCover = view.findViewById<FrameLayout>(R.id.book_cover) ?: return
 
         view.apply {
             when {
                 position == 0f && bookViewModel.bookFirstOpening -> {
-                    book_cover?.rotationY = 0f
+                    bookCover.rotationY = 0f
                 }
                 position <= -1 -> { // [-Infinity,-1]
                     translationX = 0f
@@ -274,16 +273,16 @@ class BookFragment : FragmentWithTransformPage() {
                         position <= MIN_SCALE -> x = (-0.1f / MIN_SCALE - 1) * position * width
                     }
 
-                    bookLayout?.run {
+                    bookLayout.run {
                         translationX = transX
                         scaleX = scaleFactor / scaleXOutValue.float
                         scaleY = scaleFactor / scaleYOutValue.float
                     }
-                    book_cover?.rotationY = (1 - abs(position)).pow(4) * 90f
+                    bookCover.rotationY = (1 - abs(position)).pow(4) * 90f
                 }
                 else -> { // [1,+Infinity]
                     translationX = 0f
-                    bookLayout?.run {
+                    bookLayout.run {
                         scaleX = 1 / scaleXOutValue.float
                         scaleY = 1 / scaleYOutValue.float
                     }
@@ -313,8 +312,6 @@ class BookAdapter(fragManager: FragmentManager,
 
 
 private const val MIN_SCALE = 0.90f
-class ZoomOutPageTransformer(private val bookFragment: BookFragment) : ViewPager2.PageTransformer {
-    override fun transformPage(view: View, position: Float) {
-        bookFragment.transformPage(view, position)
-    }
+class ZoomOutPageTransformer(val transform: (view: View, position: Float) -> Unit) : ViewPager2.PageTransformer {
+    override fun transformPage(view: View, position: Float) = transform(view, position)
 }

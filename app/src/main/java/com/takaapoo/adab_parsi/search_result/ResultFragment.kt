@@ -33,7 +33,6 @@ import com.takaapoo.adab_parsi.search.SearchViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import com.takaapoo.adab_parsi.util.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.search_result_item.view.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -49,12 +48,11 @@ class ResultFragment : Fragment() {
 
     private var _binding: FragmentSearchResultBinding? = null
     val binding get() = _binding!!
-//    private lateinit var scrollViewHelper: ResultFastScrollViewHelper
     var layoutManager: LinearLayoutManager? = null
     var adapter: ResultListAdapter? = null
     var currentNightMode = 0
 
-    var displayResultJob: Job? = null
+    private var displayResultJob: Job? = null
 
 
     override fun onCreateView(
@@ -79,7 +77,7 @@ class ResultFragment : Fragment() {
             try {
                 navController.navigate(ResultFragmentDirections
                     .actionResultFragmentToSearchFragment(searchViewModel.poemID, searchViewModel.catID))
-            } catch (e: Exception) { }
+            } catch (_: Exception) { }
         }
 
         layoutManager = binding.resultList.layoutManager as LinearLayoutManager
@@ -116,8 +114,8 @@ class ResultFragment : Fragment() {
                     .findViewHolderForAdapterPosition(searchViewModel.poemPosition) ?: return
 //                selectedViewHolder.itemView.card_view.transitionName = "Result_transition"
                 try {
-                    sharedElements[names[0]] = selectedViewHolder.itemView.card_view
-                } catch (e: java.lang.Exception) { }
+                    sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.card_view)
+                } catch (_: Exception) { }
             }
         })
         binding.resultToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)

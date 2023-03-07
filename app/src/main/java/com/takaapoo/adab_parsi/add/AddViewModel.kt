@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 
 enum class ListLoadStatus { LOAD, DONE, ERROR }
@@ -32,7 +33,7 @@ class AddViewModel (application: Application): AndroidViewModel(application) {
         }
     }
 
-    private val handler = CoroutineExceptionHandler { _, exception ->
+    private val handler = CoroutineExceptionHandler { _: CoroutineContext, _: Throwable ->
         if (!::poetList.isInitialized)
             _loadStatus.postValue(ListLoadStatus.ERROR)
     }

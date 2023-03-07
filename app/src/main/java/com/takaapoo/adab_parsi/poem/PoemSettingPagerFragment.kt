@@ -33,9 +33,9 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
     private val bindingTheme get() = _bindingTheme!!
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
-//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
         _bindingText = FragmentPoemSettingTextBinding.inflate(inflater, container, false)
         _bindingTheme = FragmentPoemSettingThemeBinding.inflate(inflater, container, false)
 
@@ -53,7 +53,7 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                             R.id.davat -> settingViewModel.updateFont(2)
                         }
                         updateFontChipText()
-                        poemViewModel.refresh()
+                        poemViewModel.reportEvent(PoemEvent.OnRefreshContent)
                     }
 
                     bindingText.fontSize.text = fontSizeNames[settingViewModel.fontSizePref]
@@ -61,13 +61,13 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                         val prefValue = (settingViewModel.fontSizePref-1).coerceAtLeast(0)
                         settingViewModel.updateFontSize(prefValue)
                         bindingText.fontSize.text = fontSizeNames[settingViewModel.fontSizePref]
-                        poemViewModel.refresh()
+                        poemViewModel.reportEvent(PoemEvent.OnRefreshContent)
                     }
                     bindingText.fontSizeLarge.setOnClickListener {
                         val prefValue = (settingViewModel.fontSizePref+1).coerceAtMost(fontSizeNames.size - 1)
                         settingViewModel.updateFontSize(prefValue)
                         bindingText.fontSize.text = fontSizeNames[settingViewModel.fontSizePref]
-                        poemViewModel.refresh()
+                        poemViewModel.reportEvent(PoemEvent.OnRefreshContent)
                     }
 
                     bindingText.hilightButton.check(when(settingViewModel.hilightColorPref) {
@@ -97,7 +97,6 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                     }
                     bindingTheme.slider.addOnChangeListener { slider, value, fromUser ->
                         settingViewModel.brightness.value = value
-//                        poemViewModel.refreshBrightness()
                     }
 
                     bindingTheme.paperButton.check(when(settingViewModel.paperColorPref.value) {
@@ -121,7 +120,10 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                         )
                     }
                     bindingTheme.themeMenu.editText?.doOnTextChanged { text, start, before, count ->
-                        settingViewModel.updateTheme(themeNames.indexOf(text.toString()).toString(), requireContext())
+                        settingViewModel.updateTheme(
+                            prefValue = themeNames.indexOf(text.toString()).toString(),
+                            context = requireContext()
+                        )
 //                        barsPreparation()
                     }
 
@@ -163,7 +165,6 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                         R.id.paper_button2 -> 1
                         else -> 2
                     })
-//                    poemViewModel.refreshPaper()
                 }
             }
         }

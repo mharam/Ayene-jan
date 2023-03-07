@@ -46,8 +46,6 @@ import com.takaapoo.adab_parsi.add.AddViewModel
 import com.takaapoo.adab_parsi.databinding.FragmentHomeBinding
 import com.takaapoo.adab_parsi.util.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.pager_home.*
-import kotlinx.android.synthetic.main.poet_item_recent.view.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -227,7 +225,7 @@ class HomeFragment : Fragment() {
                                     }
                                     else -> {}
                                 }
-                            } catch (e: Exception) {}
+                            } catch (_: Exception) {}
                         }
                         is HomeEvent.OpenDrawer -> {
                             (activity as? MainActivity)?.moveDrawer()
@@ -365,13 +363,15 @@ class HomeFragment : Fragment() {
                             val destID = findNavController().currentDestination?.id
                             if (destID == R.id.poetFragment
                                 || (destID == R.id.homeFragment && homeViewModel.enterPoetFragment)) {
-                                val currentFragment = childFragmentManager.findFragmentByTag("f$position")
+                                val currentFragment =
+                                    childFragmentManager.findFragmentByTag("f$position") as? HomePagerFragment
                                 currentFragment?.view ?: return
-                                val selectedViewHolder: RecyclerView.ViewHolder = currentFragment.loaded_poet_list
+                                val selectedViewHolder: RecyclerView.ViewHolder =
+                                    currentFragment.binding.loadedPoetList
                                     .findViewHolderForAdapterPosition(homeViewModel.viewpagePosition) ?: return
                                 try {
-                                    sharedElements[names[0]] = selectedViewHolder.itemView.card_view
-                                } catch (e: Exception) { }
+                                    sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.card_view)
+                                } catch (_: Exception) { }
 
                             } else
                                 homeViewModel.enterPoetFragment = false
@@ -382,8 +382,6 @@ class HomeFragment : Fragment() {
                     (findFragmentByTag("f0") as? HomePagerFragment)?.finishActionMode()
                     (findFragmentByTag("f1") as? HomePagerFragment)?.finishActionMode()
                 }
-                //                currentChildFragment = childFragmentManager
-                //                    .findFragmentByTag("f${position}") as? HomePagerFragment
             }
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .launchIn(viewLifecycleOwner.lifecycleScope)
