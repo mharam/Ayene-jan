@@ -132,6 +132,7 @@ class MainActivity : AppCompatActivity() {
         if (resources.configuration.smallestScreenWidthDp < 600) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+        NotificationChannelManager.createChannel(this)
 
         lifecycleScope.launch {
             if (allCategory.isEmpty())

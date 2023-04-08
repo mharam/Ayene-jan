@@ -302,7 +302,9 @@ class PoetFragment : Fragment() {
 const val ARG_POET_POSITION = "poet_position"
 const val ARG_POET_ANCIENT = "poet_ancient"
 
-class PoetBookAdapter(fragManager: FragmentManager, lifeCycle: Lifecycle, val ancient: Int,
+class PoetBookAdapter(fragManager: FragmentManager,
+                      lifeCycle: Lifecycle,
+                      val ancient: Int,
                       private val itemNumber: Int) : FragmentStateAdapter(fragManager, lifeCycle){
 
     override fun getItemCount(): Int = itemNumber

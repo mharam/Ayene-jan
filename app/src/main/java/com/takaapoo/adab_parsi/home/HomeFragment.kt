@@ -2,6 +2,7 @@ package com.takaapoo.adab_parsi.home
 
 import android.animation.ValueAnimator
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -261,12 +262,12 @@ class HomeFragment : Fragment() {
                                             binding.trash.drawable, animatedTrashCallback
                                         )
                                         binding.interactionBlocker.isVisible = false
-                                        if (mainActivity?.binding?.drawerLayout?.tag == "land_scape") {
-                                            mainActivity.removeFragmentFromContainer()
+                                        if (resources.configuration.orientation ==  Configuration.ORIENTATION_LANDSCAPE) {
+                                            mainActivity?.removeFragmentFromContainer()
                                         }
                                     }
                                     .start()
-                                addViewModel.determineAllPoet()
+//                                addViewModel.determineAllPoet()
                             }
                         }
                         is HomeEvent.OnDeleteDialogDismiss -> {

@@ -3,6 +3,7 @@ package com.takaapoo.adab_parsi.database
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.sqlite.db.SupportSQLiteQuery
+import kotlinx.coroutines.flow.Flow
 
 
 class FakeAndroidTestDao : Dao {
@@ -33,6 +34,10 @@ class FakeAndroidTestDao : Dao {
         return MutableLiveData(poets)
     }
 
+    override fun getAllPoetId(): Flow<List<Int>> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun insertDatabase(
         category: List<Category>,
         poem: List<Poem>,
@@ -43,6 +48,10 @@ class FakeAndroidTestDao : Dao {
         poems.addAll(poem)
         poets.addAll(poet)
         verses.addAll(verse)
+    }
+
+    override suspend fun getAllCatWithPoetId(poetID: List<Int>): List<Int> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun deleteCat(poetID: List<Int>) {

@@ -1,24 +1,29 @@
 package com.takaapoo.adab_parsi.add
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.takaapoo.adab_parsi.database.PoemDatabase
+import androidx.lifecycle.*
+import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.network.PoetApi
 import com.takaapoo.adab_parsi.network.PoetProperty
 import com.takaapoo.adab_parsi.util.collator
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 
 enum class ListLoadStatus { LOAD, DONE, ERROR }
 
-class AddViewModel (application: Application): AndroidViewModel(application) {
+@HiltViewModel
+class AddViewModel @Inject constructor(
+    application: Application,
+    dao: Dao): AndroidViewModel(application) {
 
     private val _loadStatus = MutableLiveData<ListLoadStatus>()
     val loadStatus: LiveData<ListLoadStatus>
@@ -43,12 +48,19 @@ class AddViewModel (application: Application): AndroidViewModel(application) {
     val progress: MutableMap<Int, MutableLiveData<Int>> = mutableMapOf()
     val installing: MutableMap<Int, MutableLiveData<Boolean>> = mutableMapOf()
     private val downloader: MutableMap<Int, Downloader> = mutableMapOf()
-
+    private val installedPoetId = dao.getAllPoetId()
+    val notInstalledPoet = combine(allPoet.asFlow(), installedPoetId){ allPoetPropertyList, installedPoetIdList ->
+        allPoetPropertyList?.filterNot { installedPoetIdList.contains(it.poetID) }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = emptyList(),
+        started = SharingStarted.Eagerly
+    )
 
     fun modifyAllPoet(poetId: Int){
-        val newAllPoet = allPoet.value?.toMutableList()
-        newAllPoet?.removeAll { it.poetID == poetId }
-        allPoet.postValue(newAllPoet)
+//        val newAllPoet = allPoet.value?.toMutableList()
+//        newAllPoet?.removeAll { it.poetID == poetId }
+//        allPoet.postValue(newAllPoet)
         installing.remove(poetId)
         downloader.remove(poetId)
     }
@@ -66,32 +78,32 @@ class AddViewModel (application: Application): AndroidViewModel(application) {
                 }
                 if (response.isSuccessful && response.body() != null){
                     poetList = response.body()!!
-                    val catPoet = PoemDatabase.getDatabase(getApplication()).dao().getCatPoet()
-
-                    val modifiedList = poetList.filterNot { item -> catPoet.any { it.poetID == item.poetID } }
-                            as MutableList
+//                    val catPoet = PoemDatabase.getDatabase(getApplication()).dao().getCatPoet()
+//
+//                    val modifiedList = poetList.filterNot { item -> catPoet.any { it.poetID == item.poetID } }
+//                            as MutableList
                     _loadStatus.postValue(ListLoadStatus.DONE)
 
-                    modifiedList.sortWith { one, two -> collator.compare(one.text, two.text) }
-                    allPoet.postValue(modifiedList)
+                    poetList.sortWith { one, two -> collator.compare(one.text, two.text) }
+                    allPoet.postValue(poetList)
                 } else
                     _loadStatus.postValue(ListLoadStatus.ERROR)
             }
         }
     }
 
-    fun determineAllPoet(){
-        if (::poetList.isInitialized) {
-            viewModelScope.launch {
-                val catPoet = PoemDatabase.getDatabase(getApplication()).dao().getCatPoet()
-                val modifiedList =
-                    poetList.filterNot { item -> catPoet.any { it.poetID == item.poetID } }
-                            as MutableList
-                modifiedList.sortWith { one, two -> collator.compare(one.text, two.text) }
-                allPoet.postValue(modifiedList)
-            }
-        }
-    }
+//    fun determineAllPoet(){
+//        if (::poetList.isInitialized) {
+//            viewModelScope.launch {
+//                val catPoet = PoemDatabase.getDatabase(getApplication()).dao().getCatPoet()
+//                val modifiedList =
+//                    poetList.filterNot { item -> catPoet.any { it.poetID == item.poetID } }
+//                            as MutableList
+//                modifiedList.sortWith { one, two -> collator.compare(one.text, two.text) }
+//                allPoet.postValue(modifiedList)
+//            }
+//        }
+//    }
 
     fun downloadPoet(poetItem: PoetProperty){
         downloader.getOrPut(

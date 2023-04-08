@@ -306,4 +306,9 @@
 
 
     <string name="leak_canary_test_class_name">assertk.Assert</string>
+
+    <string name="channel_name">افزودن و حذف شعرا</string>
+    <string name="channel_description">نشان می‌دهد شاعری در حال حذف یا افزوده شدن است</string>
+    <string name="delete_poet_notification_content_text">در حال حذف آثار %1$s شاعر</string>
+
 </resources>

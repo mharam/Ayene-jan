@@ -86,23 +86,34 @@ class AddFragment : Fragment() {
         viewPager!!.registerOnPageChangeCallback(viewPagerCallback)
         initializeTab(emptyList())
 
-        addViewModel.allPoet.observe(viewLifecycleOwner) { list -> initializeTab(list) }
+//        addViewModel.allPoet.observe(viewLifecycleOwner) { list -> initializeTab(list) }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                addViewModel.uiEvent.collect { event ->
-                    when(event){
-                        is AddEvent.ShowSnack -> {
-                            Snackbar.make(binding.myLayout, event.mess, Snackbar.LENGTH_LONG).show()
-                        }
-                        is AddEvent.PoetTouched -> {
-                            ObjectAnimator.ofInt(event.poetView, "height"
-                                , if (event.poetView.height == 0) event.height else 0).apply {
-                                interpolator = AccelerateInterpolator(1f)
-                            }.start()
-                        }
-                        is AddEvent.DownloadPoet -> {
-                            addViewModel.downloadPoet(event.poetItem)
+                launch {
+                    addViewModel.notInstalledPoet.collect { poetPropertyList ->
+                        initializeTab(poetPropertyList)
+                    }
+                }
+                launch {
+                    addViewModel.uiEvent.collect { event ->
+                        when (event) {
+                            is AddEvent.ShowSnack -> {
+                                Snackbar.make(binding.myLayout, event.mess, Snackbar.LENGTH_LONG)
+                                    .show()
+                            }
+                            is AddEvent.PoetTouched -> {
+                                ObjectAnimator.ofInt(
+                                    event.poetView,
+                                    "height",
+                                    if (event.poetView.height == 0) event.height else 0
+                                ).apply {
+                                    interpolator = AccelerateInterpolator(1f)
+                                }.start()
+                            }
+                            is AddEvent.DownloadPoet -> {
+                                addViewModel.downloadPoet(event.poetItem)
+                            }
                         }
                     }
                 }

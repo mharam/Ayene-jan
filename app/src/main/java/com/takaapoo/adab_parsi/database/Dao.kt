@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.Dao
 import androidx.sqlite.db.SupportSQLiteQuery
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface Dao {
@@ -23,77 +24,45 @@ interface Dao {
     @Query("SELECT * from poet")
     fun getAllPoet(): LiveData<List<Poet>>
 
+    @Query("SELECT id from poet")
+    fun getAllPoetId(): Flow<List<Int>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDatabase(category: List<Category>,
                                poem: List<Poem>,
                                poet: List<Poet>,
                                verse: List<Verse>)
 
+    @Query("SELECT id from cat WHERE poet_id IN (:poetID)")
+    suspend fun getAllCatWithPoetId(poetID: List<Int>): List<Int>
+
     @Query("DELETE from cat WHERE poet_id IN (:poetID)")
     suspend fun deleteCat(poetID: List<Int>)
-//    @Query("DELETE from cat WHERE poet_id = :poetID")
-//    suspend fun deleteCat(poetID: Int)
+
     @Query("DELETE from cat")
     suspend fun deleteAllCat()
 
-    @Query("DELETE from poem WHERE cat_id IN (SELECT id from cat WHERE poet_id IN (:poetID))")
-    suspend fun deletePoem(poetID: List<Int>)
-//    @Query("DELETE from poem WHERE cat_id IN (SELECT id from cat WHERE poet_id = :poetID)")
-//    suspend fun deletePoem(poetID: Int)
+    @Query("DELETE from poem WHERE cat_id IN (:catID)")
+    suspend fun deletePoem(catID: List<Int>)
+
     @Query("DELETE from poem")
     suspend fun deleteAllPoem()
 
     @Query("DELETE from poet WHERE id IN (:poetID)")
     suspend fun deletePoet(poetID: List<Int>)
-//    @Query("DELETE from poet WHERE id = :poetID")
-//    suspend fun deletePoet(poetID: Int)
+
     @Query("DELETE from poet")
     suspend fun deleteAllPoet()
 
-    @Query("""DELETE from verse WHERE poem_id IN 
-        (SELECT id from poem WHERE cat_id IN (SELECT id from cat WHERE poet_id IN (:poetID)))""")
-    suspend fun deleteVerse(poetID: List<Int>)
-//    @Query("""DELETE from verse WHERE poem_id IN
-//        (SELECT id from poem WHERE cat_id IN (SELECT id from cat WHERE poet_id = :poetID))""")
-//    suspend fun deleteVerse(poetID: Int)
+    @Query("""DELETE from verse WHERE poem_id IN (SELECT id from poem WHERE cat_id IN (:catID))""")
+    suspend fun deleteVerse(catID: List<Int>)
+
     @Query("DELETE from verse")
     suspend fun deleteAllVerse()
-
-//    @Query("""DELETE from verse WHERE poem_id """)
-//    suspend fun deleteResidualVerse()
 
     @RawQuery
     suspend fun vacuum(supportSQLiteQuery: SupportSQLiteQuery): Int?
 
-
-//    @Query("SELECT Count(poem_id) from verse")
-//    suspend fun verseCount(): Int
-//
-//    @Query("SELECT * from versefts ")
-//    suspend fun myVerses(): List<String>
-
-
-//    @Query("SELECT * from cat WHERE id == :id")
-//    fun getCatWithID(id: Int): LiveData<Category>
-
-//    @Query("SELECT * from cat WHERE parent_id == :parent_id")
-//    fun getCatWithParentID(parent_id: Int): LiveData<List<Category>>
-
-//    @Query("""SELECT c1.text AS cat1, c2.text AS cat2, c3.text AS cat3, COUNT(c4.id) AS book_count
-//        from cat AS c1
-//        LEFT JOIN cat AS c2 ON c1.parent_id = c2.id
-//        LEFT JOIN cat AS c3 ON c2.parent_id = c3.id
-//        LEFT JOIN cat AS c4 ON c1.id = c4.parent_id WHERE c1.id == :id""")
-//    fun getCatRootWithID(id: Int): LiveData<CatRoot>
-
-//    @Query("SELECT * from cat WHERE poet_id in (SELECT poet_id from cat WHERE id == :id)")
-//    fun getAllCatWithSamePoetId(id: Int): LiveData<List<Category>>
-
-
-//    @Query("""SELECT id, parent_id, text, 2 AS rowOrder from cat WHERE parent_id == :catId
-//            UNION SELECT id, cat_id, title, 1 AS rowOrder from poem WHERE cat_id == :catId
-//            Order by rowOrder""")
-//    fun getPoemWithCatID(catId: Int): LiveData<List<Content>>
 
     @Query("""SELECT id, cat_id AS parent_id, title AS text, 1 AS rowOrder, 0 AS rank from poem 
         WHERE cat_id IN (:catId) ORDER BY cat_id, id""")

@@ -18,10 +18,7 @@ import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.takaapoo.adab_parsi.AppStore
-import com.takaapoo.adab_parsi.database.Category
-import com.takaapoo.adab_parsi.database.TempCategory
-import com.takaapoo.adab_parsi.database.TempVerse
-import com.takaapoo.adab_parsi.database.Verse
+import com.takaapoo.adab_parsi.database.*
 import com.takaapoo.adab_parsi.setting.SettingViewModel
 import timber.log.Timber
 import java.text.Collator
@@ -37,7 +34,7 @@ var allCategory = emptyList<Category>()
             collator.compare(one.text, two.text)
         }
     }
-val appStore = AppStore.Bazaar
+val appStore = AppStore.GooglePlay
 
 var topPadding = 0
 
@@ -71,11 +68,11 @@ fun Context.getDimenFromAttr(@AttrRes attrDimension: Int): Int {
 //                (View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
 //}
 
-fun getAllVerseBiErab(tempVerses:  List<TempVerse>): List<Verse> =
+fun getAllVerseBiErab(tempVerses: List<TempVerse>): List<Verse> =
     tempVerses.map { Verse(it.poem_id, it.verseOrder, it.position, it.text,
         makeTextBiErab(it.text), null, null, null) }
 
-fun tempCatToCat(tempCats:  List<TempCategory>): List<Category> =
+fun tempCatToCat(tempCats: List<TempCategory>): List<Category> =
     tempCats.map { Category(it.id, it.ancient, it.poetID, it.text, it.parentID, it.url,
         Calendar.getInstance().timeInMillis, it.version) }
 

@@ -1,16 +1,21 @@
 package com.takaapoo.adab_parsi.home
 
+import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.takaapoo.adab_parsi.database.Category
 import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.database.Poet
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
 
-class HomeRepository(val dao: Dao) {
+class HomeRepository @Inject constructor(
+    @ApplicationContext val context: Context,
+    val dao: Dao) {
 
     // Room executes all queries on a separate thread.
     // Observed LiveData will notify the observer when the data has changed.
@@ -28,15 +33,11 @@ class HomeRepository(val dao: Dao) {
 //                vacuum(SimpleSQLiteQuery("VACUUM"))
 //            }
 //        }
-        val deletePoetWorker = OneTimeWorkRequestBuilder<DeletePoetWorker>()
-            .setInputData(workDataOf("POET_ID" to poetID))
+        val deletePoetRequest = OneTimeWorkRequestBuilder<DeletePoetWorker>()
+            .setInputData(workDataOf("POET_ID" to poetID.toIntArray()))
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
+        WorkManager.getInstance(context).enqueue(deletePoetRequest)
     }
-
-
-
-//    fun vacuum() = dao.vacuum(SimpleSQLiteQuery("VACUUM"))
-
 
 }

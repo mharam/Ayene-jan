@@ -30,8 +30,9 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     app: Application,
     savedStateHandle: SavedStateHandle,
-    private val dao: Dao
-    ) : AndroidViewModel(app) {
+    private val dao: Dao,
+    private val homeRepository: HomeRepository) : AndroidViewModel(app) {
+
     val allCat: LiveData<List<Category>> = dao.getAllCat()
 
     var viewpagePosition = 0
@@ -85,26 +86,27 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deleteDatabase(poetID: List<Long>?) = viewModelScope.launch {
-        wrapEspressoIdlingResource {
-            poetID?.map { it.toInt() }?.let { poetIDList ->
-                dao.run {
-                    deleteVerse(poetIDList)
-                    deletePoem(poetIDList)
-                    deletePoet(poetIDList)
-                    deleteCat(poetIDList)
-                    vacuum(SimpleSQLiteQuery("VACUUM"))
-                }
-//                PoemDatabase.getDatabase(getApplication()).openHelper.writableDatabase.execSQL("VACUUM")
-
-                val file = FileIO(getApplication())
-                try {
-                    poetIDList.forEach {
-                        file.openFile(imagePrefix + "$it").delete()
-                        file.openFile(thumbnailPrefix + "$it").delete()
-                    }
-                } catch (_: IOException) { }
-            }
-        }
+        homeRepository.deletePoet(poetID?.map { it.toInt() }!!)
+//        wrapEspressoIdlingResource {
+//            poetID?.map { it.toInt() }?.let { poetIDList ->
+//                dao.run {
+//                    deleteVerse(poetIDList)
+//                    deletePoem(poetIDList)
+//                    deletePoet(poetIDList)
+//                    deleteCat(poetIDList)
+//                    vacuum(SimpleSQLiteQuery("VACUUM"))
+//                }
+////                PoemDatabase.getDatabase(getApplication()).openHelper.writableDatabase.execSQL("VACUUM")
+//
+//                val file = FileIO(getApplication())
+//                try {
+//                    poetIDList.forEach {
+//                        file.openFile(imagePrefix + "$it").delete()
+//                        file.openFile(thumbnailPrefix + "$it").delete()
+//                    }
+//                } catch (_: IOException) { }
+//            }
+//        }
     }
 
     suspend fun getAllCatSuspend() = withContext(Dispatchers.IO){
