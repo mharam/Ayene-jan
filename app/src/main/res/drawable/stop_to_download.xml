@@ -19,7 +19,7 @@
         <aapt:attr name="android:animation">
             <objectAnimator
                 android:propertyName="pathData"
-                android:duration="400"
+                android:duration="500"
                 android:valueTo="M 5 9 L 9 9 L 9 3 L 15 3 L 15 9 L 19 9 L 19 9 L 12 16 L 12 16 L 5 9 M 5 18 L 19 18 L 19 20 L 5 20 L 5 18 L 5 18"
                 android:valueFrom="M 7 7 L 9 7 L 9.075 7 L 15 7 L 15.025 7 L 17 7 L 17 7 L 17 17 L 7 17 L 7 7 M 12 19 L 12 19 L 12 19 L 12 19 L 12 19 L 12 19"
                 android:valueType="pathType"

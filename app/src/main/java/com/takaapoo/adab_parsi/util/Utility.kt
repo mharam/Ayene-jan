@@ -34,7 +34,7 @@ var allCategory = emptyList<Category>()
             collator.compare(one.text, two.text)
         }
     }
-val appStore = AppStore.GooglePlay
+val appStore = AppStore.Bazaar
 
 var topPadding = 0
 
@@ -408,8 +408,6 @@ fun indexInNormalizedFinder(text: String, normalizedText: String, index: Int): I
 }
 
 fun rateApp(activity: Activity, comeFromRateButton: Boolean){
-
-//    val packageName = "com.takaapoo.adab_parsi"
     val uri: Uri = Uri.parse("market://details?id=${activity.packageName}")
     val globalIntent = Intent(Intent.ACTION_VIEW, uri).apply {
         // To count with Play market backstack, After pressing back button,
@@ -431,11 +429,8 @@ fun rateApp(activity: Activity, comeFromRateButton: Boolean){
             } else {
                 val manager = ReviewManagerFactory.create(activity)
                 val request = manager.requestReviewFlow()
-                Timber.i("request: ${request.isSuccessful}")
                 request.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Timber.i("task is successful")
-
                         // We got the ReviewInfo object
                         val flow = task.result?.let { manager.launchReviewFlow(activity, it) }
                         flow?.addOnCompleteListener {
@@ -467,8 +462,6 @@ fun rateApp(activity: Activity, comeFromRateButton: Boolean){
                 else -> {
                     activity.startActivity(Intent(Intent.ACTION_VIEW,
                         Uri.parse("http://play.google.com/store/apps/details?id=${activity.packageName}")))
-//                    Toast.makeText(context, context.getString(R.string.rate_app_not_found),
-//                        Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -490,7 +483,6 @@ fun allUpCategories(id: Int?): List<Int>{
     val outList = mutableListOf<Int>()
     var parentId = id
 
-//    parentId = id
     while (parentId != 0){
         val cat = allCategory.find { it.id == parentId } ?: break
         outList.add(cat.id)

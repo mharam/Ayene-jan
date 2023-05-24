@@ -401,7 +401,7 @@ class MainActivity : AppCompatActivity() {
             poet = tempDao.getAllPoet(),
             verse = getAllVerseBiErab(tempDao.getAllVerse())
         )
-        addViewModel.modifyAllPoet(2)
+//        addViewModel.modifyAllPoet(2)
     }
 
 

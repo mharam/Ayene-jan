@@ -64,7 +64,7 @@ class DeletePoetWorker @AssistedInject constructor(
 
         val notification = NotificationCompat.Builder(context, NotificationChannelManager.CHANNEL_ID)
             .setContentTitle(title)
-            .setSmallIcon(R.mipmap.app_icon2)
+            .setSmallIcon(R.drawable.notification_icon)
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()

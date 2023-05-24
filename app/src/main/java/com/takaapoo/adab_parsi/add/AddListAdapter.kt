@@ -9,16 +9,20 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextUtils
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.bumptech.glide.ListPreloader.PreloadModelProvider
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -62,15 +66,26 @@ class AddListAdapter(
 
         private var pubHeight = 0
         private val wrenchAnimator = AnimatorInflater.loadAnimator(context, R.animator.wrench_rotate)
+        private val workManager = WorkManager.getInstance(context)
+        private var downloadStarted = false
 
         fun bind(item: PoetProperty) {
-            viewModel.progress.getOrPut(
+            downloadStarted = false
+            val workInfosLiveData = workManager.getWorkInfosForUniqueWorkLiveData(item.poetID.toString())
+            viewModel.downloadInfo.getOrPut(
                 key = item.poetID,
-                defaultValue = { MutableLiveData(-2) }
-            )
-            viewModel.installing.getOrPut(
-                key = item.poetID,
-                defaultValue = { MutableLiveData(false) }
+                defaultValue = {
+                    workInfosLiveData.map { workInfoList ->
+                        workInfoList.firstOrNull()?.let {
+                            PoetDownloadInfo(
+                                progress = it.progress.getInt(PROGRESS, -2),
+                                state = it.state,
+                                installing = it.progress.getBoolean(INSTALLING, false),
+                                outputData = it.outputData
+                            )
+                        }
+                    }
+                }
             )
             binding.apply {
                 property = item
@@ -100,60 +115,102 @@ class AddListAdapter(
                 viewModel.reportEvent(AddEvent.PoetTouched(binding.publications, pubHeight))
             }
             binding.downloadButton.setOnClickListener {
-                viewModel.reportEvent(AddEvent.DownloadPoet(item))
+                buttonClicked(item)
             }
             binding.stopButton.setOnClickListener {
-                viewModel.reportEvent(AddEvent.DownloadPoet(item))
+                buttonClicked(item)
             }
 
             binding.executePendingBindings()
         }
 
-        fun addObserver(item: PoetProperty){
-            viewModel.installing[item.poetID]?.observe(owner){ installing ->
-                if (installing && !wrenchAnimator.isStarted) {
-                    wrenchAnimator.start()
-                    wrenchAnimator.doOnEnd {
-                        if (viewModel.installing.containsKey(item.poetID))
-                            Handler(Looper.getMainLooper()).postDelayed({wrenchAnimator.start()}, 200)
-                    }
-                }
+        private fun buttonClicked(item: PoetProperty){
+            viewModel.reportEvent(AddEvent.DownloadPoet(item))
+            val workState = viewModel.downloadInfo[item.poetID]?.value?.state
+            if (workState == WorkInfo.State.RUNNING || workState == WorkInfo.State.ENQUEUED){
+                (binding.stopButton.background as AnimatedVectorDrawable).reset()
+                binding.downloadButton.isVisible = false
+                binding.stopButton.isVisible = true
+                (binding.stopButton.background as AnimatedVectorDrawable).start()
             }
+        }
 
-            viewModel.progress[item.poetID]?.observe(owner){ progress ->
-                when (progress) {
-                    -1 -> {
-                        (binding.downloadButton.background as AnimatedVectorDrawable).start()
-                        binding.stopButton.background = ResourcesCompat.getDrawable(context.resources
-                            , R.drawable.stop_to_download, context.theme)
+        fun addObserver(item: PoetProperty){
+            viewModel.downloadInfo[item.poetID]?.observe(owner){ poetDownloadInfo ->
+                // It's here because of Fail state. In Fail state downloadButton become visible
+                binding.downloadButton.isVisible = (poetDownloadInfo?.state == null ||
+                        poetDownloadInfo.state == WorkInfo.State.ENQUEUED ||
+                        (poetDownloadInfo.state?.isFinished == true && !downloadStarted) ||
+                        (poetDownloadInfo.state == WorkInfo.State.RUNNING && poetDownloadInfo.progress < 0))
 
+                binding.stopButton.isVisible = ((poetDownloadInfo?.state?.isFinished == true &&
+                        downloadStarted && !poetDownloadInfo.installing) ||
+                        (poetDownloadInfo?.state == WorkInfo.State.RUNNING && poetDownloadInfo.progress >= 0 &&
+                                !poetDownloadInfo.installing))
+
+                binding.downloadProgress.isIndeterminate = (poetDownloadInfo?.state == WorkInfo.State.ENQUEUED ||
+                        poetDownloadInfo?.progress == -1)
+                binding.downloadProgress.visibility = if ((poetDownloadInfo?.state == WorkInfo.State.ENQUEUED ||
+                            poetDownloadInfo?.state == WorkInfo.State.RUNNING) && !poetDownloadInfo.installing) View.VISIBLE
+                else View.INVISIBLE
+
+                if (poetDownloadInfo?.installing == true) {
+                    binding.wrench.isVisible = true
+                    if (!wrenchAnimator.isStarted){
+                        wrenchAnimator.start()
+                        wrenchAnimator.doOnEnd {
+                            if (viewModel.downloadInfo.containsKey(item.poetID))
+                                Handler(Looper.getMainLooper()).postDelayed({wrenchAnimator.start()}, 200)
+                        }
+                    }
+                } else {
+                    binding.wrench.isVisible = false
+                }
+
+                when(poetDownloadInfo?.state){
+                    WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED -> {
+                        if (!downloadStarted){
+                            (binding.stopButton.background as AnimatedVectorDrawable).reset()
+                            (binding.downloadButton.background as AnimatedVectorDrawable).reset()
+                            binding.downloadButton.isVisible = true
+                            binding.stopButton.isVisible = false
+                            (binding.downloadButton.background as AnimatedVectorDrawable).start()
+                        }
+                        downloadStarted = true
+                    }
+                    WorkInfo.State.SUCCEEDED -> {
+//                        viewModel.modifyAllPoet(item.poetID)
                         (binding.stopButton.background as AnimatedVectorDrawable).reset()
-//                        binding.downloadProgress.setProgressCompat(0, false)
+                        (binding.downloadButton.background as AnimatedVectorDrawable).reset()
+                        binding.downloadButton.isVisible = true
+                        binding.stopButton.isVisible = false
+                        downloadStarted = false
                     }
-                    -2 -> {
-                        binding.downloadButton.background = ResourcesCompat.getDrawable(context.resources
-                            , R.drawable.download_to_stop, context.theme)
-                    }
-                    -3 -> {
+                    WorkInfo.State.FAILED -> {
+                        binding.downloadButton.isVisible = false
+                        binding.stopButton.isVisible = true
                         (binding.stopButton.background as AnimatedVectorDrawable).start()
-                        binding.downloadButton.background = ResourcesCompat.getDrawable(context.resources
-                            , R.drawable.download_to_stop, context.theme)
-                        (binding.downloadButton.background as AnimatedVectorDrawable).reset()
+                        if (downloadStarted)
+                            poetDownloadInfo.outputData.getString(Error)?.let { errorMessage ->
+                                viewModel.reportEvent(AddEvent.ShowSnack(errorMessage))
+                            }
+                        downloadStarted = false
                     }
-                    else -> {
-                        binding.stopButton.background = ResourcesCompat.getDrawable(context.resources
-                            , R.drawable.stop_to_download, context.theme)
-                        (binding.stopButton.background as AnimatedVectorDrawable).reset()
-                        (binding.downloadButton.background as AnimatedVectorDrawable).reset()
-                        binding.downloadProgress.setProgressCompat(progress, true)
+                    WorkInfo.State.CANCELLED -> {
+                        downloadStarted = false
                     }
+                    else -> {}
+                }
+
+                poetDownloadInfo?.progress?.let {
+                    if (it > 0)
+                        binding.downloadProgress.setProgressCompat(it, true)
                 }
             }
         }
 
         fun removeObserver(item: PoetProperty){
-            viewModel.installing[item.poetID]?.removeObservers(owner)
-            viewModel.progress[item.poetID]?.removeObservers(owner)
+            viewModel.downloadInfo[item.poetID]?.removeObservers(owner)
         }
 
         companion object {

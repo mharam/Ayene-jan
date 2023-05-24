@@ -77,8 +77,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/download_to_stop"
-            android:visibility="@{addViewModel.progress[property.poetID] == -1 || addViewModel.progress[property.poetID] == -2 ? View.VISIBLE : View.GONE}"
-            android:enabled="@{addViewModel.progress[property.poetID] >= 99 ? false : true}"
             app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
             app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
             app:layout_constraintStart_toStartOf="@+id/downloadProgress"
@@ -89,8 +87,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/stop_to_download"
-            android:visibility="@{addViewModel.progress[property.poetID] == -1 || addViewModel.progress[property.poetID] == -2 || addViewModel.installing[property.poetID] ? View.GONE : View.VISIBLE}"
-            android:enabled="@{addViewModel.progress[property.poetID] >= 99 ? false : true}"
             app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
             app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
             app:layout_constraintStart_toStartOf="@+id/downloadProgress"
@@ -102,8 +98,6 @@
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
             android:max="100"
-            android:indeterminate="@{addViewModel.progress[property.poetID] == -1 ? true : false}"
-            android:visibility="@{addViewModel.progress[property.poetID] &lt; -1 || addViewModel.installing[property.poetID] ? View.INVISIBLE : View.VISIBLE}"
             app:trackCornerRadius="2dp"
             app:trackThickness="2dp"
             app:showAnimationBehavior="outward"
@@ -120,12 +114,12 @@
             android:transformPivotX="8dp"
             android:transformPivotY="8dp"
             android:rotation="-75"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/downloadProgress"
             app:layout_constraintEnd_toEndOf="@+id/downloadProgress"
             app:layout_constraintStart_toStartOf="@+id/downloadProgress"
             app:layout_constraintTop_toTopOf="@+id/downloadProgress"
-            app:srcCompat="@drawable/ic_baseline_build_24"
-            android:visibility="@{addViewModel.installing[property.poetID] ? View.VISIBLE : View.GONE}" />
+            app:srcCompat="@drawable/ic_baseline_build_24" />
 
 
 

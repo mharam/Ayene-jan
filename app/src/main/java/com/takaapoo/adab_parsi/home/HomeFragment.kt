@@ -2,7 +2,6 @@ package com.takaapoo.adab_parsi.home
 
 import android.animation.ValueAnimator
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -12,7 +11,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnticipateOvershootInterpolator
 import androidx.activity.addCallback
 import androidx.core.animation.doOnEnd
 import androidx.core.app.SharedElementCallback
@@ -43,7 +41,6 @@ import com.google.firebase.ktx.Firebase
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.add.ARG_ADD_PAGE
-import com.takaapoo.adab_parsi.add.AddViewModel
 import com.takaapoo.adab_parsi.databinding.FragmentHomeBinding
 import com.takaapoo.adab_parsi.util.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,7 +52,6 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
 
     val homeViewModel: HomeViewModel by activityViewModels()
-    private val addViewModel: AddViewModel by activityViewModels()
 
     private var _binding: FragmentHomeBinding? = null
     val binding get() = _binding!!
@@ -232,26 +228,26 @@ class HomeFragment : Fragment() {
                             (activity as? MainActivity)?.moveDrawer()
                         }
                         is HomeEvent.OnDeleteDialogPosClick -> {
-                            val mainActivity = activity as? MainActivity
-                            binding.interactionBlocker.isVisible = true
+//                            val mainActivity = activity as? MainActivity
+//                            binding.interactionBlocker.isVisible = true
+//
+//                            AnimatedVectorDrawableCompat.registerAnimationCallback(
+//                                binding.trash.drawable,
+//                                animatedTrashCallback
+//                            )
+//                            (binding.trash.drawable as Animatable).start()
+//                            binding.deleteText.text = getString(
+//                                R.string.delete_poet_snack,
+//                                engNumToFarsiNum(event.poetList.size())
+//                            )
+//                            binding.deleteDialog
+//                                .animate()
+//                                .setDuration(500)
+//                                .translationY(0f)
+//                                .setInterpolator(AnticipateOvershootInterpolator())
+//                                .start()
 
-                            AnimatedVectorDrawableCompat.registerAnimationCallback(
-                                binding.trash.drawable,
-                                animatedTrashCallback
-                            )
-                            (binding.trash.drawable as Animatable).start()
-                            binding.deleteText.text = getString(
-                                R.string.delete_poet_snack,
-                                engNumToFarsiNum(event.poetList.size())
-                            )
-                            binding.deleteDialog
-                                .animate()
-                                .setDuration(500)
-                                .translationY(0f)
-                                .setInterpolator(AnticipateOvershootInterpolator())
-                                .start()
-
-                            homeViewModel.deleteDatabase(event.poetList.toList()).invokeOnCompletion {
+                            homeViewModel.deleteDatabase(event.poetList.toList())/*.invokeOnCompletion {
                                 binding.deleteDialog
                                     .animate()
                                     .setDuration(400)
@@ -268,7 +264,7 @@ class HomeFragment : Fragment() {
                                     }
                                     .start()
 //                                addViewModel.determineAllPoet()
-                            }
+                            }*/
                         }
                         is HomeEvent.OnDeleteDialogDismiss -> {
 //                            currentChildFragment?.finishActionMode()

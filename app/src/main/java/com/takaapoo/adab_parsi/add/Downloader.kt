@@ -20,9 +20,9 @@ import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
-private const val minFileLength = 4000
-const val imagePrefix = "image"
-const val thumbnailPrefix = "thumbnail"
+//private const val minFileLength = 4000
+//const val imagePrefix = "image"
+//const val thumbnailPrefix = "thumbnail"
 
 class Downloader(private val vm: AddViewModel,
                  private val context: Context,
@@ -34,7 +34,7 @@ class Downloader(private val vm: AddViewModel,
     private var total: Long = 0
     private val fileCounts = 3
 
-    private fun initialize(){
+    /*private fun initialize(){
         cancel = false
         filesSize = 0
         total = 0
@@ -201,9 +201,9 @@ class Downloader(private val vm: AddViewModel,
             return null
         }
         return "Success"
-    }
+    }*/
 
-    private fun isNetworkConnected(): Boolean {
+    /*private fun isNetworkConnected(): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.activeNetwork ?: return false
@@ -220,6 +220,6 @@ class Downloader(private val vm: AddViewModel,
                 if (Build.VERSION.SDK_INT >= 28)
                     actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED)
                 else true
-    }
+    }*/
 
 }

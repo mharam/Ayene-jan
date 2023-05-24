@@ -112,7 +112,7 @@ class AddFragment : Fragment() {
                                 }.start()
                             }
                             is AddEvent.DownloadPoet -> {
-                                addViewModel.downloadPoet(event.poetItem)
+                                addViewModel.downloadPoetOrCancel(event.poetItem)
                             }
                         }
                     }

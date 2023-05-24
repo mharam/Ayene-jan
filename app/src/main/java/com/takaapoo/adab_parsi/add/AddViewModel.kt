@@ -1,7 +1,8 @@
 package com.takaapoo.adab_parsi.add
 
-import android.app.Application
 import androidx.lifecycle.*
+import androidx.work.Data
+import androidx.work.WorkInfo
 import com.takaapoo.adab_parsi.database.Dao
 import com.takaapoo.adab_parsi.network.PoetApi
 import com.takaapoo.adab_parsi.network.PoetProperty
@@ -19,11 +20,17 @@ import kotlin.coroutines.CoroutineContext
 
 
 enum class ListLoadStatus { LOAD, DONE, ERROR }
+data class PoetDownloadInfo(
+    var progress: Int,
+    var state: WorkInfo.State?,
+    var installing: Boolean,
+    var outputData: Data
+)
 
 @HiltViewModel
 class AddViewModel @Inject constructor(
-    application: Application,
-    dao: Dao): AndroidViewModel(application) {
+    dao: Dao,
+    private val addRepository: AddRepository): ViewModel() {
 
     private val _loadStatus = MutableLiveData<ListLoadStatus>()
     val loadStatus: LiveData<ListLoadStatus>
@@ -45,9 +52,7 @@ class AddViewModel @Inject constructor(
 
     private lateinit var poetList: MutableList<PoetProperty>
     val allPoet = MutableLiveData<List<PoetProperty>?>()
-    val progress: MutableMap<Int, MutableLiveData<Int>> = mutableMapOf()
-    val installing: MutableMap<Int, MutableLiveData<Boolean>> = mutableMapOf()
-    private val downloader: MutableMap<Int, Downloader> = mutableMapOf()
+    val downloadInfo: MutableMap<Int, LiveData<PoetDownloadInfo?>> = mutableMapOf()
     private val installedPoetId = dao.getAllPoetId()
     val notInstalledPoet = combine(allPoet.asFlow(), installedPoetId){ allPoetPropertyList, installedPoetIdList ->
         allPoetPropertyList?.filterNot { installedPoetIdList.contains(it.poetID) }
@@ -57,14 +62,6 @@ class AddViewModel @Inject constructor(
         started = SharingStarted.Eagerly
     )
 
-    fun modifyAllPoet(poetId: Int){
-//        val newAllPoet = allPoet.value?.toMutableList()
-//        newAllPoet?.removeAll { it.poetID == poetId }
-//        allPoet.postValue(newAllPoet)
-        installing.remove(poetId)
-        downloader.remove(poetId)
-    }
-
     fun reloadAllPoet(){
         if (!::poetList.isInitialized){
             _loadStatus.postValue(ListLoadStatus.LOAD)
@@ -73,49 +70,24 @@ class AddViewModel @Inject constructor(
                 val response = try {
                     PoetApi.retrofitService.getProperties(-1)
                 } catch (e: Exception){
-                    _loadStatus.postValue(ListLoadStatus.ERROR)
+                    if (!::poetList.isInitialized)
+                        _loadStatus.postValue(ListLoadStatus.ERROR)
                     return@launch
                 }
                 if (response.isSuccessful && response.body() != null){
                     poetList = response.body()!!
-//                    val catPoet = PoemDatabase.getDatabase(getApplication()).dao().getCatPoet()
-//
-//                    val modifiedList = poetList.filterNot { item -> catPoet.any { it.poetID == item.poetID } }
-//                            as MutableList
                     _loadStatus.postValue(ListLoadStatus.DONE)
 
                     poetList.sortWith { one, two -> collator.compare(one.text, two.text) }
                     allPoet.postValue(poetList)
-                } else
+                } else if (!::poetList.isInitialized)
                     _loadStatus.postValue(ListLoadStatus.ERROR)
             }
         }
     }
 
-//    fun determineAllPoet(){
-//        if (::poetList.isInitialized) {
-//            viewModelScope.launch {
-//                val catPoet = PoemDatabase.getDatabase(getApplication()).dao().getCatPoet()
-//                val modifiedList =
-//                    poetList.filterNot { item -> catPoet.any { it.poetID == item.poetID } }
-//                            as MutableList
-//                modifiedList.sortWith { one, two -> collator.compare(one.text, two.text) }
-//                allPoet.postValue(modifiedList)
-//            }
-//        }
-//    }
-
-    fun downloadPoet(poetItem: PoetProperty){
-        downloader.getOrPut(
-            key = poetItem.poetID,
-            defaultValue = {
-                Downloader(
-                    vm = this,
-                    context = getApplication<Application>().applicationContext,
-                    poetItem = poetItem
-                )
-            }
-        ).download()
+    fun downloadPoetOrCancel(poetItem: PoetProperty){
+        addRepository.downloadPoetOrCancel(poetItem)
     }
 
 }

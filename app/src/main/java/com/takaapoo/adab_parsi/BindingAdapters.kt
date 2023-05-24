@@ -29,7 +29,7 @@ fun bindImage(imgView: ImageView, imgUrl: String?, ancient: Int) {
                 if (ancient == 0) R.drawable.tomb else R.drawable.person
             } else imgUrl
         )
-        .timeout(15000)
+        .timeout(20000)
         .placeholder(R.drawable.poet_loading_placeholder)
         .transform(RoundedCorners((width/9)))
         .apply(
