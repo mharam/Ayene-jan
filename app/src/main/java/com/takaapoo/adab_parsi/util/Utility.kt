@@ -205,7 +205,7 @@ const val goalChars = "بپتثجچحخسشصضطظعغفقکگلمنهی"
 
 
 fun engNumToFarsiNum(num: Int): String =
-    NumberFormat.getInstance(Locale("ar", "EG")).format(num)
+    NumberFormat.getInstance(Locale("fa", "IR")).format(num)
 
 fun List<String>.allIndexOf(element: String): List<Int>{
     var index = -1

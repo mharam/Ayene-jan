@@ -77,6 +77,10 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                     })
                     bindingText.hilightButton.addOnButtonCheckedListener(this@PoemSettingPagerFragment)
 
+                    bindingText.beitNumberText.isChecked = settingViewModel.showBeitNumber.value
+                    bindingText.beitNumberText.setOnCheckedChangeListener { buttonView, isChecked ->
+                        settingViewModel.updateShowBeitNumber(isChecked)
+                    }
 
                     return bindingText.root
                 }

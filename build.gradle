@@ -11,7 +11,7 @@ buildscript {
         version_kotlin = "1.7.20"
         version_kotlin_coroutines = "1.5.0"
         version_lifecycle_extensions = "2.2.0"
-        version_room = "2.5.1"
+        version_room = "2.5.2"
         version_appcompat = "1.6.1"
         version_fragment = "1.5.7"
         version_moshi = '1.9.3'
@@ -39,7 +39,7 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$version_navigation"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$version_hilt"
         classpath 'com.google.gms:google-services:4.3.15'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.6'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

@@ -23,7 +23,9 @@ import androidx.core.view.*
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -56,6 +58,8 @@ import com.takaapoo.adab_parsi.util.custom_views.TextSelectableView
 import com.takaapoo.adab_parsi.util.fastScroll.PoemFastScrollViewHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import timber.log.Timber
@@ -121,7 +125,7 @@ class PoemPagerFragment : Fragment() {
     private var mediaPlayer: MediaPlayer? = null
     private var mySearchView: SearchView? = null
 
-    var poemExporter: PoemExporter? = null
+    private var poemExporter: PoemExporter? = null
 
 
     val callback = object : ActionMode.Callback {
@@ -159,7 +163,7 @@ class PoemPagerFragment : Fragment() {
 
         _binding = PagerPoemBinding.inflate(inflater, container, false)
 //        binding.root.setBackgroundColor(requireContext().getColorFromAttr(R.attr.colorSurface))
-        adapter = PoemContentAdapter(this)
+        adapter = PoemContentAdapter(this, settingViewModel.showBeitNumber.value)
         binding.poemList.adapter = adapter
         binding.poemList.edgeEffectFactory = BounceEdgeEffectFactory(Orientation.VERTICAL)
         binding.poemList.itemAnimator = null
@@ -191,7 +195,7 @@ class PoemPagerFragment : Fragment() {
 //                (displayMetrics?.density ?: 1f) / 10
 
             override fun calculateTimeForScrolling(dx: Int): Int {
-                return dx.coerceIn(200, 1500)
+                return dx.coerceIn(200, 500)
             }
 
             override fun calculateTimeForDeceleration(dx: Int): Int {
@@ -442,33 +446,31 @@ class PoemPagerFragment : Fragment() {
                 noteOpenedVerses[poemItem.id] = mutableListOf()
 
             selectedVerses[poemItem.id]?.observe(viewLifecycleOwner){
-//                    if (isResumed){
-                    val nItems = it.size
-                    it.forEach { id ->
-                        binding.poemList.findViewHolderForItemId(id.toLong())?.itemView?.isActivated = true
-                    }
-                    mSelectedVerses.subtract(it).forEach { id ->
-                        if (binding.poemList.findViewHolderForItemId(id.toLong())?.itemView != null)
-                            binding.poemList.findViewHolderForItemId(id.toLong()).itemView.isActivated = false
-                        else
-                            adapter!!.notifyItemChanged(verseOrderToItemPosition(id))
-                    }
-                    mSelectedVerses = it.map { data -> data }
-                    mainActivity = requireActivity() as? MainActivity
+                val nItems = it.size
+                it.forEach { id ->
+                    binding.poemList.findViewHolderForItemId(id.toLong())?.itemView?.isActivated = true
+                }
+                mSelectedVerses.subtract(it).forEach { id ->
+                    if (binding.poemList.findViewHolderForItemId(id.toLong())?.itemView != null)
+                        binding.poemList.findViewHolderForItemId(id.toLong()).itemView.isActivated = false
+                    else
+                        adapter!!.notifyItemChanged(verseOrderToItemPosition(id))
+                }
+                mSelectedVerses = it.map { data -> data }
+                mainActivity = requireActivity() as? MainActivity
 
-                    if (nItems == 0){
-                        if (mainActivity?.poemActionMode != null)
-                            finishActionMode()
-                    } else {
-                        if (mainActivity?.poemActionMode == null) {
-                            mainActivity?.poemActionMode = mainActivity?.startSupportActionMode(callback)
-                            binding.toolbarSubtitle.visibility = View.INVISIBLE
-                        }
-                        mainActivity?.poemActionMode?.title = nItems.toString()
-                        mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isEnabled = (nItems == 1)
-                        mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isVisible = (nItems == 1)
+                if (nItems == 0){
+                    if (mainActivity?.poemActionMode != null)
+                        finishActionMode()
+                } else {
+                    if (mainActivity?.poemActionMode == null) {
+                        mainActivity?.poemActionMode = mainActivity?.startSupportActionMode(callback)
+                        binding.toolbarSubtitle.visibility = View.INVISIBLE
                     }
-//                    }
+                    mainActivity?.poemActionMode?.title = nItems.toString()
+                    mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isEnabled = (nItems == 1)
+                    mainActivity?.poemActionMode?.menu?.findItem(R.id.note)?.isVisible = (nItems == 1)
+                }
             }
 
             binding.poemList.addOnItemTouchListener(OnRecyclerViewItemTouchListener(poemViewModel))
@@ -633,7 +635,7 @@ class PoemPagerFragment : Fragment() {
 
 
                 binding.root.post {
-                    binding.poemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    binding.poemList.addOnScrollListener(object : OnScrollListener() {
                         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                             super.onScrolled(recyclerView, dx, dy)
 //                            totalScroll += dy
@@ -670,43 +672,14 @@ class PoemPagerFragment : Fragment() {
 
         binding.poemToolbar.navigationContentDescription = resources.getString(R.string.navigation_up)
 
-//        ViewCompat.setWindowInsetsAnimationCallback(view,
-//            object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_STOP) {
-//                var startBottom = 0f
-//                var endBottom = 0f
-//
-//                override fun onPrepare(animation: WindowInsetsAnimationCompat) {
-//                    startBottom = binding.poemList.height.toFloat()
-////                    if (binding.commentText.hasFocus())
-//                        Timber.i("first bottom = ${startBottom}")
-//                }
-//
-//                override fun onStart(animation: WindowInsetsAnimationCompat,
-//                                     bounds: WindowInsetsAnimationCompat.BoundsCompat):
-//                        WindowInsetsAnimationCompat.BoundsCompat {
-//                    endBottom = binding.poemList.height.toFloat()
-////                    if (binding.commentText.hasFocus())
-//                        Timber.i("start bottom = ${endBottom}")
-//
-//                    return bounds
-//                }
-//
-//                override fun onProgress(
-//                    insets: WindowInsetsCompat,
-//                    runningAnimations: MutableList<WindowInsetsAnimationCompat>): WindowInsetsCompat {
-//                    val imeAnimation = runningAnimations.find {
-//                        it.typeMask and WindowInsetsCompat.Type.ime() != 0
-//                    } ?: return insets
-//
-//                    // Offset the view based on the interpolated fraction of the IME animation.
-////                    view.translationY =
-////                        (startBottom - endBottom) * (1 - imeAnimation.interpolatedFraction)
-//
-//                    return insets
-//                }
-//            }
-//        )
-
+        settingViewModel.showBeitNumber.onEach {
+            val childList = (binding.poemList as ViewGroup).children.toList()
+            if (childList.isEmpty()) return@onEach
+            val firstItemPosition = binding.poemList.getChildAdapterPosition(childList.first())
+            val lastItemPosition = binding.poemList.getChildAdapterPosition(childList.last())
+            adapter?.changeBeitNumberVisibility(firstItemPosition, lastItemPosition, it)
+        }.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     override fun onStop() {
@@ -773,8 +746,6 @@ class PoemPagerFragment : Fragment() {
         val mComment = mItemView.findViewById<NestedScrollView>(R.id.comment)
         val commentText = mItemView.findViewById<EditText>(R.id.comment_text)
         poemViewModel.noteOpenedVerses[poemItem.id]?.add(viewId)
-
-//        itemViewHeights[verseOrderToItemPosition(viewId)] += (commentHeight + 8.dpTOpx(resources).toInt())
 
         mItemView.apply {
             mComment.visibility = View.VISIBLE
@@ -938,7 +909,7 @@ class PoemPagerFragment : Fragment() {
         val resultItem = searchViewModel.searchResultList[searchViewModel.poemPosition]
         Handler(Looper.getMainLooper()).postDelayed({
             smoothScroller!!.targetPosition = verseOrderToItemPosition(resultItem.verseOrder)
-            if (smoothScroller!!.targetPosition != -1)
+            if (smoothScroller!!.targetPosition != -1 && !smoothScroller!!.isRunning)
                 binding.poemList.layoutManager?.startSmoothScroll(smoothScroller)
         }, 500)
         binding.poemList.postDelayed({adapter!!.notifyDataSetChanged()}, 600)
@@ -948,7 +919,7 @@ class PoemPagerFragment : Fragment() {
         val favoriteItem = favoriteViewModel.allFavorites[favoriteViewModel.poemPosition]
         Handler(Looper.getMainLooper()).postDelayed({
             smoothScroller!!.targetPosition = verseOrderToItemPosition(favoriteItem.verse1Order)
-            if (smoothScroller!!.targetPosition != -1)
+            if (smoothScroller!!.targetPosition != -1 && !smoothScroller!!.isRunning)
                 binding.poemList.layoutManager?.startSmoothScroll(smoothScroller)
         }, 500)
         binding.poemList.postDelayed({adapter!!.notifyDataSetChanged()}, 600)
@@ -1031,7 +1002,7 @@ class PoemPagerFragment : Fragment() {
         }
     }
 
-    fun bookmarkItemMeasure(addOrRemove: Boolean){
+    private fun bookmarkItemMeasure(addOrRemove: Boolean){
         val item = bookmarkViewModel.allBookmarks.find { it.poemm.id == poemItem.id }
 
         bookmarkViewModel.apply {

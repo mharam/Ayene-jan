@@ -26,8 +26,8 @@ android {
         applicationId "com.takaapoo.adab_parsi"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 19
-        versionName "1.1.5"
+        versionCode 20
+        versionName "1.1.6"
 
         testInstrumentationRunner "com.takaapoo.adab_parsi.CustomTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -72,7 +72,7 @@ android {
 
     // Always show the result of every unit test when running via command line, even if it passes.
     testOptions.unitTests {
-        includeAndroidResources = true
+//        includeAndroidResources = true
         returnDefaultValues = true
     }
 

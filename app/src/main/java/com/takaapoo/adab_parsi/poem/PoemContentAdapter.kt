@@ -22,7 +22,10 @@ import com.takaapoo.adab_parsi.databinding.PoemItemBinding
 import com.takaapoo.adab_parsi.util.*
 
 
-class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
+class PoemContentAdapter(
+    private val poemPagerFragment: PoemPagerFragment,
+    var beitNumberVisibility: Boolean
+)
     : ListAdapter<Verse, PoemContentAdapter.PoemContentViewHolder>(PoemDiffCallback()) {
 
     init {
@@ -36,7 +39,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
     override fun getItemViewType(position: Int) = 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PoemContentViewHolder {
-        return PoemContentViewHolder.from(parent, poemPagerFragment)
+        return PoemContentViewHolder.from(parent, poemPagerFragment, this)
     }
 
     override fun onBindViewHolder(holder: PoemContentViewHolder, position: Int) {
@@ -49,8 +52,17 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
         holder.removeWatcher()
     }
 
-    class PoemContentViewHolder(val binding: PoemItemBinding, private val poemPagerFragment: PoemPagerFragment)
-        : RecyclerView.ViewHolder(binding.root) {
+    fun changeBeitNumberVisibility(firstItemPosition: Int, lastItemPosition:Int, visible: Boolean){
+        beitNumberVisibility = visible
+        notifyItemRangeChanged(firstItemPosition - 4, lastItemPosition - firstItemPosition + 9)
+    }
+
+
+    class PoemContentViewHolder(
+        val binding: PoemItemBinding,
+        private val poemPagerFragment: PoemPagerFragment,
+        private val adapter: PoemContentAdapter
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         private val poemViewModel = poemPagerFragment.poemViewModel
         private val stvm = poemPagerFragment.settingViewModel
@@ -66,7 +78,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
 
         init {
             try {
-                commentHeight = poemPagerFragment.resources.getDimension(R.dimen.comment_height).toInt()
+                commentHeight = itemView.resources.getDimension(R.dimen.comment_height).toInt()
             } catch (_: Exception){}
         }
 
@@ -88,6 +100,12 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
             binding.beitFavorite.visibility = if (item.favorite == null) View.GONE else View.VISIBLE
             binding.beitComment.visibility = if (item.note == null) View.GONE else View.VISIBLE
 
+            binding.beitNumber.text = engNumToFarsiNum(bindingAdapterPosition + 1)
+            binding.beitNumber.visibility = if (adapter.beitNumberVisibility) {
+                if (item.favorite != null && item.note != null) View.GONE
+                else View.VISIBLE
+            } else View.GONE
+
             val commentParams = binding.comment.layoutParams
             if (poemViewModel.noteOpenedVerses[item.poemId]?.contains(item.verseOrder) == true){
                 binding.comment.visibility = View.VISIBLE
@@ -97,7 +115,7 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                 commentParams.height = 0
             }
             binding.comment.layoutParams = commentParams
-            TooltipCompat.setTooltipText(binding.save, poemPagerFragment.resources.getString(R.string.save))
+            TooltipCompat.setTooltipText(binding.save, itemView.resources.getString(R.string.save))
 
             commentWatcher = Watcher(item)
             binding.commentText.addTextChangedListener(commentWatcher)
@@ -266,7 +284,6 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                         R.string.beit2, mesra1Normalized, mesra2Normalized
                     )
 
-//                    post {
                     searchBackSpanIndex = beitNormalized.findSpanIndex3(poemViewModel.searchQuery)
                     spanIndex = beitNormalized.findSpanIndex2(splittedQuery)
                     hilightBackSpanIndex = mutableListOf()
@@ -302,17 +319,12 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                         }
                         true
                     }
-//                    }
                 }
             } else {
                 binding.mesra1Text.visibility = View.GONE
                 binding.mesra2Text.visibility = View.GONE
                 binding.paragText.apply {
                     visibility = View.VISIBLE
-//                    @RequiresApi(Build.VERSION_CODES.O)
-//                    justificationMode = JUSTIFICATION_MODE_INTER_WORD
-
-//                    textAlignment =  TextView.TEXT_ALIGNMENT_VIEW_START
                     textAlignment = if (item.position == 2 || item.position == 3) TextView.TEXT_ALIGNMENT_CENTER
                     else TextView.TEXT_ALIGNMENT_VIEW_START
 
@@ -367,7 +379,6 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
                                 null
 
                         text = normalizedText
-//                        doOnPreDraw { height = layout.height + paddingTop + paddingBottom }
                     }
 
                     setOnLongClickListener {
@@ -393,11 +404,15 @@ class PoemContentAdapter(private val poemPagerFragment: PoemPagerFragment)
         }
 
         companion object {
-            fun from(parent: ViewGroup, poemPagerFragment: PoemPagerFragment): PoemContentViewHolder{
+            fun from(
+                parent: ViewGroup,
+                poemPagerFragment: PoemPagerFragment,
+                adapter: PoemContentAdapter
+            ): PoemContentViewHolder{
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = PoemItemBinding.inflate(layoutInflater, parent, false)
                 binding.lifecycleOwner = poemPagerFragment.viewLifecycleOwner
-                return PoemContentViewHolder(binding, poemPagerFragment)
+                return PoemContentViewHolder(binding, poemPagerFragment, adapter)
             }
         }
     }

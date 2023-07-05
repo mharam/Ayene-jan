@@ -17,6 +17,8 @@ import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.search.RecentSearchDao
 import com.takaapoo.adab_parsi.util.spTOpx
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -75,6 +77,9 @@ class SettingViewModel @Inject constructor(application: Application, val dao: Re
     var currentNightMode = application.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 
     val brightness = MutableLiveData(sharedPreferences.getFloat("brightness", 100f))
+
+    private val _showBeitNumber = MutableStateFlow(sharedPreferences.getBoolean("showNumber", false))
+    val showBeitNumber = _showBeitNumber.asStateFlow()
 
     var borderPref = sharedPreferences.getInt("border", 2)
 
@@ -148,6 +153,11 @@ class SettingViewModel @Inject constructor(application: Application, val dao: Re
     fun updateBrightness(value: Float){
         brightness.value = value
         sharedPreferences.edit().putFloat("brightness", value).apply()
+    }
+
+    fun updateShowBeitNumber(state: Boolean){
+        _showBeitNumber.value = state
+        sharedPreferences.edit().putBoolean("showNumber", state).apply()
     }
 
 }

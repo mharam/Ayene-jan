@@ -150,12 +150,22 @@
             android:theme="@style/Theme.MyApp"
             style="?attr/materialButtonOutlinedStyle" />
 
+        <TextView
+            android:id="@+id/beit_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/beit_favorite"
+            android:layout_marginStart="4dp"
+            tools:text="1"/>
+
         <ImageView
             android:id="@+id/beit_favorite"
             android:layout_width="24dp"
             android:layout_height="24dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/beit_number"
             app:layout_constraintBottom_toTopOf="@id/beit_comment"
             android:layout_marginStart="4dp"
             android:scaleType="centerInside"
@@ -164,7 +174,7 @@
         <ImageView
             android:id="@+id/beit_comment"
             android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_height="20dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/beit_favorite"
             android:layout_marginStart="4dp"

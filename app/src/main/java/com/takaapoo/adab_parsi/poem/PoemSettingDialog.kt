@@ -51,7 +51,7 @@ class PoemSettingDialog : DialogFragment() {
                 val params = viewPager.layoutParams
                 params.width = windowWidth.dpTOpx(resources).toInt()
                 params.height = when (position) {
-                    0 -> 232
+                    0 -> 296
                     else -> if (Build.VERSION.SDK_INT > 28) 212 else 242
                 }.dpTOpx(resources).toInt()
                 viewPager.layoutParams = params

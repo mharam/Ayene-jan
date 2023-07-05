@@ -311,5 +311,6 @@
     <string name="channel_description">نشان می‌دهد شاعری در حال حذف یا افزوده شدن است</string>
     <string name="delete_poet_notification_content_text">در حال حذف آثار %1$s شاعر</string>
     <string name="add_poet_notification_content_text">در حال افزودن آثار %1$s</string>
+    <string name="showing_verse_number">نمایش شماره ابیات</string>
 
 </resources>
