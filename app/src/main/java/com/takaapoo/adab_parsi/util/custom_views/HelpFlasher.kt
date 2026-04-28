@@ -85,14 +85,14 @@ class HelpFlasher(context: Context, attrs: AttributeSet) : View(context, attrs) 
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         val currentTime = System.nanoTime()
         elapsedTime = currentTime - prevTime
         prevTime = currentTime
 
         disp = elapsedTime * speed / 1000000000
 
-        canvas?.let {
+        canvas.let {
             it.drawColor(helpScreamColor)
             for (i in arrowArrayRight.indices){
                 arrowArrayRightX[i] += disp
@@ -206,14 +206,14 @@ class HelpFlasherDown(context: Context, attrs: AttributeSet) : View(context, att
         arrowArrayLeft = MutableList(arrowCount){ Path(arrowPath) }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         val currentTime = System.nanoTime()
         elapsedTime = currentTime - prevTime
         prevTime = currentTime
 
         disp = elapsedTime * speed / 1000000000
 
-        canvas?.let {
+        canvas.let {
             it.drawColor(helpScreamColor)
             for (i in arrowArrayRight.indices){
                 this.arrowArrayY[i] += disp

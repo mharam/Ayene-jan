@@ -2,12 +2,9 @@ package com.takaapoo.adab_parsi.poet
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
@@ -21,9 +18,9 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.NavGraphDirections
 import com.takaapoo.adab_parsi.R
@@ -32,7 +29,12 @@ import com.takaapoo.adab_parsi.database.Category
 import com.takaapoo.adab_parsi.database.Content
 import com.takaapoo.adab_parsi.databinding.PagerPoetBinding
 import com.takaapoo.adab_parsi.home.HomeViewModel
-import com.takaapoo.adab_parsi.util.*
+import com.takaapoo.adab_parsi.util.Destinations
+import com.takaapoo.adab_parsi.util.GlideApp
+import com.takaapoo.adab_parsi.util.allCategory
+import com.takaapoo.adab_parsi.util.dpTOpx
+import com.takaapoo.adab_parsi.util.getDimenFromAttr
+import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -88,6 +90,7 @@ class PoetPagerFragment : Fragment() {
             true
         }
 
+
         return binding.root
     }
 
@@ -113,7 +116,7 @@ class PoetPagerFragment : Fragment() {
         navController = findNavController()
         binding.toolbar.setupWithNavController(navController, AppBarConfiguration
             .Builder(navController.graph).build())
-        binding.toolbar.setNavigationOnClickListener { prepForGoingBack() }
+//        binding.toolbar.setNavigationOnClickListener { prepForGoingBack() }
 
         view.doOnPreDraw {
             val moldingHeight =
@@ -246,62 +249,17 @@ class PoetPagerFragment : Fragment() {
 
     private fun scrollToPosition() {
         binding.poetBookList.doOnLayout {
-
             val shelfLayoutManager = binding.shelfList.layoutManager as LinearLayoutManager
-//            val prevPosition = max(bookLayoutManager.findFirstCompletelyVisibleItemPosition(), 0)
-//            val displacement = floor((poetViewModel.bookPosition - prevPosition)/2f)
-
             shelfLayoutManager.stackFromEnd = false
             bookLayoutManager?.stackFromEnd = false
-
             binding.poetBookList.postDelayed( {
-//                binding.appBar.setExpanded(false)
-//                bookLayoutManager.scrollToPosition(poetViewModel.bookPosition)
-//                shelfLayoutManager.scrollToPosition(poetViewModel.bookPosition/2)
-
-
-
                 bookLayoutManager?.scrollToPositionWithOffset(poetViewModel.bookPosition, 0)
                 shelfLayoutManager.scrollToPositionWithOffset(
                     poetViewModel.bookPosition/poetViewModel.bookShelfSpanCount, 0.dpTOpx(resources).toInt())
-//                binding.poetBookList.scrollBy(0, (displacement*240.dpTOpx(resources)).toInt())
-
 
                 parentFragment?.startPostponedEnterTransition()
             }, 50)
         }
-    }
-
-//    fun setTransitionType(excView: View){
-//        requireParentFragment().apply {
-//            exitTransition =
-//                Hold().setDuration(500)/*.addTarget(R.id.poet_coordinate)*/.excludeTarget(excView, true)
-//            reenterTransition = null
-//        }
-//    }
-
-    fun backCallback(){
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            prepForGoingBack()
-        }
-    }
-
-    private fun prepForGoingBack() {
-        binding.apply {
-            wall.scaleX = scaleXWall
-            wall.scaleY = DEFAULT_SCALE
-            molding.scaleX = DEFAULT_SCALE
-            molding.scaleY = DEFAULT_SCALE
-            moldingBottom.scaleX = DEFAULT_SCALE
-            moldingBottom.scaleY = DEFAULT_SCALE
-            widgets.scaleX = 1f
-            widgets.scaleY = 1f
-            poetCoordinate.scaleX = 1f
-            poetCoordinate.scaleY = 1f
-            toolbar.scaleX = 1f
-            toolbar.scaleY = 1f
-        }
-        Handler(Looper.getMainLooper()).postDelayed({ navController.popBackStack() }, 50)
     }
 
     private fun finalScale(){

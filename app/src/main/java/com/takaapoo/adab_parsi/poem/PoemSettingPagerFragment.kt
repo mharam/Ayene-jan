@@ -110,6 +110,22 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                     })
                     bindingTheme.paperButton.addOnButtonCheckedListener(this@PoemSettingPagerFragment)
 
+                    bindingTheme.borderButton.check(when(settingViewModel.paperBorderPref.value) {
+                        0 -> R.id.border_button1
+                        1 -> R.id.border_button2
+                        2 -> R.id.border_button3
+                        else -> R.id.border_button4
+                    })
+                    bindingTheme.borderButton.addOnButtonCheckedListener(this@PoemSettingPagerFragment)
+
+                    bindingTheme.cornerButton.check(when(settingViewModel.paperCornerPref.value) {
+                        0 -> R.id.corner_button1
+                        1 -> R.id.corner_button2
+                        2 -> R.id.corner_button3
+                        else -> R.id.corner_button4
+                    })
+                    bindingTheme.cornerButton.addOnButtonCheckedListener(this@PoemSettingPagerFragment)
+
                     val themeNames = if (Build.VERSION.SDK_INT > 28) resources.getStringArray(R.array.theme_entries)
                         else resources.getStringArray(R.array.theme_entries_old)
                     val adapter = ArrayAdapter(requireContext(), R.layout.theme_list_item, themeNames)
@@ -128,7 +144,6 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                             prefValue = themeNames.indexOf(text.toString()).toString(),
                             context = requireContext()
                         )
-//                        barsPreparation()
                     }
 
 
@@ -168,6 +183,22 @@ class PoemSettingPagerFragment : Fragment(), MaterialButtonToggleGroup.OnButtonC
                         R.id.paper_button1 -> 0
                         R.id.paper_button2 -> 1
                         else -> 2
+                    })
+                }
+                R.id.border_button -> {
+                    settingViewModel.updatePaperBorder(when (checkedId) {
+                        R.id.border_button1 -> 0
+                        R.id.border_button2 -> 1
+                        R.id.border_button3 -> 2
+                        else -> 3
+                    })
+                }
+                R.id.corner_button -> {
+                    settingViewModel.updatePaperCorner(when (checkedId) {
+                        R.id.corner_button1 -> 0
+                        R.id.corner_button2 -> 1
+                        R.id.corner_button3 -> 2
+                        else -> 3
                     })
                 }
             }

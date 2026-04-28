@@ -87,7 +87,7 @@ data class Verse(
 
 @Entity(tableName = "verse", primaryKeys = ["poem_id", "vorder"])
 data class TempVerse(
-    @ColumnInfo(name = "poem_id") val poem_id: Int,
+    @ColumnInfo(name = "poem_id") val poemId: Int,
     @ColumnInfo(name = "vorder") val verseOrder: Int,
     @ColumnInfo(name = "position") val position: Int?,
     @ColumnInfo(name = "text") var text: String?

@@ -157,7 +157,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/beit_favorite"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="8dp"
             tools:text="1"/>
 
         <ImageView

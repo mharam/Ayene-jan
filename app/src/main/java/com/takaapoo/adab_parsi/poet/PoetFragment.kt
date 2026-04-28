@@ -5,9 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.app.SharedElementCallback
+import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.drawToBitmap
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
@@ -49,7 +54,7 @@ class PoetFragment : Fragment() {
             currentChildFragment =
                 childFragmentManager.findFragmentByTag("f${position}") as? PoetPagerFragment
             currentChildFragment?.apply {
-                backCallback()
+//                backCallback()
                 firebaseLog()
             }
 
@@ -91,6 +96,13 @@ class PoetFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         homeViewModel.enterPoetFragment = true
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.poetLayout.updateLayoutParams<FrameLayout.LayoutParams> {
+                bottomMargin = insets.bottom
+            }
+            windowInsets
+        }
 //        barsPreparation()
         return binding.root
     }
@@ -103,14 +115,11 @@ class PoetFragment : Fragment() {
 
         binding.viewPager.apply {
             adapter = poetBookAdapter
-            (getChildAt(0) as RecyclerView).edgeEffectFactory =
-                PoetBounceEdgeEffectFactory(::transformPage)
-//            val pos = homeViewModel.viewpagePosition
+            (getChildAt(0) as RecyclerView).edgeEffectFactory = PoetBounceEdgeEffectFactory2(::transformPage)
             setCurrentItem(homeViewModel.viewpagePosition, false)
             setPageTransformer(ZoomPageTransformer(::transformPage))
             registerOnPageChangeCallback(pageCallBack)
             post {
-//                homeViewModel.viewpagePosition = pos
                 pageCallBack.onPageSelected(homeViewModel.viewpagePosition)
             }
         }
@@ -130,7 +139,7 @@ class PoetFragment : Fragment() {
         val firstFragEntrance = preferenceManager.getBoolean("poetFragFirstEnter", true)
         if (firstFragEntrance) {
             poetViewModel.reportEvent(PoetEvent.OnShowHelp(PoetHelpState.PAGING))
-            preferenceManager.edit().putBoolean("poetFragFirstEnter", false).apply()
+            preferenceManager.edit { putBoolean("poetFragFirstEnter", false) }
         }
 
         val help = Help(this)

@@ -7,8 +7,8 @@ import android.content.res.Configuration
 import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ListView
@@ -16,6 +16,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -27,15 +30,16 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.poem.PoemEvent
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
 import com.takaapoo.adab_parsi.util.Orientation
+import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,22 +53,25 @@ class SettingFragment: PreferenceFragmentCompat(),
     private lateinit var navController: NavController
 
     private var borderPreference: Preference? = null
+    private var paperBorderPreference: Preference? = null
+    private var paperCornerPreference: Preference? = null
     private var fontPreference: Preference? = null
     private var fontSizePreference: Preference? = null
     private var paperPreference: Preference? = null
     private var hilightPreference: Preference? = null
 
     private val borderIds = arrayOf(R.drawable.frame0_1, R.drawable.frame1_1, R.drawable.frame2_1)
-//    private val paperColorIds = arrayOf(R.color.paper_1, R.color.paper_2, R.color.paper_3)
+    private val paperBorderIds = arrayOf(R.drawable.frame5_3, R.drawable.frame6_3, R.drawable.frame7_3)
+    private val paperCornerIds = arrayOf(R.drawable.border, R.drawable.border2, R.drawable.border3)
     private val hilightMarkerColorIds = arrayOf(R.color.hilight_1_marker, R.color.hilight_2_marker,
         R.color.hilight_3_marker)
     private lateinit var borderNames: Array<String>
+    private lateinit var paperBorderNames: Array<String>
+    private lateinit var paperCornerNames: Array<String>
     private lateinit var fontNames: Array<String>
     private lateinit var paperNames: Array<String>
     private lateinit var hilightNames: Array<String>
     private lateinit var fontSizeNames: Array<String>
-
-//    var currentNightMode = 0
 
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -103,6 +110,24 @@ class SettingFragment: PreferenceFragmentCompat(),
         }
         borderNames = resources.getStringArray(R.array.border_entries)
         onSharedPreferenceChanged(preferenceManager.sharedPreferences, "border")
+
+        paperBorderPreference = findPreference("paper_border")
+        paperBorderPreference?.setOnPreferenceClickListener {
+            PaperBorderSelectDialogFragment(settingViewModel::updatePaperBorder)
+                .show(parentFragmentManager, "PaperBorder")
+            true
+        }
+        paperBorderNames = resources.getStringArray(R.array.paper_border_entries)
+        onSharedPreferenceChanged(preferenceManager.sharedPreferences, "paper_border")
+
+        paperCornerPreference = findPreference("paper_corner")
+        paperCornerPreference?.setOnPreferenceClickListener {
+            PaperCornerSelectDialogFragment(settingViewModel::updatePaperCorner)
+                .show(parentFragmentManager, "PaperCorner")
+            true
+        }
+        paperCornerNames = resources.getStringArray(R.array.paper_corner_entries)
+        onSharedPreferenceChanged(preferenceManager.sharedPreferences, "paper_corner")
 
         fontPreference = findPreference("font")
         fontPreference?.setOnPreferenceClickListener {
@@ -155,11 +180,26 @@ class SettingFragment: PreferenceFragmentCompat(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val settingToolbar = view.findViewById<Toolbar>(R.id.setting_toolbar)
-        settingToolbar.setPadding(0, topPadding, 0, 0)
-        view.findViewById<FrameLayout>(android.R.id.list_container)?.getChildAt(0)?.apply {
-            (this as RecyclerView).edgeEffectFactory = BounceEdgeEffectFactory(Orientation.VERTICAL)
-            isVerticalScrollBarEnabled = false
+//        settingToolbar.setPadding(0, topPadding, 0, 0)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updateLayoutParams<FrameLayout.LayoutParams> {
+                topMargin = insets.top
+            }
+            view.findViewById<FrameLayout>(android.R.id.list_container)?.getChildAt(0)?.apply {
+                (this as RecyclerView).edgeEffectFactory = BounceEdgeEffectFactory(Orientation.VERTICAL)
+                this.setPadding(
+                    this.paddingLeft,
+                    this.paddingTop,
+                    this.paddingRight,
+                    insets.bottom
+                )
+                this.clipToPadding = false
+                isVerticalScrollBarEnabled = false
+            }
+            windowInsets
         }
+
 
         navController = findNavController()
 //        val appBarConfiguration = (requireActivity() as MainActivity).appBarConfiguration
@@ -197,35 +237,18 @@ class SettingFragment: PreferenceFragmentCompat(),
                     else -> if (Build.VERSION.SDK_INT > 28) AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                     else AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
                 })
-//                barsPreparation()
-//                settingViewModel.currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-//                paperPreference?.isEnabled = settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO
-
             }
             "font" -> {
                 val prefValue = sharedPreferences?.getInt(key, 0) ?: 0
                 fontPreference?.summary = fontNames[prefValue]
-//                settingViewModel.updateFont(prefValue)
             }
             "font_size" -> {
                 val prefValue = sharedPreferences?.getInt(key, 1) ?: 1
                 fontSizePreference?.summary = fontSizeNames[prefValue]
-//                settingViewModel.apply {
-//                    fontSize = prefValue
-//                    fontSizePref = prefValue
-//                    updateConstants()
-//                }
             }
             "paper_color" -> {
                 val prefValue = sharedPreferences?.getInt(key, 0) ?: 0
                 paperPreference?.summary = paperNames[prefValue]
-//                settingViewModel.apply {
-//                    paperColorPref = prefValue
-//                    paperColor = ResourcesCompat.getColor(resources, paperColorIds[prefValue],
-//                        context.theme
-//                    )
-//                }
-
                 val shape = ResourcesCompat.getDrawable(
                     resources, R.drawable.ic_paper_icon, context?.theme
                 )!!
@@ -252,6 +275,28 @@ class SettingFragment: PreferenceFragmentCompat(),
                     borderIds[prefValue],
                     context?.theme
                 )
+            }
+            "paper_border" -> {
+                val prefValue = sharedPreferences?.getInt(key, 1) ?: 1
+                val shapeDrawable = if (prefValue > 0)
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        paperBorderIds[prefValue - 1],
+                        context?.theme
+                    ) else null
+                paperBorderPreference?.summary = paperBorderNames[prefValue]
+                paperBorderPreference?.icon = shapeDrawable
+            }
+            "paper_corner" -> {
+                val prefValue = sharedPreferences?.getInt(key, 1) ?: 1
+                val shapeDrawable = if (prefValue > 0)
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        paperCornerIds[prefValue - 1],
+                        context?.theme
+                    ) else null
+                paperCornerPreference?.summary = paperCornerNames[prefValue]
+                paperCornerPreference?.icon = shapeDrawable
             }
         }
     }
@@ -296,8 +341,58 @@ class BorderSelectDialogFragment : DialogFragment() {
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
 
-        listView.setOnItemClickListener { parent, view, position, id ->
+        listView.setOnItemClickListener { _, _, position, _ ->
             settingViewModel.updateBorder(position)
+            builder.dismiss()
+        }
+
+        return builder
+    }
+}
+
+class PaperBorderSelectDialogFragment(
+    private val onUpdatePaperBorder: (Int) -> Unit
+) : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val borderListAdapter = PaperBorderListAdapter(requireActivity())
+        val listView = layoutInflater.inflate(R.layout.setting_border_list, null) as ListView
+        listView.adapter = borderListAdapter
+
+        val builder = activity?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.border)
+                .setView(listView)
+                .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> dismiss() }
+                .create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+
+        listView.setOnItemClickListener { _, _, position, _ ->
+            onUpdatePaperBorder(position)
+            builder.dismiss()
+        }
+
+        return builder
+    }
+}
+
+class PaperCornerSelectDialogFragment(
+    private val onUpdatePaperCorner: (Int) -> Unit
+) : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val borderListAdapter = PaperCornerListAdapter(requireActivity())
+        val listView = layoutInflater.inflate(R.layout.setting_border_list, null) as ListView
+        listView.adapter = borderListAdapter
+
+        val builder = activity?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.corner)
+                .setView(listView)
+                .setNegativeButton(R.string.cancel){ _: DialogInterface, _: Int -> dismiss() }
+                .create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+
+        listView.setOnItemClickListener { _, _, position, _ ->
+            onUpdatePaperCorner(position)
             builder.dismiss()
         }
 
@@ -313,7 +408,7 @@ class FontSelectDialogFragment : DialogFragment() {
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(R.string.font)
-                .setSingleChoiceItems(FontListAdapter(it), 0){ dialog, which ->
+                .setSingleChoiceItems(FontListAdapter(it), 0){ _, which ->
                     settingViewModel.updateFont(which)
                     poemViewModel.reportEvent(PoemEvent.OnRefreshContent)
                     dismiss()
@@ -331,7 +426,7 @@ class PaperSelectDialogFragment : DialogFragment() {
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(R.string.paper)
-                .setSingleChoiceItems(PaperListAdapter(it), 0){ dialog, which ->
+                .setSingleChoiceItems(PaperListAdapter(it), 0){ _, which ->
                     settingViewModel.updatePaper(which)
                     dismiss()
                 }
@@ -348,7 +443,7 @@ class HilightSelectDialogFragment : DialogFragment() {
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(R.string.hilight_color)
-                .setSingleChoiceItems(HilightListAdapter(it), 0){ dialog, which ->
+                .setSingleChoiceItems(HilightListAdapter(it), 0){ _, which ->
                     settingViewModel.updateHilight(which)
                     dismiss()
                 }

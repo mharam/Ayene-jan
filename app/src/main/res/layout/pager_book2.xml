@@ -37,7 +37,6 @@
             tools:srcCompat="@drawable/book_open2"
             android:scaleType="fitXY"
             android:tintMode="multiply"
-            app:tint="@color/paper_border"
             android:transformPivotX="@{pivX}"
             android:transformPivotY="@{pivY}"/>
 
@@ -82,7 +81,6 @@
             android:id="@+id/book_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fitsSystemWindows="false"
             android:background="?attr/colorSurface"
             android:transformPivotX="@{pivX}"
             android:transformPivotY="@{pivY}"
@@ -90,10 +88,9 @@
             android:scaleY="@integer/open_book_init_scale_y">
 
             <com.takaapoo.adab_parsi.util.custom_views.PoemBorderView
-                android:id="@+id/alaki"
+                android:id="@+id/border"
                 android:layout_width="match_parent"
                 android:layout_height="1400dp"
-                android:fitsSystemWindows="false"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -101,7 +98,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:fitsSystemWindows="false"
                 android:scrollbars="none"
                 android:theme="@style/DefaultRecyclerViewStyle"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -121,7 +117,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="240dp"
                     app:titleEnabled="false"
-                    android:fitsSystemWindows="false"
                     app:layout_scrollFlags="enterAlways|scroll|exitUntilCollapsed|snap">
 
                     <com.google.android.material.textview.MaterialTextView
@@ -188,8 +183,7 @@
                         app:titleTextColor="@android:color/transparent"
                         app:contentInsetRight="0dp"
                         app:contentInsetStart="0dp"
-                        app:contentInsetStartWithNavigation="0dp"
-                        android:fitsSystemWindows="true" />
+                        app:contentInsetStartWithNavigation="0dp" />
 
 
                 </com.google.android.material.appbar.CollapsingToolbarLayout>

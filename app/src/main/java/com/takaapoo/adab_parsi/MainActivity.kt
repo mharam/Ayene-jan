@@ -8,6 +8,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.net.*
@@ -17,25 +18,29 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.*
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
 import com.takaapoo.adab_parsi.add.AddViewModel
 import com.takaapoo.adab_parsi.add.TempDao
 import com.takaapoo.adab_parsi.add.TempDatabase
@@ -67,6 +72,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
+import androidx.core.content.edit
 
 enum class AppStore {GooglePlay, Bazaar, Myket}
 
@@ -86,6 +92,7 @@ class MainActivity : AppCompatActivity() {
     private val languageRTL = true
     private var _binding: ActivityMainBinding? = null
     val binding get() = _binding!!
+    private lateinit var navController: NavController
 //    val broadcastReceiver = NetworkReceiver()
     private var imm : InputMethodManager? = null
     private var connectivityManager: ConnectivityManager? = null
@@ -102,6 +109,14 @@ class MainActivity : AppCompatActivity() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             addViewModel.reloadAllPoet()
+        }
+    }
+    private val backPressedCallback = object : OnBackPressedCallback(enabled = false){
+        override fun handleOnBackPressed() {
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
+                moveDrawer(open = false)
+            else if (navController.previousBackStackEntry != null)
+                navController.popBackStack()
         }
     }
 
@@ -133,12 +148,12 @@ class MainActivity : AppCompatActivity() {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         NotificationChannelManager.createChannel(this)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
 
         lifecycleScope.launch {
             if (allCategory.isEmpty())
                 homeViewModel.getAllCatSuspend()
 
-            _binding = ActivityMainBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
             binding.navView.doOnPreDraw {
@@ -148,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                 binding.navView.addHeaderView(headerView)
             }
 
-            val navController = findNavController(R.id.nav_host_fragment)
+            navController = findNavController(R.id.nav_host_fragment)
             binding.navView.setupWithNavController(navController)
 
             bookmarkViewModel.bookmarkCount().observe(this@MainActivity) {
@@ -212,7 +227,16 @@ class MainActivity : AppCompatActivity() {
                                 data = Uri.parse("mailto:") // only email apps should handle this
                                 putExtra(Intent.EXTRA_EMAIL, arrayOf("support@takaapoo.com"))
 //                        putExtra(Intent.EXTRA_SUBJECT, "subject")
-                                val appVersion = packageManager.getPackageInfo(packageName, 0).versionName
+                                val appVersion = (if (Build.VERSION.SDK_INT >= 33)
+                                    packageManager.getPackageInfo(
+                                        packageName,
+                                        PackageManager.PackageInfoFlags.of(0)
+                                    )
+                                    else
+                                        packageManager.getPackageInfo(
+                                            packageName,
+                                            0
+                                        )).versionName
                                 putExtra(
                                     Intent.EXTRA_TEXT, resources.getString(
                                         R.string.app_name_and_version,
@@ -273,19 +297,31 @@ class MainActivity : AppCompatActivity() {
         connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE)
                 as ConnectivityManager
 
-        if(Build.VERSION.SDK_INT in 23..25){
-            window.navigationBarColor = ResourcesCompat.getColor(
-                resources,
-                R.color.black_overlay_light,
-                theme
-            )
+        when(Build.VERSION.SDK_INT){
+            in 23..25 -> {
+                window.navigationBarColor = ResourcesCompat.getColor(
+                    resources,
+                    R.color.black_overlay_light,
+                    theme
+                )
+            }
+            in 26 until 30 -> {
+                window.navigationBarColor = Color.TRANSPARENT
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            }
+            else -> {
+                window.setDecorFitsSystemWindows(false)
+                window.navigationBarColor = Color.TRANSPARENT
+                WindowInsetsControllerCompat(window, window.decorView)
+            }
         }
 
         val preferenceManager = PreferenceManager.getDefaultSharedPreferences(this)
         var appEntranceCount = preferenceManager.getInt("AyeneJanEntranceCount", 0)
         if (savedInstanceState == null){
             appEntranceCount++
-            preferenceManager.edit().putInt("AyeneJanEntranceCount", appEntranceCount).apply()
+            preferenceManager.edit { putInt("AyeneJanEntranceCount", appEntranceCount) }
         }
         poemDao = PoemDatabase.getDatabase(this).dao()
         tempDao = TempDatabase.getDatabase(this, "", true).dao()
@@ -330,6 +366,17 @@ class MainActivity : AppCompatActivity() {
 //        }
 //        registerReceiver(broadcastReceiver, filter)
 
+        binding.drawerLayout.addDrawerListener(object : DrawerListener{
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerOpened(drawerView: View) {
+                backPressedCallback.isEnabled = true
+            }
+            override fun onDrawerClosed(drawerView: View) {
+                backPressedCallback.isEnabled = false
+            }
+        })
+        addBackPressedCallback()
         imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         barsPreparation()
     }
@@ -379,8 +426,11 @@ class MainActivity : AppCompatActivity() {
         return (presentFrag is PoemFragment || presentFrag is BookmarkDetailFragment)
     }
 
-    fun moveDrawer(){
-        binding.drawerLayout.openDrawer(GravityCompat.START, true)
+    fun moveDrawer(open: Boolean){
+        if (open)
+            binding.drawerLayout.openDrawer(GravityCompat.START, true)
+        else
+            binding.drawerLayout.closeDrawer(GravityCompat.START, true)
     }
 
     fun openPoemFile(uri: Uri){
@@ -404,6 +454,12 @@ class MainActivity : AppCompatActivity() {
 //        addViewModel.modifyAllPoet(2)
     }
 
+    fun addBackPressedCallback(
+        owner: LifecycleOwner = this,
+        onBackPressedCallback: OnBackPressedCallback = backPressedCallback
+    ){
+        onBackPressedDispatcher.addCallback(owner, onBackPressedCallback)
+    }
 
 //    fun setLocale() {
 //        val locale = Locale("fa")
@@ -420,26 +476,19 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    fun removeFragmentFromContainer(){
-        val presentFrag = getContainerFrag()
-        if (presentFrag != null){
-            supportFragmentManager.beginTransaction().remove(presentFrag).commit()
-        }
-    }
-
     fun getContainerFrag() = supportFragmentManager.findFragmentById(R.id.poem_container_view)
 
-    fun statusBarColoring(){
-        ValueAnimator.ofArgb(getColorFromAttr(R.attr.colorBeitSelect),
-            if (settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO)
-                settingViewModel.paperColor
-            else getColorFromAttr(R.attr.colorSurface)).apply {
-            addUpdateListener { updatedAnimation ->
-                window?.statusBarColor = updatedAnimation.animatedValue as Int
-            }
-            doOnEnd { window?.statusBarColor = Color.TRANSPARENT }
-        }.start()
-    }
+//    fun statusBarColoring(){
+//        ValueAnimator.ofArgb(getColorFromAttr(R.attr.colorBeitSelect),
+//            if (settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO)
+//                settingViewModel.paperColor
+//            else getColorFromAttr(R.attr.colorSurface)).apply {
+//            addUpdateListener { updatedAnimation ->
+//                window?.statusBarColor = updatedAnimation.animatedValue as Int
+//            }
+//            doOnEnd { window?.statusBarColor = Color.TRANSPARENT }
+//        }.start()
+//    }
 
 //    override fun onConfigurationChanged(newConfig: Configuration) {
 //        super.onConfigurationChanged(newConfig)
@@ -454,7 +503,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1){
-            if (resultCode == Activity.RESULT_OK){
+            if (resultCode == RESULT_OK){
                 poemViewModel.poemFileUri = data?.data
                 poemViewModel.savePoemToFile()
             } else
@@ -469,8 +518,8 @@ class MainActivity : AppCompatActivity() {
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE
             }
         else {
-            val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView) ?: return
-            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
         }
     }
@@ -530,24 +579,13 @@ class RateDialogFragment : DialogFragment() {
                 .setMessage(resources.getString(R.string.rate_message))
                 .setPositiveButton(R.string.rate_now){ _: DialogInterface, _: Int ->
                     rateApp(it, false)
-                    preferenceManager.edit().putBoolean("RatedAyeneJan", true).apply()
+                    preferenceManager.edit { putBoolean("RatedAyeneJan", true) }
                 }
                 .setNegativeButton(R.string.rate_later){ _: DialogInterface, _: Int ->
-                    preferenceManager.edit().putBoolean("RatedAyeneJan", true).apply()
+                    preferenceManager.edit { putBoolean("RatedAyeneJan", true) }
                 }
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-

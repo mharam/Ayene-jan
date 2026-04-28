@@ -26,7 +26,6 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(application: Application, val dao: RecentSearchDao) :
     AndroidViewModel(application) {
 
-//    val dao: RecentSearchDao = RecentSearchDatabase.getDatabase(application).dao()
     fun deleteSearchHistory() = viewModelScope.launch { dao.deleteSearchHistory() }
 
     val paint = TextPaint()
@@ -34,8 +33,6 @@ class SettingViewModel @Inject constructor(application: Application, val dao: Re
     var spaceWidth = 0f
     var dashWidth = 0f
     var mWidth = 0f
-
-//    var navigationBarHeight = 0
 
     val context = application
 
@@ -57,9 +54,9 @@ class SettingViewModel @Inject constructor(application: Application, val dao: Re
     var verseVertSep = if (fontPref == 0) 0.9f else 2f
 
     var fontSize = application.resources.getInteger(fontSizeIds[fontSizePref])
-    set(fontSizePref){
-        field = context.resources.getInteger(fontSizeIds[fontSizePref])
-    }
+        set(prefValue){
+            field = context.resources.getInteger(fontSizeIds[prefValue])
+        }
 
     var font = ResourcesCompat.getFont(application, fontIds[fontPref])
     private fun setFont(fontPref: Int){
@@ -69,6 +66,8 @@ class SettingViewModel @Inject constructor(application: Application, val dao: Re
 
     val paperColorPref = MutableLiveData(sharedPreferences.getInt("paper_color", 0))
     var paperColor = paperColors[paperColorPref.value!!]
+    val paperBorderPref = MutableLiveData(sharedPreferences.getInt("paper_border", 1))
+    val paperCornerPref = MutableLiveData(sharedPreferences.getInt("paper_corner", 1))
 
     var hilightColorPref = sharedPreferences.getInt("hilight", 0)
     private var hilightColor = hilightColors[hilightColorPref]
@@ -131,6 +130,16 @@ class SettingViewModel @Inject constructor(application: Application, val dao: Re
         paperColor = paperColors[prefValue]
         paperColorPref.value = prefValue
         sharedPreferences.edit().putInt("paper_color", prefValue).apply()
+    }
+
+    fun updatePaperBorder(prefValue: Int){
+        paperBorderPref.value = prefValue
+        sharedPreferences.edit().putInt("paper_border", prefValue).apply()
+    }
+
+    fun updatePaperCorner(prefValue: Int){
+        paperCornerPref.value = prefValue
+        sharedPreferences.edit().putInt("paper_corner", prefValue).apply()
     }
 
     fun updateTheme(prefValue: String, context: Context){

@@ -13,14 +13,12 @@
         android:id="@+id/poem_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="false"
         android:background="?attr/colorSurface">
 
         <com.takaapoo.adab_parsi.util.custom_views.PoemBorderView
-            android:id="@+id/alaki"
+            android:id="@+id/border"
             android:layout_width="match_parent"
             android:layout_height="1300dp"
-            android:fitsSystemWindows="false"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         <com.takaapoo.adab_parsi.util.custom_views.NestedRecyclerView
@@ -29,7 +27,6 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="24dp"
-            android:fitsSystemWindows="false"
             android:scrollbars="none"
             android:theme="@style/DefaultRecyclerViewStyle"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -49,7 +46,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 app:titleEnabled="false"
-                android:fitsSystemWindows="false"
                 app:layout_scrollFlags="enterAlways|scroll|exitUntilCollapsed|snap">
 
                 <com.google.android.material.textview.MaterialTextView
@@ -81,31 +77,6 @@
                     android:layout_marginEnd="16dp"
                     tools:text="حسن"/>
 
-
-<!--                <com.google.android.material.textview.MaterialTextView-->
-<!--                    android:id="@+id/poem_title"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="?attr/actionBarSize"-->
-<!--                    android:layout_gravity="center_horizontal|bottom"-->
-<!--                    android:gravity="center"-->
-<!--                    android:textColor="?attr/colorOnSurface"-->
-<!--                    app:autoSizeTextType="uniform"-->
-<!--                    app:autoSizeMinTextSize="18sp"-->
-<!--                    app:autoSizeMaxTextSize="20sp"-->
-<!--                    app:autoSizeStepGranularity="1sp"-->
-<!--                    android:lineSpacingMultiplier="0.8"-->
-<!--                    android:layout_marginStart="36dp"-->
-<!--                    android:layout_marginEnd="36dp"-->
-<!--                    app:fontFamily="@font/iran_nastaliq"-->
-<!--                    tools:text="حسن"/>-->
-<!--                <androidx.appcompat.widget.AppCompatImageView-->
-<!--                    android:id="@+id/topImage_left"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="?attr/actionBarSize"-->
-<!--                    android:scaleType="fitStart"-->
-<!--                    android:layout_gravity="bottom"-->
-<!--                    app:borderImage="@{item.id}"-->
-<!--                    tools:src="@drawable/border" />-->
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/topImage_right"
                     android:layout_width="match_parent"
@@ -135,8 +106,7 @@
                     app:titleTextColor="@android:color/transparent"
                     app:contentInsetRight="0dp"
                     app:contentInsetStart="0dp"
-                    app:contentInsetStartWithNavigation="0dp"
-                    android:fitsSystemWindows="true" />
+                    app:contentInsetStartWithNavigation="0dp" />
 
                 <RelativeLayout
                     android:id="@+id/result_dashboard"

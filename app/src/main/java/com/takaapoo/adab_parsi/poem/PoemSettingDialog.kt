@@ -52,7 +52,7 @@ class PoemSettingDialog : DialogFragment() {
                 params.width = windowWidth.dpTOpx(resources).toInt()
                 params.height = when (position) {
                     0 -> 296
-                    else -> if (Build.VERSION.SDK_INT > 28) 212 else 242
+                    else -> if (Build.VERSION.SDK_INT > 28) 340 else 370
                 }.dpTOpx(resources).toInt()
                 viewPager.layoutParams = params
             }

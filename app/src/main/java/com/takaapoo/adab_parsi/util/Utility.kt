@@ -25,6 +25,7 @@ import java.text.Collator
 import java.text.NumberFormat
 import java.util.*
 import kotlin.math.roundToInt
+import androidx.core.net.toUri
 
 
 val collator: Collator = Collator.getInstance(Locale("fa"))
@@ -38,8 +39,9 @@ val appStore = AppStore.Bazaar
 
 var topPadding = 0
 
-
-fun Int.spTOpx(resources: Resources) = this * resources.displayMetrics.scaledDensity
+fun Int.spTOpx(resources: Resources) =
+    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, this.toFloat(), resources.displayMetrics)
+//fun Int.spTOpx(resources: Resources) = this * resources.displayMetrics.scaledDensity
 
 fun Int.dpTOpx(resources: Resources) = this * resources.displayMetrics.density
 
@@ -69,7 +71,7 @@ fun Context.getDimenFromAttr(@AttrRes attrDimension: Int): Int {
 //}
 
 fun getAllVerseBiErab(tempVerses: List<TempVerse>): List<Verse> =
-    tempVerses.map { Verse(it.poem_id, it.verseOrder, it.position, it.text,
+    tempVerses.map { Verse(it.poemId, it.verseOrder, it.position, it.text,
         makeTextBiErab(it.text), null, null, null) }
 
 fun tempCatToCat(tempCats: List<TempCategory>): List<Category> =
@@ -423,8 +425,12 @@ fun rateApp(activity: Activity, comeFromRateButton: Boolean){
                 if (globalIntent.resolveActivity(activity.packageManager) != null) {
                     activity.startActivity(globalIntent)
                 } else {
-                    activity.startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse("http://play.google.com/store/apps/details?id=${activity.packageName}")))
+                    activity.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/apps/details?id=${activity.packageName}")
+                        )
+                    )
                 }
             } else {
                 val manager = ReviewManagerFactory.create(activity)
@@ -449,7 +455,7 @@ fun rateApp(activity: Activity, comeFromRateButton: Boolean){
         }
         AppStore.Bazaar -> {
             val bazaarIntent = Intent(Intent.ACTION_EDIT).apply {
-                data = Uri.parse("bazaar://details?id=${activity.packageName}")
+                data = "bazaar://details?id=${activity.packageName}".toUri()
                 setPackage("com.farsitel.bazaar")
             }
             when {
@@ -460,8 +466,12 @@ fun rateApp(activity: Activity, comeFromRateButton: Boolean){
                     activity.startActivity(globalIntent)
                 }
                 else -> {
-                    activity.startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse("http://play.google.com/store/apps/details?id=${activity.packageName}")))
+                    activity.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "http://play.google.com/store/apps/details?id=${activity.packageName}".toUri()
+                        )
+                    )
                 }
             }
         }
@@ -549,16 +559,8 @@ class BounceEdgeEffectFactory(val orientation: Orientation) : RecyclerView.EdgeE
                         .setStiffness(SpringForce.STIFFNESS_LOW)
                 )
 
-            override fun onPull(deltaDistance: Float) {
-                super.onPull(deltaDistance)
-                handlePull(deltaDistance)
-            }
-
-            override fun onPull(deltaDistance: Float, displacement: Float) {
-                super.onPull(deltaDistance, displacement)
-                handlePull(deltaDistance)
-            }
-
+            override fun onPull(deltaDistance: Float) = handlePull(deltaDistance)
+            override fun onPull(deltaDistance: Float, displacement: Float) = handlePull(deltaDistance)
             private fun handlePull(deltaDistance: Float) {
                 // Translate the recyclerView with the distance
                 val sign = if (direction == DIRECTION_BOTTOM || direction == DIRECTION_RIGHT) -1 else 1
@@ -576,14 +578,12 @@ class BounceEdgeEffectFactory(val orientation: Orientation) : RecyclerView.EdgeE
             }
 
             override fun onRelease() {
-                super.onRelease()
                 // The finger is lifted. Start the animation to bring translation back to the resting state.
                 if (recyclerView.translationY != 0f || recyclerView.translationX != 0f)
                     anim.start()
             }
 
             override fun onAbsorb(velocity: Int) {
-                super.onAbsorb(velocity)
                 // The list has reached the edge on fling.
                 val sign = if (direction == DIRECTION_BOTTOM || direction == DIRECTION_RIGHT) -1 else 1
                 val translationVelocity = sign * velocity * FLING_TRANSLATION_MAGNITUDE
@@ -591,14 +591,10 @@ class BounceEdgeEffectFactory(val orientation: Orientation) : RecyclerView.EdgeE
                 anim.setStartVelocity(translationVelocity)?.also { it.start() }
             }
 
-            override fun draw(canvas: Canvas?): Boolean {
-                // don't paint the usual edge effect
-                return false
-            }
-
+            override fun draw(canvas: Canvas?) = false
             override fun isFinished(): Boolean {
                 // Without this, will skip future calls to onAbsorb()
-                return anim?.isRunning?.not() ?: true
+                return anim.isRunning.not()
             }
         }
     }

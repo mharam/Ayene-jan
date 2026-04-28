@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -22,14 +23,18 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 import java.util.concurrent.CancellationException
 import javax.net.ssl.HttpsURLConnection
+import kotlin.apply
+import kotlin.text.get
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -57,18 +62,20 @@ class DownloadWorker @AssistedInject constructor(
     private val poetName = inputData.getString("PoetName")
     private val thumbnailURL = inputData.getString("ThumbnailURL")
     private val ancient = inputData.getInt("Ancient", 0)
-    private var largeIconBitmap: Bitmap? = GlideApp.with(context)
-        .asBitmap()
-        .load(if (thumbnailURL.isNullOrEmpty()) {
+    private var largeIconBitmap: Bitmap? = runCatching {
+        GlideApp.with(context)
+            .asBitmap()
+            .load(if (thumbnailURL.isNullOrEmpty()) {
                 if (ancient == 0) R.drawable.tomb else R.drawable.person
             } else thumbnailURL)
-        .override(LargeIconSize)
-        .transform(RoundedCorners(LargeIconSize/9))
-        .apply(
-            RequestOptions().error( if (ancient == 0) R.drawable.tomb else R.drawable.person )
-        )
-        .submit()
-        .get()
+            .override(LargeIconSize)
+            .transform(RoundedCorners(LargeIconSize/9))
+            .apply(
+                RequestOptions().error( if (ancient == 0) R.drawable.tomb else R.drawable.person )
+            )
+            .submit()
+            .get()
+    }.getOrNull()
 
     private suspend fun initialize(){
         filesSize = 0
@@ -81,7 +88,7 @@ class DownloadWorker @AssistedInject constructor(
         try {
             val largeImageURL = inputData.getString("LargeImageURL")
             val databaseURL = inputData.getString("DatabaseURL") ?: throw Exception("database url not provided!")
-            filename = mutableListOf(imagePrefix, thumbnailPrefix, "").map { it + "$poetID" }
+            filename = mutableListOf(thumbnailPrefix, imagePrefix, "").map { it + "$poetID" }
 
             initialize()
             delay(300.milliseconds)
@@ -109,24 +116,25 @@ class DownloadWorker @AssistedInject constructor(
 
         val url = MutableList<URL?>(fileCounts){null}
         val fileLength = MutableList(fileCounts){-1}
-        val connection = MutableList<HttpsURLConnection?>(fileCounts){null}
+        val connection = MutableList<HttpURLConnection?>(fileCounts){null}
         val result = MutableList<String?>(fileCounts){null}
 
         return withContext(Dispatchers.IO) {
-            val imageFile = file.openFile(filename[0])
-            val thumbnailFile = file.openFile(filename[1])
+            val imageFile = file.openFile(filename[1])
+            val thumbnailFile = file.openFile(filename[0])
             val databaseFile = file.openFile(filename[2])
             val outStream = filename.map { file.writeFile(it) }
 
             try {
-                url[0] = if (!largeImageURL.isNullOrEmpty()) URL(largeImageURL) else null
-                url[1] = if (!thumbnailURL.isNullOrEmpty()) URL(thumbnailURL) else null
+                url[1] = if (!largeImageURL.isNullOrEmpty()) URL(largeImageURL) else null
+                url[0] = if (!thumbnailURL.isNullOrEmpty()) URL(thumbnailURL) else null
                 url[2] = URL(databaseURL)
                 for (i in url.indices){
-                    connection[i] = url[i]?.openConnection() as? HttpsURLConnection
+                    connection[i] = url[i]?.openConnection() as? HttpsURLConnection ?:
+                            url[i]?.openConnection() as? HttpURLConnection
                     connection[i]?.run {
-                        readTimeout = 20000
-                        connectTimeout = 20000
+                        readTimeout = 30_000
+                        connectTimeout = 30_000
                         requestMethod = "GET"
                         doInput = true
                         connect()

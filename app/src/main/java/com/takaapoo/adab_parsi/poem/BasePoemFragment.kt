@@ -13,12 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
@@ -59,8 +61,8 @@ abstract class BasePoemFragment: Fragment() {
 
     var start = 0
     var end = 0
-    var initialTouchX = 0f
-    var initialTouchY = 0f
+    private var initialTouchX = 0f
+    private var initialTouchY = 0f
 
     var visibleChildFrag: PoemPagerFragment? = null
     private var onPauseCalled = false
@@ -79,6 +81,7 @@ abstract class BasePoemFragment: Fragment() {
             requireActivity().applicationContext,
             PoemGestureListener(poemViewModel)
         )
+
         return binding.root
     }
 
@@ -131,12 +134,16 @@ abstract class BasePoemFragment: Fragment() {
                 else {
                     if (poemViewModel.keyboardIsOpen) {
                         (activity as MainActivity).hideSystemBars()
-                    } else if ((windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars()) || navBarVisible)
-                        && !onPauseCalled) {
-                        view.postDelayed( hideSystemBarsRunnable , 3500 )
+                    } else if ((windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars()) ||
+                                navBarVisible) && !onPauseCalled) {
+                        view.postDelayed( hideSystemBarsRunnable , 4_000 )
                     }
                 }
                 poemViewModel.keyboardIsOpen = keyBoardIsOpen
+            }
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.bookFrame.updateLayoutParams<FrameLayout.LayoutParams> {
+                bottomMargin = insets.bottom
             }
             windowInsets
         }

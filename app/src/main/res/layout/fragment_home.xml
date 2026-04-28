@@ -18,7 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:transitionGroup="true"
-        android:fitsSystemWindows="false"
         android:layoutDirection="rtl">
 
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -144,47 +143,47 @@
             android:visibility="invisible"
             layout="@layout/fragment_help_dialog" />
 
-        <RelativeLayout
-            android:id="@+id/delete_dialog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:elevation="8dp"
-            android:background="@drawable/delete_background">
+<!--        <RelativeLayout-->
+<!--            android:id="@+id/delete_dialog"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            android:layout_marginStart="16dp"-->
+<!--            android:layout_marginEnd="16dp"-->
+<!--            android:layout_marginBottom="24dp"-->
+<!--            android:elevation="8dp"-->
+<!--            android:background="@drawable/delete_background">-->
 
-            <TextView
-                android:id="@+id/delete_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@id/trash"
-                android:layout_alignParentStart="true"
-                android:text="@string/delete_poet_snack" />
+<!--            <TextView-->
+<!--                android:id="@+id/delete_text"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="16dp"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:layout_toStartOf="@id/trash"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:text="@string/delete_poet_snack" />-->
 
-            <ImageView
-                android:id="@+id/trash"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginEnd="8dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                app:srcCompat="@drawable/trash_anim"/>
+<!--            <ImageView-->
+<!--                android:id="@+id/trash"-->
+<!--                android:layout_width="32dp"-->
+<!--                android:layout_height="32dp"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                android:layout_alignParentEnd="true"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                app:srcCompat="@drawable/trash_anim"/>-->
 
-        </RelativeLayout>
+<!--        </RelativeLayout>-->
 
-        <View
-            android:id="@+id/interaction_blocker"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:clickable="true"
-            android:elevation="16dp"
-            android:focusable="true" />
+<!--        <View-->
+<!--            android:id="@+id/interaction_blocker"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:visibility="gone"-->
+<!--            android:clickable="true"-->
+<!--            android:elevation="16dp"-->
+<!--            android:focusable="true" />-->
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

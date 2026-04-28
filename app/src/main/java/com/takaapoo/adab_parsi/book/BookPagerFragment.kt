@@ -3,7 +3,11 @@ package com.takaapoo.adab_parsi.book
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.res.Configuration
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,8 +21,10 @@ import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.TextView
 import androidx.activity.addCallback
+import androidx.annotation.ColorRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
 import androidx.core.view.doOnLayout
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.doOnPreDraw
@@ -33,9 +39,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.database.Content
@@ -44,8 +50,15 @@ import com.takaapoo.adab_parsi.poem.DARK_ALPHA_MAX
 import com.takaapoo.adab_parsi.poem.PoemViewModel
 import com.takaapoo.adab_parsi.poet.PoetViewModel
 import com.takaapoo.adab_parsi.setting.SettingViewModel
-import com.takaapoo.adab_parsi.util.*
+import com.takaapoo.adab_parsi.util.BounceEdgeEffectFactory
+import com.takaapoo.adab_parsi.util.GlideApp
+import com.takaapoo.adab_parsi.util.Orientation
+import com.takaapoo.adab_parsi.util.allCategory
+import com.takaapoo.adab_parsi.util.dpTOpx
 import com.takaapoo.adab_parsi.util.fastScroll.BookContentFastScrollViewHelper
+import com.takaapoo.adab_parsi.util.getDimenFromAttr
+import com.takaapoo.adab_parsi.util.spTOpx
+import com.takaapoo.adab_parsi.util.topPadding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -54,7 +67,6 @@ import kotlinx.coroutines.withContext
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.lang.reflect.Field
 import java.util.*
-import kotlin.collections.set
 import kotlin.math.roundToInt
 
 
@@ -145,7 +157,6 @@ class BookPagerFragment : Fragment() {
         GlideApp.with(this).load(R.drawable.book_open2).into(binding.backBookPaper)
         GlideApp.with(this).load(R.drawable.bookcover2).into(binding.bookCoverImage)
 
-
         settingViewModel.paperColorPref.observe(viewLifecycleOwner){
             settingViewModel.currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             if (settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO) {
@@ -155,6 +166,21 @@ class BookPagerFragment : Fragment() {
         }
         settingViewModel.brightness.observe(viewLifecycleOwner){
             binding.darkener.alpha = DARK_ALPHA_MAX * (1 - it / 100)
+        }
+        settingViewModel.paperBorderPref.observe(viewLifecycleOwner){
+            binding.fehrestTitle.setBorderType(it)
+            binding.border.setBorderType(it)
+            if (it > 0){
+                binding.backBookPaper.setColorFilter(
+                    ResourcesCompat.getColor(resources, paperBorderColor(paperBorderIndex = it), context?.theme),
+                    PorterDuff.Mode.MULTIPLY
+                )
+            } else {
+                binding.backBookPaper.setColorFilter(settingViewModel.paperColor, PorterDuff.Mode.MULTIPLY)
+            }
+        }
+        settingViewModel.paperCornerPref.observe(viewLifecycleOwner){
+            binding.fehrestTitle.setCornerType(it)
         }
 
         layoutManager = binding.bookContentList.layoutManager as LinearLayoutManager
@@ -360,6 +386,14 @@ class BookPagerFragment : Fragment() {
 
         _binding = null
     }
+    @ColorRes
+    private fun paperBorderColor(paperBorderIndex: Int): Int{
+        return when (paperBorderIndex){
+            1 -> R.color.paper_border1
+            2 -> R.color.paper_border2
+            else -> R.color.paper_border3
+        }
+    }
 
     fun endAction(newList: MutableList<Content>){
         binding.bookContentList.doOnNextLayout {
@@ -387,11 +421,7 @@ class BookPagerFragment : Fragment() {
                 .poemListItems[contentItem.id]!!.indexOfFirst { it.id == itemId }
             poemList = poetViewModel.poemListItems[contentItem.id]!!
             poemCount = poemList.size
-            contentShot = Bitmap.createBitmap(
-                binding.bookContent.width,
-                binding.bookContent.height,
-                Bitmap.Config.ARGB_8888
-            ).also {
+            contentShot = createBitmap(binding.bookContent.width, binding.bookContent.height).also {
                 binding.bookContent.draw(Canvas(it))
             }
             poemFirstOpening = true
@@ -414,8 +444,11 @@ class BookPagerFragment : Fragment() {
     }
 
     fun backCallback(){
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            closeBook(navController)
+        (activity as? MainActivity)?.apply {
+            onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+                closeBook(navController)
+            }
+            addBackPressedCallback()
         }
     }
 

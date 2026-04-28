@@ -223,10 +223,23 @@
     </string-array>
     
     <string name="border">حاشیه</string>
+    <string name="corner">گوشه</string>
     <string-array name="border_entries">
         <item>قالی</item>
         <item>زمرد</item>
         <item>تاج</item>
+    </string-array>
+    <string-array name="paper_border_entries">
+        <item>بدون حاشیه</item>
+        <item>زربافت</item>
+        <item>معرق</item>
+        <item>اسلیمی</item>
+    </string-array>
+    <string-array name="paper_corner_entries">
+        <item>بدون گوشه</item>
+        <item>معرق</item>
+        <item>طلاکوب</item>
+        <item>گلبرگ</item>
     </string-array>
 
     <string name="picture_width">عرض تصویر</string>

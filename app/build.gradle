@@ -1,14 +1,13 @@
 plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-//    id 'kotlin-android-extensions'
-    id 'kotlin-parcelize'
-    id 'androidx.navigation.safeargs'
-//    id 'dagger.hilt.android.plugin'
-    id 'com.google.dagger.hilt.android'
-    id 'com.google.gms.google-services'
-    id 'com.google.firebase.crashlytics'
-    id 'kotlin-kapt'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.navigation.safeargs)
 }
 
 android {
@@ -20,14 +19,14 @@ android {
             keyPassword 'Aram2008323'
         }
     }
-    compileSdkVersion 33
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.takaapoo.adab_parsi"
-        minSdkVersion 23
-        targetSdkVersion 33
-        versionCode 20
-        versionName "1.1.6"
+        minSdk 23
+        targetSdk 36
+        versionCode 22
+        versionName "1.1.8"
 
         testInstrumentationRunner "com.takaapoo.adab_parsi.CustomTestRunner"
         vectorDrawables.useSupportLibrary = true
@@ -39,15 +38,16 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-//        debug {
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//        }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
     }
 
     packagingOptions {
@@ -61,24 +61,14 @@ android {
         resources.excludes.add("META-INF/*")
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-    kapt {
-        arguments {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
-    }
-
-    // Always show the result of every unit test when running via command line, even if it passes.
     testOptions.unitTests {
-//        includeAndroidResources = true
         returnDefaultValues = true
     }
 
     buildFeatures{
         dataBinding true
         viewBinding true
+        buildConfig true
     }
     sourceSets {
         main {
@@ -87,150 +77,117 @@ android {
             }
         }
     }
-
+    namespace 'com.takaapoo.adab_parsi'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    coreLibraryDesugaring libs.desugar.jdk.libs
 
     // Support libraries
-    implementation "androidx.appcompat:appcompat:$version_appcompat"
-    implementation "androidx.fragment:fragment-ktx:$version_fragment"
-    implementation "androidx.constraintlayout:constraintlayout:$version_constraint_layout"
-    implementation "com.google.android.material:material:$version_material"
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.fragment.ktx
+    implementation libs.androidx.constraintlayout
+    implementation libs.material
+    implementation libs.androidx.activity
 
     // Android KTX
-    implementation "androidx.core:core-ktx:$version_core"
+    implementation libs.androidx.core.ktx
 
     // Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:$version_navigation"
-    implementation "androidx.navigation:navigation-ui-ktx:$version_navigation"
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
 
     // Recyclerview
-    implementation "androidx.recyclerview:recyclerview:$version_recyclerview"
-    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.recyclerview.selection
 
     // Room & lifecycle dependencies
-    implementation "androidx.room:room-runtime:$version_room"
-    implementation "androidx.room:room-ktx:$version_room"
-    annotationProcessor "androidx.room:room-compiler:$version_room"
-    kapt "androidx.room:room-compiler:$version_room"
+    implementation libs.androidx.room.runtime
+    implementation libs.androidx.room.ktx
+    ksp libs.androidx.room.compiler
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation "androidx.test:core-ktx:$version_test_core"
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.test.ktx
     implementation project(path: ':MyFastScroller')
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
-    //implementation "androidx.lifecycle:lifecycle-extensions:$version_lifecycle_extensions"
+    implementation libs.androidx.lifecycle.runtime.ktx
 
     // ViewModel & LiveData
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.1"
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.lifecycle.livedata.ktx
 
     // WorkManager
-    implementation "androidx.work:work-runtime-ktx:2.8.1"
+    implementation libs.androidx.work.runtime.ktx
 
     // Timber
-    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation libs.timber
 
     // Moshi
-    implementation "com.squareup.moshi:moshi:$version_moshi"
-    implementation "com.squareup.moshi:moshi-kotlin:$version_moshi"
+    implementation libs.moshi
+    implementation libs.moshi.kotlin
 
     // Retrofit with Moshi Converter
-    implementation "com.squareup.retrofit2:retrofit:$version_retrofit"
-    implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
+    implementation libs.retrofit
+    implementation libs.retrofit.converter.moshi
+    implementation libs.retrofit.coroutines.adapter
 
     // Glide
-    implementation "com.github.bumptech.glide:glide:$version_glide"
-    implementation "com.github.bumptech.glide:annotations:$version_glide"
-    implementation ("com.github.bumptech.glide:recyclerview-integration:$version_glide") {
-        // Excludes the support library because it's already included by Glide.
+    implementation libs.glide
+    implementation libs.glide.annotations
+    implementation (libs.glide.recyclerview) {
         transitive = false
     }
-    kapt "com.github.bumptech.glide:compiler:$version_glide"
+    kapt libs.glide.compiler
 
     // Setting Preference
-    implementation 'androidx.preference:preference-ktx:1.2.0'
-
-    // FastScroll
-    //implementation 'me.zhanghai.android.fastscroll:library:1.1.5'
+    implementation libs.androidx.preference.ktx
 
     // ViewPager
-    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation libs.androidx.viewpager2
 
     // PlayStore rating
-    implementation 'com.google.android.play:review:2.0.1'
-    implementation 'com.google.android.play:review-ktx:2.0.1'
-
-    // Coroutines for kotlin and retrofit
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_kotlin_coroutines"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version_kotlin_coroutines"
-    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$version_retrofit_coroutines_adapter"
+    implementation libs.play.review
+    implementation libs.play.review.ktx
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:$version_hilt"
-    kapt "com.google.dagger:hilt-compiler:$version_hilt"
-    kapt "androidx.hilt:hilt-compiler:1.0.0"
-    implementation "androidx.hilt:hilt-work:1.0.0"
-
-    // KeyboardVisibilityEvent
-//    implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC3'
-
-    // LeakCanary
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
+    implementation libs.hilt.android
+    kapt libs.hilt.compiler
+    ksp libs.androidx.hilt.compiler
+    implementation libs.androidx.hilt.work
 
     // Splash Screen
-    implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation libs.androidx.core.splashscreen
 
     // Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:31.0.1')
-    implementation 'com.google.firebase:firebase-crashlytics-ktx'
-    implementation 'com.google.firebase:firebase-analytics-ktx'
-
-
-
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.analytics
 
     // Testing
-    testImplementation "junit:junit:$version_junit"
-    androidTestImplementation "junit:junit:$version_junit"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation "androidx.test.espresso:espresso-core:$version_espresso"
-    testImplementation "androidx.room:room-testing:$version_room"
-    // Truth Test Library
-//    testImplementation "com.google.truth:truth:$version_truth"
-//    testImplementation "com.google.truth.extensions:truth-java8-extension:$version_truth"
-    implementation "com.google.truth:truth:$version_truth"
-    implementation "com.google.truth.extensions:truth-java8-extension:$version_truth"
-    // Robolectric
-    testImplementation 'org.robolectric:robolectric:4.8'
-    // AndroidX Test - JVM testing
-    testImplementation "androidx.test.ext:junit-ktx:1.1.4"
-    testImplementation "androidx.test:core-ktx:$version_test_core"
-    implementation "androidx.test:core:$version_test_core"
-    // Architecture Components core testing
-    testImplementation "androidx.arch.core:core-testing:2.2.0"
-    androidTestImplementation "androidx.arch.core:core-testing:2.2.0"
-    // Kotlin Coroutine test
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
-    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version_kotlin_coroutines"
-    // AndroidX test library for creating fragments
-    debugImplementation "androidx.fragment:fragment-testing:1.5.4"
-    // Espresso tools for interacting with RecyclerViews
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
-    // Mockito
-    androidTestImplementation "org.mockito:mockito-core:$version_mockito"
-    androidTestImplementation "org.mockito:mockito-android:$version_mockito"
-    // Navigation Test
-    androidTestImplementation "androidx.navigation:navigation-testing:$version_navigation"
-    // Idling resource
-    implementation "androidx.test.espresso:espresso-idling-resource:$version_espresso"
+    testImplementation libs.junit
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    testImplementation libs.androidx.room.testing
+    implementation libs.google.truth
+    implementation libs.google.truth.java8
+    testImplementation libs.robolectric
+    testImplementation libs.androidx.junit.ktx
+    testImplementation libs.androidx.test.ktx
+    implementation libs.androidx.test.core
+    testImplementation libs.androidx.arch.core.testing
+    androidTestImplementation libs.androidx.arch.core.testing
+    testImplementation libs.kotlinx.coroutines.test
+    androidTestImplementation libs.kotlinx.coroutines.test
+    debugImplementation libs.androidx.fragment.testing
+    androidTestImplementation libs.androidx.espresso.contrib
+    androidTestImplementation libs.mockito.core
+    androidTestImplementation libs.mockito.android
+    androidTestImplementation libs.androidx.navigation.testing
+    implementation libs.androidx.espresso.idling.resource
 
     // Hilt for testing
-    // For Robolectric tests.
-    testImplementation "com.google.dagger:hilt-android-testing:$version_hilt"
-    kaptTest "com.google.dagger:hilt-android-compiler:$version_hilt"
-    // For instrumented tests.
-    androidTestImplementation "com.google.dagger:hilt-android-testing:$version_hilt"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$version_hilt"
-
+    testImplementation libs.hilt.android.testing
+    kapt libs.hilt.compiler
+    androidTestImplementation libs.hilt.android.testing
 }

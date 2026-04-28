@@ -1,12 +1,13 @@
-apply plugin: 'com.android.library'
+plugins {
+    alias(libs.plugins.android.library)
+}
 
 android {
-    compileSdkVersion 33
+    compileSdk 36
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 33
+        minSdk 23
+        targetSdk 36
         consumerProguardFiles 'proguard-rules.pro'
-        signingConfig signingConfigs.debug
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -17,20 +18,10 @@ android {
             minifyEnabled false
         }
     }
+    namespace 'me.zhanghai.android.fastscroll'
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:$version_appcompat"
-    implementation "androidx.recyclerview:recyclerview:$version_recyclerview"
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.recyclerview
 }
-
-buildscript {
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-    }
-}
-

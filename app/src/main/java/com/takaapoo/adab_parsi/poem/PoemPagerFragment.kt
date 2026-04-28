@@ -36,9 +36,10 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.*
 import com.google.android.material.appbar.AppBarLayout
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.crashlytics.crashlytics
 import com.takaapoo.adab_parsi.MainActivity
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.bookmark.BookmarkViewModel
@@ -131,13 +132,13 @@ class PoemPagerFragment : Fragment() {
     val callback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
             mode?.menuInflater?.inflate(R.menu.poem_contextual_action_menu, menu)
-            ValueAnimator.ofArgb(if (settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO)
-                settingViewModel.paperColor else requireContext().getColorFromAttr(R.attr.colorSurface),
-                requireContext().getColorFromAttr(R.attr.colorBeitSelect)).apply {
-                addUpdateListener { updatedAnimation ->
-                    requireActivity().window.statusBarColor = updatedAnimation.animatedValue as Int
-                }
-            }.start()
+//            ValueAnimator.ofArgb(if (settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO)
+//                settingViewModel.paperColor else requireContext().getColorFromAttr(R.attr.colorSurface),
+//                requireContext().getColorFromAttr(R.attr.colorBeitSelect)).apply {
+//                addUpdateListener { updatedAnimation ->
+//                    requireActivity().window.statusBarColor = updatedAnimation.animatedValue as Int
+//                }
+//            }.start()
             return true
         }
 
@@ -153,7 +154,7 @@ class PoemPagerFragment : Fragment() {
 
         override fun onDestroyActionMode(mode: ActionMode?) {
             poemViewModel.selectedVerses[poemItem.id]?.value = mutableListOf()
-            (activity as MainActivity).statusBarColoring()
+//            (activity as MainActivity).statusBarColoring()
         }
     }
 
@@ -390,7 +391,7 @@ class PoemPagerFragment : Fragment() {
 
 //        binding.poemList.layoutManager as LinearLayoutManager
 
-        setBackgroundColor()
+        setPaperPreference()
         imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         if (!searchViewModel.openedFromDetailFrag && !favoriteViewModel.openedFromFavoriteDetailFrag)
@@ -1218,7 +1219,7 @@ class PoemPagerFragment : Fragment() {
                 poemItem.id, mSelectedVerses.map { it.toString() }.toList())
     }
 
-    private fun setBackgroundColor(){
+    private fun setPaperPreference(){
         settingViewModel.paperColorPref.observe(viewLifecycleOwner){
             settingViewModel.currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             if (settingViewModel.currentNightMode == Configuration.UI_MODE_NIGHT_NO) {
@@ -1226,9 +1227,15 @@ class PoemPagerFragment : Fragment() {
                 binding.appBar.setBackgroundColor(settingViewModel.paperColor)
             }
         }
-
         settingViewModel.brightness.observe(viewLifecycleOwner){
             binding.darkener.alpha = DARK_ALPHA_MAX * (1 - it / 100)
+        }
+        settingViewModel.paperBorderPref.observe(viewLifecycleOwner){
+            binding.poemTitle.setBorderType(it)
+            binding.border.setBorderType(it)
+        }
+        settingViewModel.paperCornerPref.observe(viewLifecycleOwner){
+            binding.poemTitle.setCornerType(it)
         }
     }
 

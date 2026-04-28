@@ -18,11 +18,11 @@ class HelpCircleFocus(context: Context, attrs: AttributeSet) : View(context, att
     var centerX = 0f
     var centerY = 0f
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         mPath.reset()
         mPath.addCircle(centerX, centerY, radius, Path.Direction.CW)
 
-        canvas?.let {
+        canvas.let {
             it.clipPath(mPath)
             it.drawColor(backColor)
         }
@@ -37,11 +37,11 @@ class HelpRectFocus(context: Context, attrs: AttributeSet) : View(context, attrs
     private val radius = 8.dpTOpx(resources)
     var rect = RectF()
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         mPath.reset()
         mPath.addRoundRect(rect, radius, radius, Path.Direction.CW)
 
-        canvas?.let {
+        canvas.let {
             it.clipPath(mPath)
             it.drawColor(backColor)
         }

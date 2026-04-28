@@ -406,12 +406,13 @@ class PoemExporter(val activity: Activity, private val verses: List<Verse>, mesr
                     override fun onChanged(t: Boolean?) {
                         if (t == true){
                             pvm.poemFileUri?.let { uri ->
-                                val jpegOutFile = activity.contentResolver.openOutputStream(uri)
-                                try {
-                                    poemPicture.compress(Bitmap.CompressFormat.JPEG, 100, jpegOutFile)
-                                    if (stvm.openExportFile) activity.openPoemFile(uri)
-                                } catch (e: IOException) {
-                                    Timber.e("JPG file did not created successfully")
+                                activity.contentResolver.openOutputStream(uri)?.let{ jpegOutFile ->
+                                    try {
+                                        poemPicture.compress(Bitmap.CompressFormat.JPEG, 100, jpegOutFile)
+                                        if (stvm.openExportFile) activity.openPoemFile(uri)
+                                    } catch (e: IOException) {
+                                        Timber.e("JPG file did not created successfully")
+                                    }
                                 }
                             }
                         }

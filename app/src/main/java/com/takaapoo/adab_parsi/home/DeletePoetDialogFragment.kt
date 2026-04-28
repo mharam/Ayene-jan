@@ -10,6 +10,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.takaapoo.adab_parsi.R
 import com.takaapoo.adab_parsi.util.engNumToFarsiNum
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class DeletePoetDialogFragment(private val poetList: Selection<Long>)
@@ -18,6 +19,7 @@ class DeletePoetDialogFragment(private val poetList: Selection<Long>)
     private val homeViewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        resources.configuration.setLayoutDirection(Locale("fa"))
         return activity?.let {
             MaterialAlertDialogBuilder(it)
                 .setTitle(

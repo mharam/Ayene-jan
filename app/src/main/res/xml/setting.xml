@@ -62,6 +62,17 @@
             app:key="hilight"
             app:title="@string/hilight_color"
             app:summary="صورتی"/>
+
+        <Preference
+            app:key="paper_border"
+            app:title="@string/border"
+            app:summary="گیسو"/>
+
+        <Preference
+            app:key="paper_corner"
+            app:title="@string/corner"
+            app:summary="معرق"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
